@@ -395,6 +395,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      eliminar_mi_cuenta: { Args: never; Returns: undefined }
       es_dueno: { Args: { negocio: string }; Returns: boolean }
       es_miembro: { Args: { negocio: string }; Returns: boolean }
     }

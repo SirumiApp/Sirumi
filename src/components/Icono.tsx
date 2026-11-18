@@ -18,6 +18,7 @@ export type NombreIcono =
   | 'cuadricula'
   | 'abajo'
   | 'atras'
+  | 'adelante'
   | 'buscar'
   | 'cerrar'
   | 'calendario';
@@ -79,6 +80,7 @@ export function Icono({ nombre, tamano = 22, color, grosor = 2 }: { nombre: Nomb
       )}
       {nombre === 'abajo' && <Path d="m6 9 6 6 6-6" {...p} />}
       {nombre === 'atras' && <Path d="m15 18-6-6 6-6" {...p} />}
+      {nombre === 'adelante' && <Path d="m9 18 6-6-6-6" {...p} />}
       {nombre === 'buscar' && (
         <>
           <Circle cx={11} cy={11} r={7} {...p} />

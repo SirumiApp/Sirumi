@@ -74,6 +74,8 @@ export function VistaInicio({ categorias, topes, alerta, version, onEditar }: Pr
   const estadosTopes = estadosDeTopes(actual.gastoPorCategoria, topes, periodo, hoy, alerta);
 
   const plan = leerPlan(perfil?.preferences);
+  // Ajustes → "Mostrar ingresos" (por defecto, sí).
+  const mostrarIngresos = (perfil?.preferences as { mostrarIngresos?: boolean } | null)?.mostrarIngresos !== false;
   const tarjetasCategoria = Object.entries(actual.gastoPorCategoria).sort((a, b) => b[1] - a[1]);
   const maximo = Math.max(1, ...tarjetasCategoria.map(([, v]) => v));
 
@@ -130,7 +132,7 @@ export function VistaInicio({ categorias, topes, alerta, version, onEditar }: Pr
       {plan && eleccion.tipo === 'mes' && <TarjetaPlan plan={plan} gastado={actual.gasto} hoy={hoy} />}
 
       {/* Ingresos y lo que queda */}
-      {(actual.ingreso > 0 || actual.gasto > 0) && (
+      {mostrarIngresos && (actual.ingreso > 0 || actual.gasto > 0) && (
         <View style={{ flexDirection: 'row', gap: ESPACIO.s + 4 }}>
           <Tarjeta style={{ flex: 1, padding: ESPACIO.m, gap: 2 }}>
             <Texto variante="etiqueta">{t('hogar.ingresos')}</Texto>

@@ -15,6 +15,8 @@ type DatosPersonales = {
   /** Cambia cada vez que se guarda algo, para que las pantallas vuelvan a leer. */
   version: number;
   actualizar: () => void;
+  /** Vuelve a leer las categorías (después de crear, renombrar u ocultar una). */
+  recargarCategorias: () => void;
   cambiarAlerta: (alerta: AlertaTopes) => void;
   /** Abre la hoja para registrar (sin movimiento) o editar (con movimiento). */
   abrirHoja: (movimiento: Movimiento | null) => void;
@@ -30,7 +32,7 @@ export function ProveedorPersonal({ children }: { children: ReactNode }) {
   const [hoja, setHoja] = useState<{ abierta: boolean; movimiento: Movimiento | null }>({ abierta: false, movimiento: null });
   const [alertaLocal, setAlertaLocal] = useState<AlertaTopes | null>(null);
   const alerta = alertaLocal ?? leerAlerta(perfil?.preferences);
-  const { categorias } = useCategorias();
+  const { categorias, recargar: recargarCategorias } = useCategorias();
   const { topes } = useTopes(version);
 
   const actualizar = useCallback(() => setVersion((v) => v + 1), []);
@@ -44,8 +46,8 @@ export function ProveedorPersonal({ children }: { children: ReactNode }) {
   const abrirHoja = useCallback((movimiento: Movimiento | null) => setHoja({ abierta: true, movimiento }), []);
 
   const valor = useMemo(
-    () => ({ categorias, topes, alerta, version, actualizar, cambiarAlerta, abrirHoja }),
-    [categorias, topes, alerta, version, actualizar, cambiarAlerta, abrirHoja],
+    () => ({ categorias, topes, alerta, version, actualizar, recargarCategorias, cambiarAlerta, abrirHoja }),
+    [categorias, topes, alerta, version, actualizar, recargarCategorias, cambiarAlerta, abrirHoja],
   );
 
   return (

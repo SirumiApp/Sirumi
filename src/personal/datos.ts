@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { actualizarPreferencias } from '@/auth/perfil';
 import { useSesion } from '@/auth/sesion';
 import type { Tables } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
@@ -131,9 +132,25 @@ export function leerAlerta(preferencias: unknown): AlertaTopes {
 }
 
 export async function guardarAlerta(idUsuario: string, preferencias: unknown, alerta: AlertaTopes) {
-  const actuales = (preferencias ?? {}) as Record<string, unknown>;
-  return supabase
-    .from('profiles')
-    .update({ preferences: { ...actuales, topes: { alerta: alerta.alertaActiva, umbral: alerta.umbral } } })
-    .eq('id', idUsuario);
+  return actualizarPreferencias(idUsuario, preferencias, { topes: { alerta: alerta.alertaActiva, umbral: alerta.umbral } });
+}
+
+export type DatosCategoria = { nombre: string; emoji: string; color: string; tipo: 'gasto' | 'ingreso'; oculta: boolean };
+
+/** Crea una categoría (id vacío) o cambia una existente. */
+export async function guardarCategoria(datos: DatosCategoria, existente?: Categoria) {
+  if (existente) {
+    return supabase
+      .from('categories')
+      .update({ name: datos.nombre.trim(), emoji: datos.emoji, color: datos.color, hidden: datos.oculta })
+      .eq('id', existente.id);
+  }
+  return supabase.from('categories').insert({
+    name: datos.nombre.trim(),
+    emoji: datos.emoji,
+    color: datos.color,
+    kind: datos.tipo,
+    hidden: datos.oculta,
+    position: 100,
+  });
 }
