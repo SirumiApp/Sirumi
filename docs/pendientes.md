@@ -4,7 +4,7 @@ Lista viva de lo que falta o hay que volver a revisar. Se actualiza al terminar 
 
 ## Ajustes (volver a revisar con Nicolás)
 Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html` y el prototipo nuevo de nov 2026):
-- [ ] **Período por defecto**: mensual, quincenal, semanal o anual, y día en que empieza el mes (1–28). Antes de construirlo hay que escribir la regla en `docs/reglas-de-calculo.md` (cambia "Este mes", topes y plan).
+- [x] **Período por defecto**: decidido con Nicolás (nov 2026): el mes va siempre del 1 al último día, en personal y en negocio. No se agrega el ajuste.
 - [ ] **Notificaciones** (permitir, alertas de topes, resumen semanal/mensual, alerta de ritmo): requieren la app instalada (no funcionan en Expo Go).
 - [ ] **Términos de servicio**: falta el texto (Fase 3, paso 11).
 - [ ] **Importar CSV** (desde un CSV exportado de la app).
@@ -17,7 +17,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 ## Negocio (siguientes partes del módulo 03)
 - [ ] Mover plata entre cuentas y pagar tarjetas (la tabla de traslados ya existe), con historial.
 - [ ] Informes: estado de resultados, flujo de caja, entradas y salidas, costos y equilibrio, ventas, cartera, inventario, impuestos (B7, tabla por año), cierre del día, dueño y capital, balance.
-- [ ] Impuestos estimados (B7) en la utilidad neta del Resumen (hoy se muestra antes de impuestos).
+- [x] Impuestos estimados (B7) en la utilidad neta del Resumen (tabla `tax_parameters` por año).
 - [ ] Clientes y proveedores (ficha y estadísticas) y contacto en los movimientos.
 - [ ] Pagos recurrentes con recordatorio.
 - [ ] Inventario a costo en el arranque (cuando existan productos).

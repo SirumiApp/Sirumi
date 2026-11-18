@@ -526,6 +526,27 @@ export type Database = {
         }
         Relationships: []
       }
+      tax_parameters: {
+        Row: {
+          note: string | null
+          params: Json
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          note?: string | null
+          params: Json
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          note?: string | null
+          params?: Json
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
       transfers: {
         Row: {
           amount: number

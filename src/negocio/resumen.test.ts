@@ -2,6 +2,8 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { MovNegocio } from '@/lib/negocio';
 
+import { P2026 } from '@/lib/impuestos.fixture';
+
 import { calcularResumen } from './resumen';
 
 let n = 0;
@@ -24,9 +26,22 @@ describe('resumen del negocio (B2, B4, B5, B8, B8b, B8c juntos)', () => {
     },
     { desde: '2026-11-01', hasta: '2026-11-30' },
     { desde: '2026-10-01', hasta: '2026-10-31' },
+    { parametros: P2026, regimen: null },
   );
-  it('resultados del período (ejemplo B5 sin impuestos)', () => {
-    expect(r.resultados).toMatchObject({ ventas: 10_000_000, costoVentas: 4_500_000, operativa: 1_300_000, neta: 1_300_000 });
+  it('resultados del período con impuestos (ejemplo B5: SIMPLE 160.000 → neta 1.140.000)', () => {
+    expect(r.resultados).toMatchObject({ ventas: 10_000_000, costoVentas: 4_500_000, operativa: 1_300_000 });
+    expect(r.resultados.impuestos).toBeCloseTo(160_000, 6);
+    expect(r.resultados.neta).toBeCloseTo(1_140_000, 6);
+    expect(r.impuestos?.masBajo).toBe('natural');
+  });
+  it('sin parámetros de impuestos la neta es la operativa', () => {
+    const sin = calcularResumen(
+      { cuentas: [], movimientos: [mov({ tipo: 'venta', monto: 1_000 })], traslados: [], configuracion: {} },
+      { desde: '2026-11-01', hasta: '2026-11-30' },
+      { desde: '2026-10-01', hasta: '2026-10-31' },
+      { parametros: null, regimen: null },
+    );
+    expect(sin.resultados.neta).toBe(sin.resultados.operativa);
   });
   it('caja con todo lo pagado de todas las fechas, por cobrar y proyección', () => {
     expect(r.caja).toBe(10_000_000 + 9_000_000 - 3_200_000 - 1_000_000 - 800_000 + 8_000_000);

@@ -1,6 +1,7 @@
 // Resumen del negocio: junta las reglas B para la pantalla de Resumen (funciones puras, probadas en resumen.test.ts).
 
-import { dentroDe, type Periodo } from '@/lib/fechas';
+import { dentroDe, diasDelPeriodo, type Periodo } from '@/lib/fechas';
+import { impuestoDelRegimen, impuestosEstimados, type ParametrosImpuestos, type RegimenTributario } from '@/lib/impuestos';
 import {
   cajaTotal,
   estadoDeResultados,
@@ -19,10 +20,19 @@ export function calcularResumen(
   d: { cuentas: CuentaNegocio[]; movimientos: MovNegocio[]; traslados: Transferencia[]; configuracion: Configuracion },
   periodo: Periodo,
   anterior: Periodo,
+  tributario: { parametros: ParametrosImpuestos | null; regimen: RegimenTributario | null },
 ) {
   const costoPorcentaje = d.configuracion.costo_porcentaje ?? 0;
   const delPeriodo = d.movimientos.filter((m) => dentroDe(m.fecha, periodo));
-  const resultados = estadoDeResultados(delPeriodo, { costoPorcentaje });
+  const antes = estadoDeResultados(delPeriodo, { costoPorcentaje });
+  // B7: impuestos estimados del período según el régimen (si hay parámetros del año).
+  const impuestos = tributario.parametros
+    ? impuestosEstimados(
+        { ventas: antes.ventas, operativa: antes.operativa, diasPeriodo: diasDelPeriodo(periodo), grupo: d.configuracion.grupo_actividad ?? 2, icaPorMil: d.configuracion.ica_por_mil },
+        tributario.parametros,
+      )
+    : null;
+  const resultados = estadoDeResultados(delPeriodo, { costoPorcentaje, impuestos: impuestos ? impuestoDelRegimen(impuestos, tributario.regimen) : 0 });
   const previos = estadoDeResultados(
     d.movimientos.filter((m) => dentroDe(m.fecha, anterior)),
     { costoPorcentaje },
@@ -42,6 +52,8 @@ export function calcularResumen(
   const retiros = delPeriodo.filter((m) => m.tipo === 'retiro').reduce((s, m) => s + m.monto, 0);
   return {
     resultados,
+    impuestos,
+    delPeriodo,
     caja,
     ...pendientes,
     gastosMes,

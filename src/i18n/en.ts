@@ -561,7 +561,7 @@ export const en: Traducciones = {
     resumen: {
       nombreNegocio: 'My business',
       cifrasAHoy: '{{periodo}} · figures to date',
-      utilidad: 'Profit · what you keep before taxes',
+      utilidad: 'Net profit · what you really keep',
       ganando: "You're making money · margin {{margen}}%",
       perdiendo: "You're losing money · review your costs",
       ventas: 'Sales',

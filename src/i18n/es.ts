@@ -562,7 +562,7 @@ export const es = {
     resumen: {
       nombreNegocio: 'Mi negocio',
       cifrasAHoy: '{{periodo}} · cifras a hoy',
-      utilidad: 'Utilidad · lo que te queda antes de impuestos',
+      utilidad: 'Utilidad neta · lo que de verdad te queda',
       ganando: 'Vas ganando · margen {{margen}}%',
       perdiendo: 'Vas perdiendo · revisa tus costos',
       ventas: 'Ventas',

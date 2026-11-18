@@ -18,6 +18,8 @@ export type Configuracion = {
   equipos?: number;
   deuda_proveedores?: number;
   prestamos?: number;
+  /** ICA del municipio, por mil de las ventas (si no, el de la tabla del año). */
+  ica_por_mil?: number;
   arranque_listo?: boolean;
 };
 
@@ -186,4 +188,10 @@ export function guardarMovNegocio(negocioId: string, d: DatosMovNegocio, id?: st
 
 export function borrarMovNegocio(id: string) {
   return supabase.from('movements').delete().eq('id', id);
+}
+
+/** Parámetros de impuestos del año en curso o, si no hay, del más reciente (B7). */
+export async function cargarParametrosImpuestos(anio: number) {
+  const { data } = await supabase.from('tax_parameters').select('year, params').lte('year', anio).order('year', { ascending: false }).limit(1).maybeSingle();
+  return data ? (data.params as unknown as import('@/lib/impuestos').ParametrosImpuestos) : null;
 }

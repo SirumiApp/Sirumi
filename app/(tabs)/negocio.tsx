@@ -27,7 +27,7 @@ export default function ResumenNegocio() {
   const { colores, oscuro } = useTema();
   const plata = usePlata();
   const textosFecha = useTextosFecha();
-  const { negocio, cuentas, tarjetas, movimientos, traslados, cargando, abrirHoja, actualizar } = useNegocio();
+  const { negocio, cuentas, tarjetas, movimientos, traslados, cargando, parametros, abrirHoja, actualizar } = useNegocio();
   const hoy = hoyEn();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
   const [filtro, setFiltro] = useState<'todos' | 'pendientes'>('todos');
@@ -67,9 +67,10 @@ export default function ResumenNegocio() {
     { cuentas: cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial })), movimientos, traslados, configuracion: negocio.configuracion },
     periodo,
     periodoAnterior(periodo, hoy),
+    { parametros, regimen: negocio.regimen },
   );
   const { resultados } = r;
-  const margen = resultados.ventas > 0 ? Math.round((resultados.operativa / resultados.ventas) * 1000) / 10 : 0;
+  const margen = resultados.ventas > 0 ? Math.round((resultados.neta / resultados.ventas) * 1000) / 10 : 0;
   const colorSalud = r.salud.estado === 'saludable' ? colores.ingresoTexto : r.salud.estado === 'atencion' ? colores.avisoTexto : colores.errorTexto;
   const nombreCuenta = new Map([...cuentas.map((c) => [c.id, c.nombre] as const), ...tarjetas.map((tj) => [tj.id, tj.nombre] as const)]);
   const lista = movimientos.filter((m) => (filtro === 'pendientes' ? !m.pagado : m.fecha >= periodo.desde && m.fecha <= periodo.hasta));
@@ -132,12 +133,12 @@ export default function ResumenNegocio() {
         <Texto variante="medio" color={colores.textoSuave}>
           {t('negocioApp.resumen.utilidad')}
         </Texto>
-        <Texto variante="heroe" color={resultados.operativa >= 0 ? colores.ingresoTexto : colores.errorTexto} numberOfLines={1} adjustsFontSizeToFit>
-          {resultados.operativa < 0 ? `−${plata(-resultados.operativa)}` : plata(resultados.operativa)}
+        <Texto variante="heroe" color={resultados.neta >= 0 ? colores.ingresoTexto : colores.errorTexto} numberOfLines={1} adjustsFontSizeToFit>
+          {resultados.neta < 0 ? `−${plata(-Math.round(resultados.neta))}` : plata(Math.round(resultados.neta))}
         </Texto>
-        <View style={{ alignSelf: 'flex-start', paddingHorizontal: ESPACIO.s + 4, paddingVertical: 4, borderRadius: 999, backgroundColor: resultados.operativa >= 0 ? colores.seleccionado : colores.errorFondo }}>
-          <Texto style={{ fontFamily: FUENTES.textoFuerte, fontSize: 13, lineHeight: 17 }} color={resultados.operativa >= 0 ? colores.enlace : colores.errorTexto}>
-            {resultados.operativa >= 0 ? t('negocioApp.resumen.ganando', { margen: String(margen).replace('.', ',') }) : t('negocioApp.resumen.perdiendo')}
+        <View style={{ alignSelf: 'flex-start', paddingHorizontal: ESPACIO.s + 4, paddingVertical: 4, borderRadius: 999, backgroundColor: resultados.neta >= 0 ? colores.seleccionado : colores.errorFondo }}>
+          <Texto style={{ fontFamily: FUENTES.textoFuerte, fontSize: 13, lineHeight: 17 }} color={resultados.neta >= 0 ? colores.enlace : colores.errorTexto}>
+            {resultados.neta >= 0 ? t('negocioApp.resumen.ganando', { margen: String(margen).replace('.', ',') }) : t('negocioApp.resumen.perdiendo')}
           </Texto>
         </View>
       </View>
@@ -158,7 +159,7 @@ export default function ResumenNegocio() {
         <Tarjeta style={{ flex: 1, padding: ESPACIO.m, gap: 2 }}>
           <Texto variante="etiqueta">{t('negocioApp.resumen.gastos')}</Texto>
           <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 19, lineHeight: 25 }} numberOfLines={1} adjustsFontSizeToFit>
-            {plata(resultados.costoVentas + resultados.fijos + resultados.variables)}
+            {plata(Math.round(resultados.costoVentas + resultados.fijos + resultados.variables))}
           </Texto>
         </Tarjeta>
       </View>
