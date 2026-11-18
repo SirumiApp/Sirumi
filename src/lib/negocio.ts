@@ -33,7 +33,7 @@ export type MovNegocio = {
 };
 
 /** Plata movida entre cuentas propias, o pago de una tarjeta desde una cuenta. */
-export type Transferencia = { fecha: Fecha; desde: string; haciaCuenta: string | null; haciaTarjeta: string | null; monto: number };
+export type Transferencia = { id?: string; fecha: Fecha; desde: string; haciaCuenta: string | null; haciaTarjeta: string | null; monto: number; nota?: string | null };
 export type CuentaNegocio = { id: string; saldoInicial: number };
 export type TarjetaCredito = { id: string; cupo: number; deudaInicial: number };
 
@@ -208,4 +208,12 @@ export function resumenArranque(d: {
   const tienes = d.cuentas.reduce((s, v) => s + v, 0) + d.porCobrar + d.inventario + d.equipos;
   const debes = d.deudaProveedores + d.prestamos + d.tarjetas.reduce((s, t) => s + t.deuda, 0);
   return { tienes, debes, patrimonio: tienes - debes };
+}
+
+/** Mover plata o pagar una tarjeta (spec 03, §4): devuelve un código de error o null si está bien. */
+export function validarTraslado(d: { desde: string | null; haciaCuenta: string | null; haciaTarjeta: string | null; monto: number }) {
+  if (!d.monto || d.monto <= 0) return 'trasladoSinMonto' as const;
+  if (!d.desde || (!d.haciaCuenta && !d.haciaTarjeta)) return 'trasladoSinCuentas' as const;
+  if (d.haciaCuenta && d.haciaCuenta === d.desde) return 'trasladoMismaCuenta' as const;
+  return null;
 }

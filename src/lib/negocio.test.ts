@@ -17,6 +17,7 @@ import {
   saldoCuenta,
   saludDelNegocio,
   unidadesDeEquilibrio,
+  validarTraslado,
   type MovNegocio,
   type Transferencia,
 } from './negocio';
@@ -234,5 +235,14 @@ describe('Arranque: resumen de lo que tienes, lo que debes y patrimonio', () => 
         tarjetas: [{ cupo: 5_000_000, deuda: 1_200_000 }],
       }),
     ).toEqual({ tienes: 8_200_000, debes: 4_000_000, patrimonio: 4_200_000 });
+  });
+});
+
+describe('validar un traslado', () => {
+  it('pide monto, origen y destino, y no deja mover a la misma cuenta', () => {
+    expect(validarTraslado({ desde: 'a', haciaCuenta: 'b', haciaTarjeta: null, monto: 0 })).toBe('trasladoSinMonto');
+    expect(validarTraslado({ desde: 'a', haciaCuenta: null, haciaTarjeta: null, monto: 5 })).toBe('trasladoSinCuentas');
+    expect(validarTraslado({ desde: 'a', haciaCuenta: 'a', haciaTarjeta: null, monto: 5 })).toBe('trasladoMismaCuenta');
+    expect(validarTraslado({ desde: 'a', haciaCuenta: null, haciaTarjeta: 't', monto: 5 })).toBeNull();
   });
 });

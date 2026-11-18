@@ -15,8 +15,9 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - Fuera de la v1 según la especificación: listas compartidas, WhatsApp, rastreo automático con mensajes del banco, conversión de monedas, mejoras con IA, idioma de voz y registro instantáneo.
 
 ## Negocio (siguientes partes del módulo 03)
-- [ ] Mover plata entre cuentas y pagar tarjetas (la tabla de traslados ya existe), con historial.
-- [ ] Informes: estado de resultados, flujo de caja, entradas y salidas, costos y equilibrio, ventas, cartera, inventario, impuestos (B7, tabla por año), cierre del día, dueño y capital, balance.
+- [x] Mover plata entre cuentas y pagar tarjetas, con historial (Caja).
+- [x] Informes hechos: estado de resultados + de cada $100, impuestos (B7) y equilibrio (Resultados); flujo de caja (Caja); balance, cartera por antigüedad, dueño y capital, entradas y salidas (Más). Todos se comparten como texto.
+- [ ] Informes que esperan otros módulos: ventas por producto/cliente, inventario y márgenes (módulo 04), cierre del día (POS, módulo 05). Exportar a PDF.
 - [x] Impuestos estimados (B7) en la utilidad neta del Resumen (tabla `tax_parameters` por año).
 - [ ] Clientes y proveedores (ficha y estadísticas) y contacto en los movimientos.
 - [ ] Pagos recurrentes con recordatorio.

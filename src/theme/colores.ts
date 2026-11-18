@@ -120,3 +120,9 @@ export const COLORES_GRAFICA = {
   claro: { gasto: '#1F6FEB', gastoSuave: '#BBD3F7', ingreso: '#2E9E63' },
   oscuro: { gasto: '#4F9AD6', gastoSuave: '#3A5292', ingreso: '#45AB75' },
 } as const;
+
+/** Partes de "De cada $100 que vendes" (Resultados del negocio). Lo que queda usa el verde de las gráficas. */
+export const COLORES_DE_CADA_100 = {
+  claro: { costo: '#9DB4E8', fijos: '#1F6FEB', variables: '#8A5CC7', impuestos: '#C98A2B' },
+  oscuro: { costo: '#7D93C9', fijos: '#4F9AD6', variables: '#B58BE0', impuestos: '#D9A44E' },
+} as const;

@@ -65,7 +65,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         .eq('business_id', b.id)
         .order('date', { ascending: false })
         .order('created_at', { ascending: false }),
-      supabase.from('transfers').select('date, from_account, to_account, to_card, amount').eq('business_id', b.id),
+      supabase.from('transfers').select('id, date, from_account, to_account, to_card, amount, note').eq('business_id', b.id).order('date', { ascending: false }).order('created_at', { ascending: false }),
     ]);
 
     setDatos({
@@ -88,7 +88,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         tarjeta: m.card_id,
         concepto: m.description,
       })),
-      traslados: (traslados.data ?? []).map((t) => ({ fecha: t.date, desde: t.from_account, haciaCuenta: t.to_account, haciaTarjeta: t.to_card, monto: t.amount })),
+      traslados: (traslados.data ?? []).map((t) => ({ id: t.id, fecha: t.date, desde: t.from_account, haciaCuenta: t.to_account, haciaTarjeta: t.to_card, monto: t.amount, nota: t.note })),
       cargando: false,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `version` solo sirve para forzar una nueva lectura
@@ -194,4 +194,21 @@ export function borrarMovNegocio(id: string) {
 export async function cargarParametrosImpuestos(anio: number) {
   const { data } = await supabase.from('tax_parameters').select('year, params').lte('year', anio).order('year', { ascending: false }).limit(1).maybeSingle();
   return data ? (data.params as unknown as import('@/lib/impuestos').ParametrosImpuestos) : null;
+}
+
+/** Mover plata entre cuentas o pagar una tarjeta (regla B2/B3). */
+export function guardarTraslado(negocioId: string, d: Omit<Transferencia, 'id'>) {
+  return supabase.from('transfers').insert({
+    business_id: negocioId,
+    date: d.fecha,
+    from_account: d.desde,
+    to_account: d.haciaCuenta,
+    to_card: d.haciaTarjeta,
+    amount: Math.round(d.monto),
+    note: d.nota?.trim() || null,
+  });
+}
+
+export function borrarTraslado(id: string) {
+  return supabase.from('transfers').delete().eq('id', id);
 }
