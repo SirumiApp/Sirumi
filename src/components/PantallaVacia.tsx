@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { ESPACIO } from '@/theme';
@@ -14,10 +15,12 @@ type Props = {
   emoji: NombreEmoji;
   mensaje: string;
   detalle: string;
+  /** Contenido extra al final de la pantalla. */
+  children?: ReactNode;
 };
 
 /** Pantalla de una sección que aún no tiene contenido, con la marca de Sirumi. */
-export function PantallaVacia({ saludo, titulo, emoji, mensaje, detalle }: Props) {
+export function PantallaVacia({ saludo, titulo, emoji, mensaje, detalle, children }: Props) {
   return (
     <Pantalla>
       <Logo />
@@ -38,6 +41,7 @@ export function PantallaVacia({ saludo, titulo, emoji, mensaje, detalle }: Props
         <Emoji name="grafica-que-sube" size={20} />
         <Texto variante="pequeno">Tu plata, hacia arriba.</Texto>
       </View>
+      {children}
     </Pantalla>
   );
 }

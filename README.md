@@ -14,5 +14,10 @@ Tu plata, hacia arriba. App de finanzas personales y de negocio para Colombia (E
 - `src/components` componentes (`<Emoji name="..." />`, `Texto`, `Tarjeta`, `Logo`...).
 - `src/theme` colores, fuentes y modo claro/oscuro.
 - `src/lib` cálculos y formatos (con pruebas).
-- `supabase/migrations` base de datos (aún vacía).
+- `supabase/migrations` base de datos (se aplican en orden). `supabase/tests` pruebas de seguridad (RLS). `supabase/plantillas` correos en español.
 - `docs/` plan, marca y modelo de datos. `referencia/prototipo/` prototipo aprobado.
+
+## Supabase
+- Proyecto de desarrollo: `sirumi-dev` (ref `jztukmmqvggcrmhxlger`, región us-east-2). Para producción hay que crear uno en us-east-1.
+- La app usa solo la clave pública (`.env`, ver `.env.example`). En Expo están guardadas como variables `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_KEY`.
+- Pendiente antes del lanzamiento: conectar un servicio de correo propio (SMTP) para poder usar las plantillas de `supabase/plantillas` (código de 6 números) y quitar el límite de 2 correos por hora.
