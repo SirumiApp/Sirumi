@@ -44,6 +44,18 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "owner": "sirumiapps-team",
+    "extra": {
+      "eas": {
+        "projectId": "874a8cf0-14b5-443a-b9f5-ef157b3117c1"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/874a8cf0-14b5-443a-b9f5-ef157b3117c1"
     }
   }
 }

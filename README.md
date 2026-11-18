@@ -5,6 +5,7 @@ Tu plata, hacia arriba. App de finanzas personales y de negocio para Colombia (E
 ## Comandos
 - `npm install` — instala lo necesario (solo la primera vez).
 - `npx expo start` — abre la app para probarla en el celular con Expo Go (escanea el código QR).
+- `npm run publicar -- --message "qué cambió"` — publica la app en Expo (cuenta sirumiapps-team) para abrirla en Expo Go sin computador.
 - `npm run check` — revisa tipos, linter y pruebas.
 - `npm run emojis` — vuelve a generar el catálogo de emojis después de agregar PNG en `assets/emojis/`.
 
