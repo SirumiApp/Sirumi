@@ -37,6 +37,6 @@ do $$ begin
 end $$;
 update public.budgets set monthly_limit = 1;
 reset role;
-insert into r select 'B no cambió el tope de A', (select monthly_limit=1200000 from public.budgets);
+insert into r select 'B no cambió el tope de A', (select monthly_limit=1200000 from public.budgets where user_id='00000000-0000-0000-0000-00000000000a');
 select * from r;
 rollback;

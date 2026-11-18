@@ -134,6 +134,23 @@ Convenciones:
 - Ejemplo: fijos 3.200.000, costo 45%, variables 10% de las ventas → margen 45% → equilibrio 7.111.111 al mes.
 - Unidades de equilibrio de un producto = techo(equilibrio / precio).
 
+### B8b. Lo que te deben, lo que debes y proyección
+- Por cobrar = suma de ventas pendientes. Por pagar = suma de los demás movimientos pendientes (compras, fijos, variables, inversión) + deudas iniciales con proveedores y préstamos del arranque.
+- Proyección = caja (B4) + por cobrar − por pagar.
+- Meses de caja = caja / gastos del mes (fijos + variables de la operación normal). Sin gastos no se calcula.
+
+### B8c. Salud del negocio (0 a 100, del prototipo)
+- +30 si la utilidad neta > 0; si no, +12 si la utilidad operativa > 0.
+- +25 si alcanza para 3 meses de gastos o más; +12 si alcanza para 1 mes o más.
+- Hasta +20 según el avance hacia el punto de equilibrio: redondear(ventas / equilibrio × 20), máximo 20 (0 si no hay equilibrio).
+- +10 si lo que te deben es como mucho el 25% de las ventas del período (o no hay ventas); si es más, +4.
+- +15 si los retiros del dueño no superan la utilidad operativa (o 0 si es negativa).
+- Máximo 100. "Saludable" desde 75, "Con atención" desde 50, "En riesgo" por debajo.
+- Ejemplo: neta 1.140.000 (>0 → 30), 3,2 meses de caja (→ 25), ventas 10.000.000 con equilibrio 7.111.111 (→ 20), por cobrar 1.000.000 = 10% (→ 10), retiros 800.000 ≤ operativa 1.300.000 (→ 15) → 100 "Saludable".
+
+### B8d. Ícono de una cuenta
+- 📱 billetera si el nombre contiene Nequi, Daviplata, Movii, Dale, Lulo, Nu, Rappi, Ualá, Mercado Pago o Bold (sin importar mayúsculas ni tildes); "Efectivo" usa 💵; las demás 🏦.
+
 ### B9. Importar un extracto del banco
 - Cada fila trae fecha, descripción y valor con signo (o columnas de débito y crédito). Positivo = entrada; negativo = salida.
 - Una fila es **duplicada** si ya existe un movimiento con la misma fecha y el mismo valor; viene desmarcada por defecto.

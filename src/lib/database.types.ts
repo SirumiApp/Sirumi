@@ -162,6 +162,7 @@ export type Database = {
           kind: string | null
           name: string
           nit: string | null
+          setup: Json
           tax_regime: string | null
           updated_at: string
         }
@@ -173,6 +174,7 @@ export type Database = {
           kind?: string | null
           name: string
           nit?: string | null
+          setup?: Json
           tax_regime?: string | null
           updated_at?: string
         }
@@ -184,6 +186,7 @@ export type Database = {
           kind?: string | null
           name?: string
           nit?: string | null
+          setup?: Json
           tax_regime?: string | null
           updated_at?: string
         }
@@ -258,6 +261,41 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_cards: {
+        Row: {
+          business_id: string
+          created_at: string
+          credit_limit: number
+          id: string
+          initial_debt: number
+          name: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          credit_limit?: number
+          id?: string
+          initial_debt?: number
+          name: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          credit_limit?: number
+          id?: string
+          initial_debt?: number
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_cards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debts: {
         Row: {
           balance: number
@@ -329,8 +367,10 @@ export type Database = {
       }
       movements: {
         Row: {
+          account_id: string | null
           amount: number
           business_id: string | null
+          card_id: string | null
           category_id: string | null
           created_at: string
           date: string
@@ -338,13 +378,16 @@ export type Database = {
           id: string
           kind: string
           owner_type: string
+          paid: boolean
           source: string
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          account_id?: string | null
           amount: number
           business_id?: string | null
+          card_id?: string | null
           category_id?: string | null
           created_at?: string
           date: string
@@ -352,13 +395,16 @@ export type Database = {
           id?: string
           kind: string
           owner_type?: string
+          paid?: boolean
           source?: string
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          account_id?: string | null
           amount?: number
           business_id?: string | null
+          card_id?: string | null
           category_id?: string | null
           created_at?: string
           date?: string
@@ -366,16 +412,31 @@ export type Database = {
           id?: string
           kind?: string
           owner_type?: string
+          paid?: boolean
           source?: string
           updated_at?: string
           user_id?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "movements_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "movements_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movements_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "credit_cards"
             referencedColumns: ["id"]
           },
           {
@@ -465,6 +526,71 @@ export type Database = {
         }
         Relationships: []
       }
+      transfers: {
+        Row: {
+          amount: number
+          business_id: string
+          created_at: string
+          date: string
+          from_account: string
+          id: string
+          note: string | null
+          to_account: string | null
+          to_card: string | null
+        }
+        Insert: {
+          amount: number
+          business_id: string
+          created_at?: string
+          date: string
+          from_account: string
+          id?: string
+          note?: string | null
+          to_account?: string | null
+          to_card?: string | null
+        }
+        Update: {
+          amount?: number
+          business_id?: string
+          created_at?: string
+          date?: string
+          from_account?: string
+          id?: string
+          note?: string | null
+          to_account?: string | null
+          to_card?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_from_account_fkey"
+            columns: ["from_account"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_to_account_fkey"
+            columns: ["to_account"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_to_card_fkey"
+            columns: ["to_card"]
+            isOneToOne: false
+            referencedRelation: "credit_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       warehouses: {
         Row: {
           business_id: string
@@ -516,6 +642,7 @@ export type Database = {
           kind: string | null
           name: string
           nit: string | null
+          setup: Json
           tax_regime: string | null
           updated_at: string
         }
@@ -526,10 +653,19 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      cuenta_del_negocio: {
+        Args: { cuenta: string; negocio: string }
+        Returns: boolean
+      }
       eliminar_mi_cuenta: { Args: never; Returns: undefined }
       es_dueno: { Args: { negocio: string }; Returns: boolean }
       es_miembro: { Args: { negocio: string }; Returns: boolean }
       guardar_foto_patrimonio: { Args: never; Returns: undefined }
+      quitar_cuenta_negocio: { Args: { cuenta: string }; Returns: number }
+      tarjeta_del_negocio: {
+        Args: { negocio: string; tarjeta: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

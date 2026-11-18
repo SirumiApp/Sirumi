@@ -29,14 +29,14 @@ set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000b","r
 insert into r select 'B no ve metas, deudas, activos ni fotos de A',
   (select count(*) = 0 from public.goals) and (select count(*) = 0 from public.debts) and (select count(*) = 0 from public.assets) and (select count(*) = 0 from public.net_worth_snapshots);
 reset role;
-create temp table ids_a as select (select id from public.goals limit 1) as meta, (select id from public.debts limit 1) as deuda;
+create temp table ids_a as select (select id from public.goals where user_id='00000000-0000-0000-0000-00000000000a' limit 1) as meta, (select id from public.debts where user_id='00000000-0000-0000-0000-00000000000a' limit 1) as deuda;
 grant select on ids_a to authenticated;
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}';
 insert into r select 'B no puede abonar a la meta de A', (select public.abonar_meta((select meta from ids_a), 1) is null);
 update public.assets set value = 1;
 reset role;
-insert into r select 'B no cambió los activos de A', (select sum(value) = 10200000 from public.assets);
+insert into r select 'B no cambió los activos de A', (select sum(value) = 10200000 from public.assets where user_id='00000000-0000-0000-0000-00000000000a');
 do $$ begin
   begin
     set local role authenticated;
