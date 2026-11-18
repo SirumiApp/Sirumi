@@ -65,3 +65,18 @@ export const COLORES_OSCURO: Colores = {
   aviso: PALETA.llama,
   destacado: PALETA.sol,
 };
+
+/** Colores suaves de las categorías (fondo del emoji), en claro y en oscuro. */
+export const COLORES_CATEGORIA = {
+  azul: { claro: '#D5E3FF', oscuro: '#2E4686' },
+  naranja: { claro: '#FFE3C2', oscuro: '#5A4126' },
+  amarillo: { claro: '#FFF1B8', oscuro: '#55502A' },
+  verde: { claro: '#DDF5C9', oscuro: '#2F5228' },
+  morado: { claro: '#EBD8FF', oscuro: '#523272' },
+  cafe: { claro: '#F6E3CF', oscuro: '#5A4732' },
+  menta: { claro: '#D4F5E4', oscuro: '#1F5040' },
+  rosa: { claro: '#FFD9E6', oscuro: '#5A2A42' },
+  gris: { claro: '#E3E8EF', oscuro: '#3A4A70' },
+} as const;
+
+export type ColorCategoria = keyof typeof COLORES_CATEGORIA;

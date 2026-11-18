@@ -124,6 +124,45 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          color: string
+          created_at: string
+          emoji: string
+          hidden: boolean
+          id: string
+          key: string | null
+          kind: string
+          name: string | null
+          position: number
+          user_id: string
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          emoji: string
+          hidden?: boolean
+          id?: string
+          key?: string | null
+          kind?: string
+          name?: string | null
+          position?: number
+          user_id?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          emoji?: string
+          hidden?: boolean
+          id?: string
+          key?: string | null
+          kind?: string
+          name?: string | null
+          position?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       consents: {
         Row: {
           channel: string
@@ -153,6 +192,66 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      movements: {
+        Row: {
+          amount: number
+          business_id: string | null
+          category_id: string | null
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          kind: string
+          owner_type: string
+          source: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          business_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          kind: string
+          owner_type?: string
+          source?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          business_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          owner_type?: string
+          source?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movements_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movements_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -240,6 +339,7 @@ export type Database = {
     }
     Functions: {
       completar_onboarding: { Args: { datos: Json }; Returns: undefined }
+      crear_categorias_iniciales: { Args: never; Returns: undefined }
       crear_negocio: {
         Args: { ciudad?: string; nombre: string; tipo?: string }
         Returns: {
