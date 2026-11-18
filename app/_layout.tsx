@@ -62,6 +62,7 @@ function Navegacion() {
           <Stack.Protected guard={!!sesion && onboardingListo === true && !enOnboarding}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="ajustes" />
+            <Stack.Screen name="plan" />
           </Stack.Protected>
           <Stack.Protected guard={!sesion}>
             <Stack.Screen name="(auth)" />

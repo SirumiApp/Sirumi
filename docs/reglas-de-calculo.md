@@ -44,9 +44,12 @@ Convenciones:
 - Tasa mensual equivalente = (1 + tasa EA)^(1/12) − 1. Intereses del mes ≈ saldo × tasa mensual.
 - Ejemplo: tarjeta con saldo 2.400.000 al 28% EA → tasa mensual 2,078% → unos 49.883 de intereses al mes.
 - Prioridad sugerida: la deuda con saldo > 0 y **mayor tasa** (método avalancha). Abonar nunca deja el saldo negativo.
+- Total de deudas = suma de saldos. Intereses del mes en total = suma de los intereses de cada deuda (sin redondear en el camino).
 
 ### A7. Patrimonio personal
 - Patrimonio = activos (cuentas, inversiones, bienes) + ahorrado en metas − deudas.
+- Evolución: se guarda una foto del patrimonio por mes (la última del mes vale). La gráfica muestra los últimos 6 meses; un mes sin foto repite el valor del mes anterior, y los meses antes de la primera foto quedan vacíos.
+- Ejemplo: activos 15.200.000 (cuentas 3.200.000 + inversiones 5.000.000 + moto 7.000.000), metas 7.500.000, deudas 10.900.000 → patrimonio 11.800.000.
 
 ### A8. Análisis del mes
 - Proyección de cierre = gastado / día de hoy × días del mes.

@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -11,6 +12,7 @@ import { Icono } from '@/components/Icono';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { estadosDeTopes } from '@/lib/analisis';
+import { patrimonioActual } from '@/lib/metas';
 import { diasDelMes, esMesCompletoOActual, hoyEn, partes, periodoAnterior } from '@/lib/fechas';
 import { formatearCorto } from '@/lib/formato';
 import { agruparPorDia, consejoDelPeriodo, mesesDelPeriodo, totalesDelPeriodo, variacionPorcentual, type Movimiento } from '@/lib/personal';
@@ -23,6 +25,7 @@ import { useMovimientos, type AlertaTopes, type Categoria } from './datos';
 import { etiquetaDia, nombreMes } from './etiquetas';
 import { useNombreCategoria, usePlata, useTextosFecha } from './ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from './SelectorPeriodo';
+import { usePlanPersonal } from './planDatos';
 
 type PlanGuardado = { objetivo: 'ahorro' | 'deudas' | 'meta'; ingreso: number; separar: number; meta?: string };
 
@@ -152,6 +155,9 @@ export function VistaInicio({ categorias, topes, alerta, version, onEditar }: Pr
           </Tarjeta>
         </View>
       )}
+
+      {/* Mi patrimonio · Metas y deudas (como el prototipo) */}
+      <TarjetaPatrimonio version={version} />
 
       {/* Sin ningún movimiento: explica qué hacer */}
       {sinNada && eleccion.tipo === 'mes' && movimientos.length === 0 ? (
@@ -370,5 +376,38 @@ function TarjetaPlan({ plan, gastado, hoy }: { plan: PlanGuardado; gastado: numb
         {t(separas, { monto: plata(plan.separar) })}
       </Texto>
     </Tarjeta>
+  );
+}
+
+/** Tarjeta de Inicio: patrimonio neto (A7) y acceso a Mi plan. */
+function TarjetaPatrimonio({ version }: { version: number }) {
+  const { t } = useTranslation();
+  const { colores, oscuro } = useTema();
+  const perfil = usePerfil();
+  const separador = paisPorCodigo(perfil?.country ?? 'CO').separador;
+  const { activos, metas, deudas } = usePlanPersonal(version);
+  const neto = patrimonioActual(activos, metas, deudas).neto;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${t('planPersonal.tarjetaInicio')}: ${formatearCorto(neto, separador)}. ${t('planPersonal.botonInicio')}`}
+      onPress={() => router.push('/plan')}
+      style={({ pressed }) => [
+        { flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s + 4, padding: ESPACIO.m, borderRadius: 20, backgroundColor: colores.tarjeta, transform: [{ scale: pressed ? 0.98 : 1 }] },
+        sombraSuave(oscuro),
+      ]}>
+      <Emoji name="montana" size={34} />
+      <View style={{ flex: 1 }}>
+        <Texto variante="etiqueta">{t('planPersonal.tarjetaInicio')}</Texto>
+        <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 20, lineHeight: 26 }} color={neto < 0 ? colores.errorTexto : colores.texto}>
+          {neto < 0 ? '−' : ''}$ {formatearCorto(Math.abs(neto), separador)}
+        </Texto>
+      </View>
+      <View style={{ paddingHorizontal: ESPACIO.s + 4, paddingVertical: 6, borderRadius: 999, backgroundColor: colores.seleccionado }}>
+        <Texto style={{ fontFamily: FUENTES.textoFuerte, fontSize: 13, lineHeight: 17 }} color={colores.enlace}>
+          {t('planPersonal.botonInicio')}
+        </Texto>
+      </View>
+    </Pressable>
   );
 }

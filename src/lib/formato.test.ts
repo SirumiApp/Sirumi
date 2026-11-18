@@ -38,6 +38,11 @@ describe('formatearCorto (tarjetas por categoría, como en el prototipo)', () =>
     expect(formatearCorto(1_758_341, ',')).toBe('1.76M');
   });
   it('negativos', () => {
-    expect(formatearCorto(-2_500_000)).toBe('-2,50M');
+    expect(formatearCorto(-2_500_000)).toBe('-2,5M');
+  });
+  it('sin ceros que sobren: 1M, 2,5M', () => {
+    expect(formatearCorto(1_000_000)).toBe('1M');
+    expect(formatearCorto(12_500_000)).toBe('12,5M');
+    expect(formatearCorto(12_504_000)).toBe('12,5M');
   });
 });

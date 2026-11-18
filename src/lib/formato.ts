@@ -18,14 +18,18 @@ export function formatearFecha(fecha: Date): string {
 }
 
 /**
- * Monto corto para tarjetas pequeñas: 1.758.341 → "1,76M", 338.000 → "338K".
+ * Monto corto para tarjetas pequeñas: 1.758.341 → "1,76M", 1.000.000 → "1M", 338.000 → "338K".
  * `separadorMiles` es el del país: con "." el decimal es ","; con "," el decimal es ".".
  */
 export function formatearCorto(valor: number, separadorMiles: '.' | ',' = '.'): string {
   const signo = valor < 0 ? '-' : '';
   const abs = Math.abs(valor);
   const decimal = separadorMiles === '.' ? ',' : '.';
-  if (abs >= 1_000_000) return `${signo}${(abs / 1_000_000).toFixed(2).replace('.', decimal)}M`;
+  if (abs >= 1_000_000) {
+    // Dos decimales como el prototipo (1,76M), sin ceros que sobren (1M, 2,5M).
+    const millones = (abs / 1_000_000).toFixed(2).replace(/\.?0+$/, '');
+    return `${signo}${millones.replace('.', decimal)}M`;
+  }
   if (abs >= 1_000) return `${signo}${Math.round(abs / 1_000)}K`;
   return `${signo}${Math.round(abs)}`;
 }

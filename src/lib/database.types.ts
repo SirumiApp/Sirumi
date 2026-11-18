@@ -59,6 +59,36 @@ export type Database = {
           },
         ]
       }
+      assets: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id?: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           category_id: string
@@ -228,6 +258,75 @@ export type Database = {
         }
         Relationships: []
       }
+      debts: {
+        Row: {
+          balance: number
+          created_at: string
+          emoji: string
+          id: string
+          min_payment: number
+          name: string
+          rate_ea: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance: number
+          created_at?: string
+          emoji?: string
+          id?: string
+          min_payment?: number
+          name: string
+          rate_ea?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          emoji?: string
+          id?: string
+          min_payment?: number
+          name?: string
+          rate_ea?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      goals: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          name: string
+          saved: number
+          target: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          name: string
+          saved?: number
+          target: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          name?: string
+          saved?: number
+          target?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       movements: {
         Row: {
           amount: number
@@ -287,6 +386,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      net_worth_snapshots: {
+        Row: {
+          assets_total: number
+          debts_total: number
+          goals_total: number
+          month: string
+          net: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assets_total: number
+          debts_total: number
+          goals_total: number
+          month: string
+          net: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          assets_total?: number
+          debts_total?: number
+          goals_total?: number
+          month?: string
+          net?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -373,6 +502,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      abonar_deuda: { Args: { deuda: string; monto: number }; Returns: number }
+      abonar_meta: { Args: { meta: string; monto: number }; Returns: number }
       completar_onboarding: { Args: { datos: Json }; Returns: undefined }
       crear_categorias_iniciales: { Args: never; Returns: undefined }
       crear_negocio: {
@@ -398,6 +529,7 @@ export type Database = {
       eliminar_mi_cuenta: { Args: never; Returns: undefined }
       es_dueno: { Args: { negocio: string }; Returns: boolean }
       es_miembro: { Args: { negocio: string }; Returns: boolean }
+      guardar_foto_patrimonio: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
