@@ -29,9 +29,8 @@ export function BotonApariencia() {
           borderRadius: ALTO_TOCABLE / 2,
           alignItems: 'center',
           justifyContent: 'center',
-          borderWidth: 1.5,
-          borderColor: colores.borde,
-          opacity: pressed ? 0.8 : 1,
+          backgroundColor: colores.relleno,
+          transform: [{ scale: pressed ? 0.94 : 1 }],
         })}>
         <Emoji name={oscuro ? 'luna' : 'sol'} size={24} />
       </Pressable>

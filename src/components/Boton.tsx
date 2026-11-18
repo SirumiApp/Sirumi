@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, type PressableProps } from 'react-native';
 
-import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, TAMANOS, useTema } from '@/theme';
+import { ALTO_TOCABLE, ESPACIO, FUENTES, sombraAccion, TAMANOS, useTema } from '@/theme';
 
 import { Texto } from './Texto';
 
@@ -10,12 +10,16 @@ type Props = Omit<PressableProps, 'children'> & {
   cargando?: boolean;
 };
 
-/** Botón de la marca. El principal es Acción con texto blanco; siempre mide al menos 44 puntos de alto. */
+/**
+ * Botón de la marca, en forma de píldora. El principal es Acción con texto blanco y sombra de color;
+ * el secundario tiene relleno suave; el de texto es solo la palabra. Siempre mide al menos 44 puntos.
+ * Al tocarlo se encoge un poco, para que se sienta.
+ */
 export function Boton({ titulo, variante = 'principal', cargando = false, disabled, style, ...resto }: Props) {
-  const { colores } = useTema();
+  const { colores, oscuro } = useTema();
   const inactivo = disabled || cargando;
-  const fondo = variante === 'principal' ? colores.accion : 'transparent';
-  const colorTexto = variante === 'principal' ? colores.textoSobreAccion : colores.texto;
+  const fondo = variante === 'principal' ? colores.accion : variante === 'secundario' ? colores.relleno : 'transparent';
+  const colorTexto = variante === 'principal' ? colores.textoSobreAccion : variante === 'texto' ? colores.enlace : colores.texto;
 
   return (
     <Pressable
@@ -24,25 +28,23 @@ export function Boton({ titulo, variante = 'principal', cargando = false, disabl
       disabled={inactivo}
       style={(estado) => [
         {
-          minHeight: ALTO_TOCABLE + 8,
-          borderRadius: RADIO.m,
+          minHeight: variante === 'texto' ? ALTO_TOCABLE : ALTO_TOCABLE + 10,
+          borderRadius: 999,
           paddingHorizontal: ESPACIO.l,
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: fondo,
-          borderWidth: variante === 'secundario' ? 1.5 : 0,
-          borderColor: colores.borde,
-          opacity: inactivo ? 0.6 : estado.pressed ? 0.85 : 1,
+          opacity: inactivo ? 0.55 : 1,
+          transform: [{ scale: estado.pressed && !inactivo ? 0.97 : 1 }],
         },
+        variante === 'principal' && !inactivo ? sombraAccion(oscuro) : null,
         typeof style === 'function' ? style(estado) : style,
       ]}
       {...resto}>
       {cargando ? (
         <ActivityIndicator color={colorTexto} />
       ) : (
-        <Texto style={{ fontFamily: FUENTES.textoFuerte, fontSize: TAMANOS.texto, color: colorTexto }}>
-          {titulo}
-        </Texto>
+        <Texto style={{ fontFamily: FUENTES.textoFuerte, fontSize: TAMANOS.texto + 1, color: colorTexto }}>{titulo}</Texto>
       )}
     </Pressable>
   );

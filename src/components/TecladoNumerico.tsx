@@ -30,12 +30,11 @@ export function TecladoNumerico({ valor, onCambio }: { valor: string; onCambio: 
           style={({ pressed }) => ({
             width: '31.5%',
             minHeight: ALTO_TOCABLE + 8,
-            borderRadius: RADIO.m,
+            borderRadius: RADIO.l,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: pressed ? colores.seleccionado : colores.tarjeta,
-            borderWidth: 1,
-            borderColor: colores.borde,
+            backgroundColor: pressed ? colores.seleccionado : colores.relleno,
+            transform: [{ scale: pressed ? 0.95 : 1 }],
           })}>
           <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 22 }}>{tecla === 'borrar' ? '⌫' : tecla}</Texto>
         </Pressable>

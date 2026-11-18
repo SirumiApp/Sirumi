@@ -1,6 +1,6 @@
 import { Pressable, View } from 'react-native';
 
-import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, useTema } from '@/theme';
+import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, sombraSuave, useTema } from '@/theme';
 
 import { Texto } from './Texto';
 
@@ -14,25 +14,25 @@ type Props = {
 };
 
 export function Casilla({ titulo, detalle, marcada, conError = false, onPress }: Props) {
-  const { colores } = useTema();
-  const borde = marcada ? colores.accion : conError ? colores.error : colores.borde;
+  const { colores, oscuro } = useTema();
+  const borde = marcada ? colores.accion : conError ? colores.error : 'transparent';
   return (
     <Pressable
       accessibilityRole="checkbox"
       accessibilityState={{ checked: marcada }}
       onPress={onPress}
-      style={({ pressed }) => ({
+      style={({ pressed }) => [{
         flexDirection: 'row',
         gap: ESPACIO.m,
         alignItems: 'flex-start',
         minHeight: ALTO_TOCABLE,
         padding: ESPACIO.m,
-        borderRadius: RADIO.m,
+        borderRadius: RADIO.l,
         borderWidth: 2,
         borderColor: borde,
         backgroundColor: colores.tarjeta,
-        opacity: pressed ? 0.85 : 1,
-      })}>
+        transform: [{ scale: pressed ? 0.98 : 1 }],
+      }, sombraSuave(oscuro)]}>
       <View
         style={{
           width: 24,

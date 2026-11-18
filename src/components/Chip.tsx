@@ -17,10 +17,8 @@ export function Chip({ texto, elegido, onPress }: { texto: string; elegido: bool
         paddingHorizontal: ESPACIO.m,
         justifyContent: 'center',
         borderRadius: 999,
-        borderWidth: 1.5,
-        borderColor: elegido ? colores.accion : colores.borde,
-        backgroundColor: elegido ? colores.accion : 'transparent',
-        opacity: pressed ? 0.85 : 1,
+        backgroundColor: elegido ? colores.accion : colores.relleno,
+        transform: [{ scale: pressed ? 0.96 : 1 }],
       })}>
       <Texto
         style={{

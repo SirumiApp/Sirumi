@@ -258,6 +258,9 @@ export const es = {
   movimiento: {
     nuevo: 'Nuevo movimiento',
     editar: 'Editar movimiento',
+    dictar: 'Dilo o escríbelo',
+    dictarEjemplo: 'Ej: 25 mil almuerzo',
+    dictarAyuda: 'Toca el micrófono de tu teclado y di el gasto. Nosotros llenamos el monto, la categoría y la descripción.',
     gasto: 'Gasto',
     ingreso: 'Ingreso',
     categoria: 'Categoría',

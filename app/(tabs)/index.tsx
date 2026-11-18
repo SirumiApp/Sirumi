@@ -16,7 +16,7 @@ import { HojaMovimiento } from '@/personal/HojaMovimiento';
 import { VistaAnalisis } from '@/personal/VistaAnalisis';
 import { VistaInicio } from '@/personal/VistaInicio';
 import { VistaTopes } from '@/personal/VistaTopes';
-import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, useTema } from '@/theme';
+import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, sombraAccion, useTema } from '@/theme';
 
 type Vista = 'inicio' | 'analisis' | 'topes';
 const VISTAS: Vista[] = ['inicio', 'analisis', 'topes'];
@@ -24,7 +24,7 @@ const VISTAS: Vista[] = ['inicio', 'analisis', 'topes'];
 /** Finanzas personales: Inicio, Análisis y Topes (como en el prototipo). */
 export default function Personal() {
   const { t } = useTranslation();
-  const { colores } = useTema();
+  const { colores, oscuro } = useTema();
   const { sesion } = useSesion();
   const perfil = usePerfil();
 
@@ -81,7 +81,7 @@ export default function Personal() {
         </View>
 
         {vista === 'inicio' && (
-          <VistaInicio categorias={categorias} topes={topes} version={version} onEditar={(m) => setHoja({ abierta: true, movimiento: m })} />
+          <VistaInicio categorias={categorias} topes={topes} alerta={alerta} version={version} onEditar={(m) => setHoja({ abierta: true, movimiento: m })} />
         )}
         {vista === 'analisis' && <VistaAnalisis categorias={categorias} topes={topes} alerta={alerta} version={version} />}
         {vista === 'topes' && (
@@ -115,12 +115,8 @@ export default function Personal() {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: colores.accion,
-          opacity: pressed ? 0.85 : 1,
-          shadowColor: '#000',
-          shadowOpacity: 0.2,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 4 },
-          elevation: 6,
+          transform: [{ scale: pressed ? 0.94 : 1 }],
+          ...sombraAccion(oscuro),
         })}>
         <Texto style={{ color: colores.textoSobreAccion, fontFamily: FUENTES.titulo, fontSize: 32, lineHeight: 36 }}>+</Texto>
       </Pressable>

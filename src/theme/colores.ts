@@ -28,6 +28,8 @@ export type Colores = {
   /** Texto que se toca (enlaces): Acción en claro, Cielo en oscuro para que se lea sobre las tarjetas. */
   enlace: string;
   seleccionado: string;
+  /** Relleno suave de campos, chips y teclas (más moderno que un borde). */
+  relleno: string;
   ingreso: string;
   error: string;
   aviso: string;
@@ -46,6 +48,7 @@ export const COLORES_CLARO: Colores = {
   textoSobreMarca: PALETA.noche,
   enlace: PALETA.accion,
   seleccionado: PALETA.hielo,
+  relleno: '#EAF0F8',
   ingreso: PALETA.verde,
   error: PALETA.brasa,
   aviso: PALETA.llama,
@@ -64,6 +67,7 @@ export const COLORES_OSCURO: Colores = {
   textoSobreMarca: PALETA.noche,
   enlace: PALETA.cielo,
   seleccionado: '#2E4686',
+  relleno: '#2A3F7C',
   ingreso: PALETA.verde,
   error: PALETA.brasa,
   aviso: PALETA.llama,

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
+import { Platform, Pressable, TextInput, View, type TextInputProps } from 'react-native';
 
 import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, TAMANOS, useTema } from '@/theme';
 
@@ -19,11 +19,11 @@ export function CampoTexto({ etiqueta, error, ayuda, contrasena = false, style, 
   const { t } = useTranslation();
   const [enfocado, setEnfocado] = useState(false);
   const [visible, setVisible] = useState(false);
-  const colorBorde = error ? colores.error : enfocado ? colores.accion : colores.borde;
+  const colorBorde = error ? colores.error : enfocado ? colores.accion : 'transparent';
 
   return (
     <View style={{ gap: ESPACIO.xs }}>
-      <Texto variante="fuerte">{etiqueta}</Texto>
+      {etiqueta ? <Texto variante="fuerte">{etiqueta}</Texto> : null}
       <View
         style={{
           flexDirection: 'row',
@@ -32,7 +32,7 @@ export function CampoTexto({ etiqueta, error, ayuda, contrasena = false, style, 
           borderWidth: 1.5,
           borderColor: colorBorde,
           borderRadius: RADIO.m,
-          backgroundColor: colores.tarjeta,
+          backgroundColor: colores.relleno,
           paddingHorizontal: ESPACIO.m,
         }}>
         <TextInput
@@ -43,6 +43,8 @@ export function CampoTexto({ etiqueta, error, ayuda, contrasena = false, style, 
           onBlur={() => setEnfocado(false)}
           style={[
             { flex: 1, fontFamily: FUENTES.texto, fontSize: TAMANOS.texto + 1, color: colores.texto, paddingVertical: ESPACIO.s },
+            // En el navegador, el borde de enfoque lo pone el contenedor (no el recuadro negro del navegador).
+            Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null,
             style,
           ]}
           {...resto}

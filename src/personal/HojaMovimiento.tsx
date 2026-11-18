@@ -13,6 +13,7 @@ import { TecladoNumerico } from '@/components/TecladoNumerico';
 import { Texto } from '@/components/Texto';
 import { sumarDias, type Fecha } from '@/lib/fechas';
 import type { Movimiento, TipoMovimiento } from '@/lib/personal';
+import { interpretarFrase } from '@/lib/voz';
 import { ALTO_TOCABLE, COLORES_CATEGORIA, ESPACIO, FUENTES, RADIO, useTema, type ColorCategoria } from '@/theme';
 
 import { borrarMovimiento, guardarMovimiento, type Categoria } from './datos';
@@ -58,6 +59,23 @@ function Formulario({ movimiento, categorias, hoy, onCerrar, onGuardado }: Props
   const [confirmarBorrar, setConfirmarBorrar] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [frase, setFrase] = useState('');
+
+  /** Llena el formulario con lo que la persona dijo o escribió (solo lo que se reconoce). */
+  function entenderFrase(texto: string) {
+    setFrase(texto);
+    const r = interpretarFrase(texto);
+    if (r.monto > 0) setMonto(String(r.monto));
+    if (r.descripcion) setDescripcion(r.descripcion);
+    const porClave = r.categoria ? categorias.find((c) => c.key === r.categoria && !c.hidden) : undefined;
+    if (porClave) {
+      setTipo(porClave.kind as TipoMovimiento);
+      setCategoria(porClave.id);
+    } else if (r.tipo !== tipo && r.tipo === 'ingreso') {
+      cambiarTipo('ingreso');
+    }
+    setError(null);
+  }
 
   const visibles = categorias.filter((c) => c.kind === tipo && (!c.hidden || c.id === categoria));
   const ayer = sumarDias(hoy, -1);
@@ -101,6 +119,24 @@ function Formulario({ movimiento, categorias, hoy, onCerrar, onGuardado }: Props
           style={{ minWidth: ALTO_TOCABLE, minHeight: ALTO_TOCABLE, alignItems: 'center', justifyContent: 'center' }}>
           <Texto style={{ fontFamily: FUENTES.textoFuerte, fontSize: 20 }}>✕</Texto>
         </Pressable>
+      </View>
+
+      {/* Dictado: el micrófono del teclado escribe la frase y la app la entiende */}
+      <View style={{ gap: ESPACIO.xs }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
+          <Emoji name="microfono" size={22} />
+          <Texto variante="fuerte">{t('movimiento.dictar')}</Texto>
+        </View>
+        <CampoTexto
+          etiqueta=""
+          accessibilityLabel={t('movimiento.dictar')}
+          value={frase}
+          onChangeText={entenderFrase}
+          placeholder={t('movimiento.dictarEjemplo')}
+          autoCapitalize="sentences"
+          returnKeyType="done"
+          ayuda={t('movimiento.dictarAyuda')}
+        />
       </View>
 
       <View style={{ flexDirection: 'row', gap: ESPACIO.s }} accessibilityRole="radiogroup">

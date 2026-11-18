@@ -19,6 +19,7 @@ import { paisPorCodigo } from '@/onboarding/paises';
 import { usePerfil } from '@/auth/perfil';
 import { ALTO_TOCABLE, ESPACIO, FUENTES, useTema } from '@/theme';
 
+import { ChipEstadoTope } from './ChipEstadoTope';
 import { guardarTope, useMovimientos, type AlertaTopes, type Categoria } from './datos';
 import { useNombreCategoria, usePlata } from './ganchos';
 
@@ -85,14 +86,7 @@ export function VistaTopes({ categorias, topes, alerta, version, onCambiarAlerta
                     : t('topes.gastoSinTope', { gastado: plata(e.gastado) })}
                 </Texto>
               </View>
-              <View style={{ paddingHorizontal: ESPACIO.s, paddingVertical: 2, borderRadius: 999, backgroundColor: colores.seleccionado }}>
-                <Texto
-                  variante="pequeno"
-                  style={{ fontFamily: FUENTES.textoFuerte }}
-                  color={e.estado === 'superado' || e.estado === 'cuidado' ? color : colores.texto}>
-                  {t(`topes.estado.${e.estado}`, { porcentaje: e.porcentaje })}
-                </Texto>
-              </View>
+              <ChipEstadoTope estado={e} />
             </View>
             {e.tope > 0 && <Barra valor={e.gastado / e.tope} color={color} />}
             <Pressable
