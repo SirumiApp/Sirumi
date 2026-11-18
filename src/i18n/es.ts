@@ -276,6 +276,14 @@ export const es = {
     errorGuardar: 'No pudimos guardar. Revisa tu conexión e intenta de nuevo.',
     guardado: 'Guardado',
   },
+  apariencia: {
+    titulo: 'Apariencia',
+    detalle: 'Define el aspecto de tu app.',
+    boton: 'Cambiar apariencia',
+    sistema: { titulo: 'Sistema', detalle: 'Sigue el modo de tu teléfono.' },
+    oscuro: { titulo: 'Oscuro', detalle: 'Fondo azul noche, ideal de noche.' },
+    claro: { titulo: 'Claro', detalle: 'Fondo blanco con azul claro.' },
+  },
   paises: {
     CO: 'Colombia',
     US: 'Estados Unidos',

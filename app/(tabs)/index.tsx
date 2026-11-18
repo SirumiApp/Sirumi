@@ -10,7 +10,7 @@ import { CampoTexto } from '@/components/CampoTexto';
 import { Emoji, type NombreEmoji } from '@/components/emoji/Emoji';
 import { Logo } from '@/components/Logo';
 import { Pantalla } from '@/components/Pantalla';
-import { SelectorIdioma } from '@/components/SelectorIdioma';
+import { Preferencias } from '@/components/Preferencias';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { diasDelMes, esMesCompletoOActual, hoyEn, partes, periodoAnterior } from '@/lib/fechas';
@@ -94,7 +94,7 @@ export default function InicioPersonal() {
     <View style={{ flex: 1 }}>
       <Pantalla>
         <Logo />
-        <SelectorIdioma />
+        <Preferencias />
         <Texto variante="suave">{nombre ? t('personal.saludoNombre', { nombre }) : t('personal.saludo')}</Texto>
 
         <SelectorPeriodo eleccion={eleccion} hoy={hoy} onCambio={(e) => { setEleccion(e); setFiltro(null); }} />

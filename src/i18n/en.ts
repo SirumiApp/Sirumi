@@ -275,6 +275,14 @@ export const en: Traducciones = {
     errorGuardar: "We couldn't save it. Check your connection and try again.",
     guardado: 'Saved',
   },
+  apariencia: {
+    titulo: 'Appearance',
+    detalle: 'Choose how your app looks.',
+    boton: 'Change appearance',
+    sistema: { titulo: 'System', detalle: 'Follows your phone setting.' },
+    oscuro: { titulo: 'Dark', detalle: 'Night-blue background, great at night.' },
+    claro: { titulo: 'Light', detalle: 'White background with light blue.' },
+  },
   paises: {
     CO: 'Colombia',
     US: 'United States',
