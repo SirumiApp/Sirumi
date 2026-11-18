@@ -1,0 +1,1249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Finanzas personales – Inicio</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+.noscroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;overflow:hidden;background:{{t.bg}};color:{{t.text}};font-family:'Plus Jakarta Sans',system-ui,sans-serif">
+
+  <div class="noscroll" style="position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;padding:20px 20px 130px;box-sizing:border-box">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div style="display:flex;background:{{t.card}};border:1px solid {{t.line}};border-radius:999px;padding:4px">
+        <button onClick="{{ goPersonal }}" style="padding:10px 18px;min-height:44px;border-radius:999px;font-size:14px;font-weight:700;background:{{seg.pBg}};color:{{seg.pText}}">Personal</button>
+        <button onClick="{{ goNegocio }}" style="padding:10px 18px;min-height:44px;border-radius:999px;font-size:14px;font-weight:700;background:{{seg.nBg}};color:{{seg.nText}}">Negocio</button>
+      </div>
+      <div style="display:flex;gap:8px">
+      <button onClick="{{ openSettings }}" aria-label="Ajustes" style="width:44px;height:44px;border-radius:50%;background:{{t.card}};border:1px solid {{t.line}};display:flex;align-items:center;justify-content:center;color:{{t.text}}">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M19 18h1"/><circle cx="16" cy="6" r="2.2"/><circle cx="10" cy="12" r="2.2"/><circle cx="17" cy="18" r="2.2"/></svg>
+      </button>
+      <button onClick="{{ toggleTheme }}" aria-label="Cambiar entre modo claro y oscuro" style="width:44px;height:44px;border-radius:50%;background:{{t.card}};border:1px solid {{t.line}};display:flex;align-items:center;justify-content:center;color:{{t.text}}">
+        <sc-if value="{{ dark }}" hint-placeholder-val="{{ false }}">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </sc-if>
+        <sc-if value="{{ light }}" hint-placeholder-val="{{ true }}">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </sc-if>
+      </button>
+      </div>
+    </div>
+
+    <!-- ============ PERSONAL / INICIO ============ -->
+    <sc-if value="{{ showHome }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-top:20px"><button onClick="{{ openPicker }}" aria-label="Cambiar período" style="min-height:44px;padding:0 16px;border-radius:999px;background:{{t.card}};border:1px solid {{t.line}};display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:800"><span aria-hidden="true"><img src="/_blob/9a7155fdffe0b4f74060f2098adc40b5" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span>{{perLabel}}<span aria-hidden="true" style="color:{{t.muted}}">▾</span></button></div>
+      <div style="margin-top:14px;font-size:14px;font-weight:600;color:{{t.muted}}">Gastado {{perWord}}</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-top:2px">
+        <span style="font-size:46px;font-weight:800;letter-spacing:-1.5px;line-height:1.1">{{totalStr}}</span>
+        <span style="font-size:22px;font-weight:700;color:{{t.muted}}">$</span>
+      </div>
+      <div style="display:inline-flex;align-items:center;margin-top:8px;padding:6px 12px;border-radius:999px;background:{{t.soft}};color:{{t.accentText}};font-size:13px;font-weight:700">{{deltaLine}}</div>
+
+      <sc-if value="{{ hasSavePlan }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:16px;background:{{t.card}};border:1px solid {{t.line}};border-radius:22px;padding:16px;box-shadow:{{t.shadow}}">
+          <div style="display:flex;align-items:center;gap:10px"><div style="font-size:26px" aria-hidden="true"><sc-if value="{{ spEmojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{spEmojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{spEmojiTxt}}</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:{{t.muted}}">{{spTitle}}</div><div style="font-size:17px;font-weight:800;margin-top:1px">Máximo {{spCapStr}}</div></div><div style="font-size:12px;font-weight:800;padding:6px 10px;border-radius:99px;background:{{spChipBg}};color:{{spChipFg}}">{{spChip}}</div></div>
+          <div style="height:10px;border-radius:99px;background:{{t.line}};margin-top:12px;overflow:hidden"><div style="height:100%;width:{{spPct}}%;background:{{spBar}};border-radius:99px"></div></div>
+          <div style="font-size:13px;color:{{t.muted}};margin-top:10px;line-height:1.45">{{spLine}}</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showIncomeCards }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px">
+        <div style="background:{{t.card}};border:1px solid {{t.line}};border-radius:20px;padding:14px 16px;box-shadow:{{t.shadow}}">
+          <div style="font-size:13px;font-weight:600;color:{{t.muted}}">Ingresos</div>
+          <div style="font-size:20px;font-weight:800;margin-top:4px;color:{{t.pos}}">{{incomeStr}}</div>
+        </div>
+        <div style="background:{{t.card}};border:1px solid {{t.line}};border-radius:20px;padding:14px 16px;box-shadow:{{t.shadow}}">
+          <div style="font-size:13px;font-weight:600;color:{{t.muted}}">Te queda</div>
+          <div style="font-size:20px;font-weight:800;margin-top:4px">{{balanceStr}}</div>
+        </div>
+      </div>
+
+      <button onClick="{{ openPlan }}" style="width:100%;text-align:left;margin-top:12px;background:{{t.card}};border:1px solid {{t.line}};border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:{{t.shadow}}">
+        <div style="font-size:28px" aria-hidden="true"><img src="/_blob/d6c869f15bebb614f410ec4d477c8894" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+        <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:{{t.muted}}">Mi patrimonio</div><div style="font-size:18px;font-weight:800;margin-top:1px">{{netWorthShort}}</div></div>
+        <div style="font-size:13px;font-weight:800;padding:6px 10px;border-radius:99px;background:{{t.soft}};color:{{t.accentText}}">Metas y deudas</div>
+      </button>
+      </sc-if>
+
+      <!-- Recomendación -->
+      <div style="margin-top:14px;background:{{t.soft}};border-radius:20px;padding:16px;display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:26px;line-height:1" aria-hidden="true"><img src="/_blob/0c455067641e6ef063ff914257a7315b" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:{{t.accentText}}">Recomendación</div>
+          <div style="font-size:14px;line-height:1.45;margin-top:4px">{{insightText}}</div>
+        </div>
+      </div>
+
+      <!-- Categorías -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:26px">
+        <div style="font-size:18px;font-weight:800">Por categoría</div>
+        <sc-if value="{{ hasFilter }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ clearFilter }}" style="font-size:13px;font-weight:700;color:{{t.accentText}};min-height:44px;padding:0 4px">Quitar filtro</button>
+        </sc-if>
+      </div>
+      <div class="noscroll" style="display:flex;gap:12px;overflow-x:auto;margin:6px -20px 0;padding:4px 20px 8px">
+        <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
+          <button onClick="{{ c.pick }}" style="flex:0 0 132px;text-align:left;background:{{t.card}};border:2px solid {{c.border}};border-radius:22px;padding:14px;box-shadow:{{t.shadow}}">
+            <div style="width:46px;height:46px;border-radius:16px;background:{{c.tint}};display:flex;align-items:center;justify-content:center;font-size:26px" aria-hidden="true"><sc-if value="{{ c.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{c.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{c.emojiTxt}}</div>
+            <div style="font-size:13px;font-weight:600;color:{{t.muted}};margin-top:12px">{{c.name}}</div>
+            <div style="font-size:19px;font-weight:800;margin-top:2px">{{c.short}}</div>
+            <div style="height:6px;border-radius:99px;background:{{t.line}};margin-top:10px;overflow:hidden"><div style="height:100%;width:{{c.pct}}%;background:{{t.accentText}};border-radius:99px"></div></div>
+          </button>
+        </sc-for>
+      </div>
+
+      <!-- Movimientos -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:22px">
+        <div style="font-size:18px;font-weight:800">Movimientos</div>
+        <button onClick="{{ toggleSearch }}" aria-label="Buscar movimientos" style="width:44px;height:44px;border-radius:50%;background:{{searchBtnBg}};border:1px solid {{t.line}};display:flex;align-items:center;justify-content:center;color:{{t.text}}">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+      </div>
+      <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:8px;display:flex;align-items:center;gap:10px;background:{{t.card}};border:1px solid {{t.line}};border-radius:16px;padding:0 14px;min-height:48px">
+          <input value="{{q}}" onInput="{{ onQuery }}" placeholder="Busca por comercio o categoría" aria-label="Buscar" style="flex:1;min-width:0;height:46px;background:transparent;border:0;outline:0;font-size:15px;font-weight:600;color:{{t.text}}">
+          <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ clearQuery }}" aria-label="Borrar búsqueda" style="width:32px;height:32px;border-radius:50%;background:{{t.chip}};color:{{t.muted}};font-size:14px;font-weight:800">✕</button>
+          </sc-if>
+        </div>
+      </sc-if>
+      <sc-if value="{{ emptyList }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:28px;background:{{t.card}};border:1px dashed {{t.line}};border-radius:24px;padding:28px 20px;text-align:center">
+          <div style="font-size:44px;line-height:1" aria-hidden="true"><sc-if value="{{ emptyEmojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{emptyEmojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{emptyEmojiTxt}}</div>
+          <div style="font-size:16px;font-weight:800;margin-top:10px">{{emptyTitle}}</div>
+          <div style="font-size:14px;color:{{t.muted}};margin-top:4px;line-height:1.45">{{emptySub}}</div>
+        </div>
+      </sc-if>
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+        <div style="display:flex;justify-content:space-between;margin-top:16px;font-size:13px;font-weight:600;color:{{t.muted}}">
+          <span><sc-if value="{{ g.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{g.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{g.labelTxt}}</span><span>{{g.totalStr}}</span>
+        </div>
+        <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="2">
+          <button onClick="{{ it.open }}" aria-label="Editar movimiento" style="width:100%;text-align:left;display:flex;align-items:center;gap:12px;margin-top:10px;background:{{t.card}};border:1px solid {{t.line}};border-radius:20px;padding:12px 14px">
+            <div style="flex:0 0 46px;height:46px;border-radius:50%;background:{{it.tint}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><sc-if value="{{ it.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{it.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{it.emojiTxt}}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:600;color:{{t.muted}}">{{it.cat}}</div>
+              <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{it.desc}}</div>
+            </div>
+            <div style="font-size:15px;font-weight:800;color:{{it.color}}">{{it.amountStr}}</div>
+          </button>
+        </sc-for>
+      </sc-for>
+    </sc-if>
+
+    <!-- ============ ANÁLISIS ============ -->
+    <sc-if value="{{ showAnalysis }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:28px;font-size:26px;font-weight:800;letter-spacing:-0.5px">Análisis</div>
+      <div style="font-size:14px;color:{{t.muted}};margin-top:4px">Noviembre frente a los meses anteriores.</div>
+
+      <div style="margin-top:16px;background:{{t.card}};border:1px solid {{t.line}};border-radius:24px;padding:18px 16px 14px;box-shadow:{{t.shadow}}">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font-size:15px;font-weight:800">Gastos por mes</div>
+          <div style="font-size:12px;font-weight:700;color:{{t.accentText}}">- - Tus ingresos</div>
+        </div>
+        <div style="position:relative;height:170px;margin-top:10px">
+          <div style="position:absolute;left:0;right:0;bottom:{{incBottom}}px;border-top:2px dashed {{t.accentText}};opacity:0.7"></div>
+          <div style="position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:flex-end;gap:10px">
+            <sc-for list="{{ chart }}" as="b" hint-placeholder-count="6">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+                <div style="font-size:11px;font-weight:700;color:{{t.muted}};margin-bottom:4px">{{b.short}}</div>
+                <div style="width:100%;height:{{b.h}}px;border-radius:10px 10px 6px 6px;background:{{b.bg}}"></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <sc-for list="{{ chart }}" as="b" hint-placeholder-count="6"><div style="flex:1;text-align:center;font-size:12px;font-weight:700;color:{{t.muted}}"><sc-if value="{{ b.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{b.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{b.labelTxt}}</div></sc-for>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px">
+        <div style="background:{{t.card}};border:1px solid {{t.line}};border-radius:20px;padding:14px 16px">
+          <div style="font-size:13px;font-weight:600;color:{{t.muted}}">Ahorro del mes</div>
+          <div style="font-size:22px;font-weight:800;margin-top:4px;color:{{t.pos}}">{{saveStr}}</div>
+        </div>
+        <div style="background:{{t.card}};border:1px solid {{t.line}};border-radius:20px;padding:14px 16px">
+          <div style="font-size:13px;font-weight:600;color:{{t.muted}}">Cierre estimado</div>
+          <div style="font-size:22px;font-weight:800;margin-top:4px">{{projStr}}</div>
+        </div>
+      </div>
+
+      <div style="font-size:18px;font-weight:800;margin-top:26px">Lo que notamos</div>
+      <sc-for list="{{ insights }}" as="i" hint-placeholder-count="4">
+        <div style="margin-top:10px;background:{{i.bg}};border-radius:20px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start">
+          <div style="font-size:26px;line-height:1" aria-hidden="true"><sc-if value="{{ i.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{i.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{i.emojiTxt}}</div>
+          <div style="min-width:0">
+            <div style="font-size:14px;font-weight:800;color:{{i.fg}}">{{i.title}}</div>
+            <div style="font-size:14px;line-height:1.45;margin-top:3px">{{i.text}}</div>
+          </div>
+        </div>
+      </sc-for>
+
+      <div style="font-size:18px;font-weight:800;margin-top:26px">{{cierreTitle}}</div>
+      <div style="font-size:13px;color:{{t.muted}};margin-top:2px">Proyectamos cada categoría al ritmo de lo que llevas.</div>
+      <sc-for list="{{ catCmp }}" as="c" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:12px;margin-top:10px;background:{{t.card}};border:1px solid {{t.line}};border-radius:20px;padding:12px 14px">
+          <div style="flex:0 0 46px;height:46px;border-radius:16px;background:{{c.tint}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><sc-if value="{{ c.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{c.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{c.emojiTxt}}</div>
+          <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:800">{{c.name}}</div><div style="font-size:13px;color:{{t.muted}};margin-top:2px">{{c.projStr}}</div></div>
+          <div style="font-size:12px;font-weight:800;padding:6px 10px;border-radius:99px;background:{{c.dBg}};color:{{c.dText}}">{{c.deltaStr}}</div>
+        </div>
+      </sc-for>
+
+      <div style="font-size:18px;font-weight:800;margin-top:26px">Recibe reportes</div>
+      <sc-for list="{{ reports }}" as="r" hint-placeholder-count="3">
+        <button onClick="{{ r.tap }}" style="width:100%;text-align:left;display:flex;align-items:center;gap:14px;min-height:68px;padding:10px 0">
+          <div style="flex:0 0 48px;height:48px;border-radius:50%;background:{{t.chip}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><sc-if value="{{ r.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{r.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{r.emojiTxt}}</div>
+          <div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:800">{{r.title}}</div><div style="font-size:13px;color:{{t.muted}};margin-top:2px;line-height:1.35">{{r.sub}}</div></div>
+          <div style="flex:0 0 52px;width:52px;height:32px;border-radius:99px;background:{{r.trackBg}};display:flex;align-items:center;justify-content:{{r.justify}};padding:3px;box-sizing:border-box"><div style="width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div></div>
+        </button>
+      </sc-for>
+    </sc-if>
+
+    <!-- ============ PRESUPUESTOS ============ -->
+    <sc-if value="{{ showBudget }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:28px;font-size:26px;font-weight:800;letter-spacing:-0.5px">Presupuestos</div>
+      <div style="font-size:14px;color:{{t.muted}};margin-top:4px">Te avisamos cuando llegues al 80% de cada tope.</div>
+      <sc-for list="{{ budgets }}" as="b" hint-placeholder-count="4">
+        <div style="margin-top:14px;background:{{t.card}};border:1px solid {{t.line}};border-radius:22px;padding:16px;box-shadow:{{t.shadow}}">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:46px;height:46px;border-radius:16px;background:{{b.tint}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><sc-if value="{{ b.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{b.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{b.emojiTxt}}</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:800">{{b.name}}</div>
+              <div style="font-size:13px;color:{{t.muted}};margin-top:2px">{{b.line}}</div>
+            </div>
+            <div style="font-size:12px;font-weight:800;padding:6px 10px;border-radius:99px;background:{{b.chipBg}};color:{{b.chipText}}">{{b.status}}</div>
+          </div>
+          <div style="height:8px;border-radius:99px;background:{{t.line}};margin-top:14px;overflow:hidden"><div style="height:100%;width:{{b.pct}}%;background:{{b.bar}};border-radius:99px"></div></div>
+        </div>
+      </sc-for>
+    </sc-if>
+
+    <!-- ============ NEGOCIO (vista previa) ============ -->
+    <sc-if value="{{ showNegocio }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:28px;font-size:14px;font-weight:600;color:{{t.muted}}">Utilidad de noviembre</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-top:2px">
+        <span style="font-size:46px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;color:{{t.pos}}">3.050.000</span>
+        <span style="font-size:22px;font-weight:700;color:{{t.muted}}">$</span>
+      </div>
+      <div style="display:inline-flex;margin-top:8px;padding:6px 12px;border-radius:999px;background:{{t.soft}};color:{{t.accentText}};font-size:13px;font-weight:700">Vas ganando · margen 16,6%</div>
+
+      <div style="margin-top:20px;background:{{t.card}};border:1px solid {{t.line}};border-radius:22px;padding:6px 16px;box-shadow:{{t.shadow}}">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid {{t.line}}"><span style="font-size:24px" aria-hidden="true"><img src="/_blob/2ca6961ec2dadba291ce00011a0bfcff" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span><span style="flex:1;font-weight:700">Ventas</span><span style="font-weight:800;color:{{t.pos}}">18.400.000</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid {{t.line}}"><span style="font-size:24px" aria-hidden="true"><img src="/_blob/2a8b2e8278287700c75639d9e0da0710" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span><span style="flex:1;font-weight:700">Costos de producto</span><span style="font-weight:800">11.250.000</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0"><span style="font-size:24px" aria-hidden="true"><img src="/_blob/9fd196524847b56be56c3254db0049fb" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span><span style="flex:1;font-weight:700">Gastos fijos</span><span style="font-weight:800">4.100.000</span></div>
+      </div>
+
+      <div style="margin-top:14px;background:{{t.soft}};border-radius:20px;padding:16px;display:flex;gap:12px">
+        <div style="font-size:26px;line-height:1" aria-hidden="true"><img src="/_blob/4a8ea6b502ad9db6a573a82e1f7c9831" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:{{t.accentText}}">Punto de equilibrio</div>
+          <div style="font-size:14px;line-height:1.45;margin-top:4px">Necesitas vender 15.350.000 al mes para no perder. Este mes vas 20% por encima.</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;font-size:13px;color:{{t.muted}};text-align:center">Vista previa del módulo de negocios (datos de ejemplo)</div>
+    </sc-if>
+  </div>
+
+  <!-- Barra inferior -->
+  <div style="position:absolute;left:20px;right:20px;bottom:24px;height:68px;border-radius:999px;background:{{t.card}};border:1px solid {{t.line}};box-shadow:0 10px 30px rgba(11,27,51,0.14);display:flex;align-items:center;justify-content:space-around;padding:0 10px">
+    <button onClick="{{ goHome }}" aria-label="Inicio" style="min-width:64px;height:48px;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:{{tab.homeColor}}">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+      <span style="font-size:11px;font-weight:700">Inicio</span>
+    </button>
+    <button onClick="{{ goAnalysis }}" aria-label="Análisis" style="min-width:64px;height:48px;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:{{tab.analysisColor}}">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+      <span style="font-size:11px;font-weight:700">Análisis</span>
+    </button>
+    <button onClick="{{ openSheet }}" aria-label="Agregar movimiento" style="width:56px;height:56px;border-radius:50%;background:{{accent}};color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(31,111,235,0.4)">
+      <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button onClick="{{ goBudget }}" aria-label="Presupuestos" style="min-width:64px;height:48px;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:{{tab.budgetColor}}">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.5 2.5-1.5s2.5.6 2.5 1.6c0 2.2-5 1.1-5 3.4 0 1 1 1.6 2.5 1.6s2.5-.5 2.5-1.5"/></svg>
+      <span style="font-size:11px;font-weight:700">Topes</span>
+    </button>
+  </div>
+
+
+  <!-- Metas, deudas y patrimonio -->
+  <sc-if value="{{ planOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:4;background:{{t.bg}};display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px;gap:12px">
+        <div style="font-size:28px;font-weight:800;letter-spacing:-0.5px">Mi patrimonio</div>
+        <button onClick="{{ closePlan }}" aria-label="Cerrar" style="width:44px;height:44px;border-radius:50%;background:{{t.card}};border:1px solid {{t.line}};display:flex;align-items:center;justify-content:center;flex:0 0 44px"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div style="display:flex;gap:8px;padding:0 20px"><sc-for list="{{ planTabs }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.pick }}" style="flex:1;min-height:44px;border-radius:999px;font-size:14px;font-weight:700;background:{{c.bg}};border:2px solid {{c.border}}"><sc-if value="{{ c.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{c.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{c.labelTxt}}</button></sc-for></div>
+      <div class="noscroll" style="flex:1;overflow-y:auto;padding:6px 20px 40px">
+
+        <sc-if value="{{ tabMetas }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:14px;color:{{t.muted}};line-height:1.45;margin-top:10px">Ahorra con un objetivo y fecha. Lo ahorrado cuenta en tu patrimonio.</div>
+          <sc-for list="{{ goalRows }}" as="g" hint-placeholder-count="3">
+            <div style="margin-top:12px;background:{{t.card}};border:1px solid {{t.line}};border-radius:24px;padding:16px;box-shadow:{{t.shadow}}">
+              <div style="display:flex;align-items:center;gap:12px"><div style="flex:0 0 46px;height:46px;border-radius:14px;background:{{t.soft}};display:flex;align-items:center;justify-content:center;font-size:26px" aria-hidden="true"><sc-if value="{{ g.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{g.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{g.emojiTxt}}</div><div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:800">{{g.name}}</div><div style="font-size:13px;color:{{t.muted}};margin-top:2px">{{g.sub}}</div></div><div style="font-size:15px;font-weight:800;color:{{t.accentText}}">{{g.pct}}%</div></div>
+              <div style="height:10px;border-radius:99px;background:{{t.line}};margin-top:14px;overflow:hidden"><div style="height:100%;width:{{g.pct}}%;background:{{g.bar}};border-radius:99px"></div></div>
+              <div style="display:flex;gap:8px;margin-top:12px"><button onClick="{{ g.add1 }}" style="flex:1;min-height:44px;border-radius:999px;background:{{t.chip}};font-size:13px;font-weight:800">+ 100K</button><button onClick="{{ g.add2 }}" style="flex:1;min-height:44px;border-radius:999px;background:{{accent}};color:#fff;font-size:13px;font-weight:800">+ 500K</button></div>
+            </div>
+          </sc-for>
+          <div style="font-size:13px;font-weight:700;color:{{t.muted}};margin:18px 0 8px">Crear una meta</div>
+          <div class="noscroll" style="display:flex;gap:8px;overflow-x:auto"><sc-for list="{{ goalPresets }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.pick }}" style="flex:0 0 auto;min-height:44px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:700;background:{{t.card}};border:2px solid {{t.line}}"><sc-if value="{{ c.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{c.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{c.labelTxt}}</button></sc-for></div>
+        </sc-if>
+
+        <sc-if value="{{ tabDeudas }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:12px;background:{{t.card}};border:1px solid {{t.line}};border-radius:24px;padding:16px;box-shadow:{{t.shadow}}"><div style="font-size:13px;font-weight:600;color:{{t.muted}}">Debes en total</div><div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:2px">{{debtTotal}}</div><div style="font-size:13px;color:{{t.muted}};margin-top:4px">Pagas aprox. {{debtInterest}} al mes solo en intereses.</div></div>
+          <div style="margin-top:12px;background:{{t.soft}};border-radius:20px;padding:14px 16px;display:flex;gap:12px"><div style="font-size:24px;line-height:1" aria-hidden="true"><img src="/_blob/4a8ea6b502ad9db6a573a82e1f7c9831" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div><div style="font-size:14px;line-height:1.45">{{debtTip}}</div></div>
+          <sc-for list="{{ debtRows }}" as="d" hint-placeholder-count="3">
+            <div style="margin-top:12px;background:{{t.card}};border:1px solid {{t.line}};border-radius:24px;padding:16px;box-shadow:{{t.shadow}}">
+              <div style="display:flex;align-items:center;gap:12px"><div style="flex:0 0 46px;height:46px;border-radius:14px;background:{{t.chip}};display:flex;align-items:center;justify-content:center;font-size:26px" aria-hidden="true"><sc-if value="{{ d.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{d.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{d.emojiTxt}}</div><div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:800">{{d.name}}</div><div style="font-size:13px;color:{{t.muted}};margin-top:2px">{{d.sub}}</div></div><div style="font-size:16px;font-weight:800">{{d.balStr}}</div></div>
+              <sc-if value="{{ d.priority }}" hint-placeholder-val="{{ false }}"><div style="display:inline-block;margin-top:10px;font-size:12px;font-weight:800;padding:4px 10px;border-radius:99px;background:{{d.pBg}};color:{{d.pText}}">Págala primero</div></sc-if>
+              <div style="display:flex;gap:8px;margin-top:12px"><button onClick="{{ d.pay1 }}" style="flex:1;min-height:44px;border-radius:999px;background:{{t.chip}};font-size:13px;font-weight:800">Abonar 200K</button><button onClick="{{ d.pay2 }}" style="flex:1;min-height:44px;border-radius:999px;background:{{accent}};color:#fff;font-size:13px;font-weight:800">Abonar 1M</button></div>
+            </div>
+          </sc-for>
+        </sc-if>
+
+        <sc-if value="{{ tabPatri }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:12px;font-size:14px;font-weight:600;color:{{t.muted}}">Patrimonio neto</div>
+          <div style="font-size:42px;font-weight:800;letter-spacing:-1.4px;line-height:1.1;margin-top:2px;color:{{nwColor}}">{{netWorthStr}}</div>
+          <div style="font-size:13px;color:{{t.muted}};margin-top:4px">Lo que tienes menos lo que debes.</div>
+          <div style="margin-top:14px;background:{{t.card}};border:1px solid {{t.line}};border-radius:24px;padding:16px 12px 12px;box-shadow:{{t.shadow}}">
+            <div style="display:flex;align-items:flex-end;justify-content:space-around;height:110px"><sc-for list="{{ nwBars }}" as="m" hint-placeholder-count="6"><div style="width:30px;height:{{m.h}}px;border-radius:9px 9px 4px 4px;background:{{m.bar}}"></div></sc-for></div>
+            <div style="display:flex;justify-content:space-around;margin-top:8px"><sc-for list="{{ nwBars }}" as="m" hint-placeholder-count="6"><div style="width:30px;text-align:center;font-size:12px;font-weight:700;color:{{t.muted}}"><sc-if value="{{ m.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{m.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{m.labelTxt}}</div></sc-for></div>
+          </div>
+          <div style="font-size:18px;font-weight:800;margin-top:22px">Lo que tienes</div>
+          <sc-for list="{{ assetRows }}" as="a" hint-placeholder-count="4">
+            <div style="margin-top:10px;background:{{t.card}};border:1px solid {{t.line}};border-radius:20px;padding:10px 12px;display:flex;align-items:center;gap:8px">
+              <div style="flex:0 0 40px;height:40px;border-radius:12px;background:{{t.chip}};display:flex;align-items:center;justify-content:center;font-size:22px" aria-hidden="true"><sc-if value="{{ a.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{a.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{a.emojiTxt}}</div>
+              <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:800">{{a.name}}</div></div>
+              <sc-if value="{{ a.editable }}" hint-placeholder-val="{{ true }}"><button onClick="{{ a.minus }}" aria-label="Bajar" style="width:44px;height:44px;border-radius:50%;background:{{t.chip}};font-size:20px;font-weight:800">−</button></sc-if>
+              <div style="min-width:70px;text-align:center;font-size:14px;font-weight:800">{{a.valStr}}</div>
+              <sc-if value="{{ a.editable }}" hint-placeholder-val="{{ true }}"><button onClick="{{ a.plus }}" aria-label="Subir" style="width:44px;height:44px;border-radius:50%;background:{{t.chip}};font-size:20px;font-weight:800">+</button></sc-if>
+            </div>
+          </sc-for>
+          <div style="display:flex;justify-content:space-between;margin-top:16px;font-size:14px"><span style="color:{{t.muted}}">Total que tienes</span><b>{{assetsStr}}</b></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:14px"><span style="color:{{t.muted}}">Total que debes</span><b>{{debtTotal}}</b></div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Ajustes -->
+  <sc-if value="{{ settingsOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:{{t.bg}};display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0">
+          <sc-if value="{{ settingsSub }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ backSettings }}" aria-label="Volver a ajustes" style="width:44px;height:44px;border-radius:50%;background:{{t.card}};border:1px solid {{t.line}};display:flex;align-items:center;justify-content:center;flex:0 0 44px">
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+          </sc-if>
+          <div style="font-size:28px;font-weight:800;letter-spacing:-0.5px">{{settingsTitle}}</div>
+        </div>
+        <button onClick="{{ closeSettings }}" aria-label="Cerrar ajustes" style="width:44px;height:44px;border-radius:50%;background:{{t.card}};border:1px solid {{t.line}};display:flex;align-items:center;justify-content:center;flex:0 0 44px">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="noscroll" style="flex:1;overflow-y:auto;padding:0 20px 40px">
+
+        <sc-if value="{{ setMain }}" hint-placeholder-val="{{ true }}">
+          <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="3">
+            <div style="font-size:13px;font-weight:700;color:{{t.muted}};margin:20px 0 4px">{{sec.title}}</div>
+            <sc-for list="{{ sec.rows }}" as="r" hint-placeholder-count="4">
+              <button onClick="{{ r.tap }}" style="width:100%;text-align:left;display:flex;align-items:center;gap:14px;min-height:68px;padding:10px 0">
+                <div style="flex:0 0 48px;height:48px;border-radius:50%;background:{{t.chip}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><sc-if value="{{ r.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{r.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{r.emojiTxt}}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:16px;font-weight:800">{{r.title}}</div>
+                  <sc-if value="{{ r.hasSub }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;color:{{t.muted}};margin-top:2px;line-height:1.35">{{r.sub}}</div></sc-if>
+                </div>
+                <sc-if value="{{ r.hasBadge }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;font-weight:800;padding:5px 11px;border-radius:99px;background:{{t.soft}};color:{{t.accentText}}">{{r.badge}}</div></sc-if>
+                <sc-if value="{{ r.isToggle }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:0 0 52px;width:52px;height:32px;border-radius:99px;background:{{r.trackBg}};display:flex;align-items:center;justify-content:{{r.justify}};padding:3px;box-sizing:border-box"><div style="width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div></div>
+                </sc-if>
+                <sc-if value="{{ r.isNav }}" hint-placeholder-val="{{ true }}">
+                  <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{t.muted}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+                </sc-if>
+              </button>
+            </sc-for>
+          </sc-for>
+          <div style="text-align:center;font-size:12px;color:{{t.muted}};margin-top:24px">Versión 1.0.0 (prototipo)</div>
+        </sc-if>
+
+        <sc-if value="{{ setAppearance }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:14px;color:{{t.muted}};margin:4px 0 12px">Elige cómo quieres ver tu app.</div>
+          <sc-for list="{{ themeOptions }}" as="o" hint-placeholder-count="2">
+            <button onClick="{{ o.pick }}" style="width:100%;text-align:left;display:flex;align-items:center;gap:14px;min-height:72px;padding:12px 16px;margin-bottom:10px;border-radius:22px;background:{{t.card}};border:2px solid {{o.border}}">
+              <div style="flex:0 0 48px;height:48px;border-radius:50%;background:{{t.chip}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><sc-if value="{{ o.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{o.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{o.emojiTxt}}</div>
+              <div style="flex:1"><div style="font-size:16px;font-weight:800"><sc-if value="{{ o.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{o.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{o.labelTxt}}</div><div style="font-size:13px;color:{{t.muted}};margin-top:2px">{{o.sub}}</div></div>
+              <sc-if value="{{ o.sel }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{t.accentText}}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></sc-if>
+            </button>
+          </sc-for>
+        </sc-if>
+
+        <sc-if value="{{ setCategories }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:14px;color:{{t.muted}};margin:4px 0 12px">Cada gasto nuevo se asigna a una de estas categorías.</div>
+          <sc-for list="{{ catRows }}" as="c" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;gap:14px;min-height:64px;padding:8px 16px;margin-bottom:10px;border-radius:20px;background:{{t.card}};border:1px solid {{t.line}}">
+              <div style="flex:0 0 46px;height:46px;border-radius:16px;background:{{c.tint}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><sc-if value="{{ c.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{c.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{c.emojiTxt}}</div>
+              <div style="flex:1;font-size:16px;font-weight:800">{{c.name}}</div>
+              <div style="font-size:13px;font-weight:600;color:{{t.muted}}">{{c.spentStr}}</div>
+            </div>
+          </sc-for>
+          <button onClick="{{ soon }}" style="width:100%;min-height:56px;border-radius:999px;border:2px dashed {{t.line}};font-size:15px;font-weight:800;color:{{t.accentText}}">+ Agregar categoría</button>
+        </sc-if>
+
+        <!-- Presupuestos -->
+        <sc-if value="{{ setBudgets }}" hint-placeholder-val="{{ false }}">
+          <div style="background:{{t.card}};border:1px solid {{t.line}};border-radius:24px;padding:16px;margin-top:4px">
+            <button onClick="{{ toggleAlert }}" style="width:100%;text-align:left;display:flex;align-items:center;gap:12px;min-height:44px">
+              <span style="font-size:24px" aria-hidden="true"><img src="/_blob/2fa4d1673f80beeca4b8e7af45cd55db" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span>
+              <span style="flex:1;font-size:16px;font-weight:800">Alertas de presupuesto</span>
+              <span style="flex:0 0 52px;width:52px;height:32px;border-radius:99px;background:{{alertToggle.trackBg}};display:flex;align-items:center;justify-content:{{alertToggle.justify}};padding:3px;box-sizing:border-box"><span style="width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></span></span>
+            </button>
+            <sc-if value="{{ alertOn }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:14px"><span style="color:{{t.muted}}">Umbral de alerta</span><span style="font-weight:800">{{thr}}%</span></div>
+              <input type="range" min="50" max="100" step="5" value="{{ thr }}" onInput="{{ setThr }}" aria-label="Umbral de alerta" style="width:100%;margin-top:10px;accent-color:{{accent}}">
+            </sc-if>
+          </div>
+          <div style="font-size:13px;color:{{t.muted}};margin:18px 0 6px">Tope mensual por categoría</div>
+          <sc-for list="{{ limitRows }}" as="m" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 14px;margin-bottom:10px;border-radius:20px;background:{{t.card}};border:1px solid {{t.line}}">
+              <div style="flex:0 0 46px;height:46px;border-radius:16px;background:{{m.tint}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><sc-if value="{{ m.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{m.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{m.emojiTxt}}</div>
+              <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:800">{{m.name}}</div><div style="font-size:13px;color:{{t.muted}};margin-top:2px">{{m.limitStr}}</div></div>
+              <button onClick="{{ m.dec }}" aria-label="Bajar tope de {{m.name}}" style="width:44px;height:44px;border-radius:50%;background:{{t.chip}};font-size:22px;font-weight:800">−</button>
+              <button onClick="{{ m.inc }}" aria-label="Subir tope de {{m.name}}" style="width:44px;height:44px;border-radius:50%;background:{{t.chip}};font-size:22px;font-weight:800">+</button>
+            </div>
+          </sc-for>
+        </sc-if>
+
+        <!-- Periodo -->
+        <sc-if value="{{ setPeriod }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:14px;color:{{t.muted}};margin:4px 0 14px;line-height:1.45">Si no quieres que tu inicio se reinicie cada mes, cámbialo aquí. Útil si cobras quincenal o tu mes empieza el día de pago.</div>
+          <div style="font-size:14px;font-weight:800;margin-bottom:8px">Frecuencia</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <sc-for list="{{ cadChips }}" as="c" hint-placeholder-count="4">
+              <button onClick="{{ c.pick }}" style="min-height:44px;padding:0 18px;border-radius:999px;font-size:14px;font-weight:700;background:{{c.bg}};color:{{c.fg}};border:2px solid {{c.border}}">{{c.name}}</button>
+            </sc-for>
+          </div>
+          <div style="font-size:14px;font-weight:800;margin:22px 0 8px">Día en que empieza tu mes</div>
+          <div style="display:flex;align-items:center;gap:14px;background:{{t.card}};border:1px solid {{t.line}};border-radius:20px;padding:10px 14px">
+            <div style="flex:1;font-size:15px;color:{{t.muted}}">Cada mes desde el día</div>
+            <button onClick="{{ decDay }}" aria-label="Día anterior" style="width:44px;height:44px;border-radius:50%;background:{{t.chip}};font-size:22px;font-weight:800">−</button>
+            <div style="min-width:28px;text-align:center;font-size:20px;font-weight:800">{{startDay}}</div>
+            <button onClick="{{ incDay }}" aria-label="Día siguiente" style="width:44px;height:44px;border-radius:50%;background:{{t.chip}};font-size:22px;font-weight:800">+</button>
+          </div>
+          <button onClick="{{ applyPeriod }}" style="width:100%;height:56px;margin-top:24px;border-radius:999px;background:{{accent}};color:#fff;font-size:16px;font-weight:800">Aplicar</button>
+        </sc-if>
+
+        <!-- Listas genéricas: listas, CSV, voz, moneda, sugerencias, IA, legal -->
+        <sc-if value="{{ setGeneric }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ hasGenNote }}" hint-placeholder-val="{{ true }}"><div style="font-size:14px;color:{{t.muted}};margin:4px 0 12px;line-height:1.45">{{genNote}}</div></sc-if>
+          <sc-if value="{{ isCurrency }}" hint-placeholder-val="{{ false }}">
+            <input type="search" aria-label="Buscar moneda" placeholder="Buscar moneda" value="{{ curSearch }}" onInput="{{ setCurQuery }}" style="width:100%;box-sizing:border-box;height:52px;border-radius:18px;border:2px solid {{t.line}};background:{{t.card}};color:{{t.text}};padding:0 16px;font-size:16px;font-family:inherit;margin-bottom:8px">
+          </sc-if>
+          <sc-for list="{{ genItems }}" as="g" hint-placeholder-count="5">
+            <button onClick="{{ g.tap }}" style="width:100%;text-align:left;display:flex;align-items:center;gap:14px;min-height:68px;padding:10px 0">
+              <div style="flex:0 0 48px;height:48px;border-radius:50%;background:{{t.chip}};display:flex;align-items:center;justify-content:center;font-size:{{g.chipFont}}px;font-weight:800" aria-hidden="true"><sc-if value="{{ g.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{g.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{g.emojiTxt}}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:16px;font-weight:800">{{g.title}}</div>
+                <sc-if value="{{ g.hasSub }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;color:{{t.muted}};margin-top:2px;line-height:1.35">{{g.sub}}</div></sc-if>
+              </div>
+              <sc-if value="{{ g.hasTrail }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;font-weight:800;color:{{t.accentText}}">{{g.trail}}</div></sc-if>
+              <sc-if value="{{ g.check }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{t.accentText}}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></sc-if>
+            </button>
+          </sc-for>
+        </sc-if>
+
+        <!-- Rastreo automático -->
+        <sc-if value="{{ setTracking }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:14px;color:{{t.muted}};margin:4px 0 14px;line-height:1.45">Cada mensaje de tu banco se convierte en un gasto, sin que tengas que escribirlo.</div>
+          <div style="background:{{t.card}};border:1px solid {{t.line}};border-radius:24px;padding:16px">
+            <div style="font-size:12px;font-weight:700;color:{{t.muted}}">Ejemplo de mensaje</div>
+            <div style="margin-top:8px;padding:12px 14px;border-radius:18px;background:{{t.chip}};font-size:14px;line-height:1.45">Bancolombia: Compraste $10.000 en ZARA con tu tarjeta.</div>
+            <div style="display:flex;justify-content:center;margin:10px 0;color:{{t.muted}}"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:18px;background:{{t.soft}}">
+              <div style="flex:0 0 44px;height:44px;border-radius:14px;background:{{t.card}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><img src="/_blob/2ca6961ec2dadba291ce00011a0bfcff" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+              <div style="flex:1"><div style="font-size:12px;font-weight:600;color:{{t.muted}}">Shopping</div><div style="font-size:15px;font-weight:800">ZARA</div></div>
+              <div style="font-size:15px;font-weight:800">$ 10.000</div>
+            </div>
+          </div>
+          <div style="font-size:14px;font-weight:800;margin:22px 0 10px">Cómo activarlo en tu iPhone</div>
+          <div style="display:flex;gap:12px;margin-bottom:12px"><div style="flex:0 0 28px;height:28px;border-radius:50%;background:{{accent}};color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center">1</div><div style="font-size:14px;line-height:1.45">Agrega nuestro atajo a la app Atajos.</div></div>
+          <div style="display:flex;gap:12px;margin-bottom:12px"><div style="flex:0 0 28px;height:28px;border-radius:50%;background:{{accent}};color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center">2</div><div style="font-size:14px;line-height:1.45">Crea una automatización: cuando llegue un mensaje de tu banco (por ejemplo Bancolombia), ejecutar el atajo.</div></div>
+          <div style="display:flex;gap:12px;margin-bottom:12px"><div style="flex:0 0 28px;height:28px;border-radius:50%;background:{{accent}};color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center">3</div><div style="font-size:14px;line-height:1.45">Desactiva “Preguntar antes de ejecutar” para que sea automático.</div></div>
+          <button onClick="{{ soon }}" style="width:100%;height:56px;margin-top:10px;border-radius:999px;background:{{accent}};color:#fff;font-size:16px;font-weight:800">+ Agregar atajo</button>
+        </sc-if>
+
+        <!-- Cuenta -->
+        <sc-if value="{{ setAccount }}" hint-placeholder-val="{{ false }}">
+          <div style="background:{{t.card}};border:1px solid {{t.line}};border-radius:24px;padding:18px;margin-top:4px">
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="flex:0 0 56px;height:56px;border-radius:50%;background:{{t.soft}};display:flex;align-items:center;justify-content:center;font-size:30px" aria-hidden="true"><img src="/_blob/0e305ae1108f03e0cda0db05660fccc8" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+              <div style="min-width:0"><div style="font-size:18px;font-weight:800">[Tu nombre]</div><div style="font-size:14px;color:{{t.muted}};margin-top:2px">tu@correo.com</div></div>
+            </div>
+            <div style="margin-top:14px;font-size:14px;color:{{t.muted}};line-height:1.7">Celular: +57 300 000 0000<br>Documento: CC ••••4567</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin:16px 4px;font-size:14px"><span style="width:10px;height:10px;border-radius:50%;background:{{t.pos}}"></span><span style="font-weight:700">Sincronizado</span><span style="color:{{t.muted}}">· hace 1 min</span></div>
+          <button onClick="{{ soon }}" style="width:100%;height:54px;border-radius:18px;background:{{t.card}};border:1px solid {{t.line}};font-size:15px;font-weight:800;margin-bottom:10px">Sincronizar ahora</button>
+          <button onClick="{{ soon }}" style="width:100%;height:54px;border-radius:18px;background:{{t.card}};border:1px solid {{t.line}};font-size:15px;font-weight:800;margin-bottom:10px">Descargar mis datos</button>
+          <button onClick="{{ soon }}" style="width:100%;height:54px;border-radius:18px;background:{{t.card}};border:1px solid {{t.line}};font-size:15px;font-weight:800;margin-bottom:10px">Cerrar sesión</button>
+          <button onClick="{{ soon }}" style="width:100%;height:54px;border-radius:18px;background:#C2410C;color:#fff;font-size:15px;font-weight:800">Eliminar mi cuenta</button>
+          <div style="font-size:12px;color:{{t.muted}};margin-top:12px;line-height:1.45;text-align:center">Puedes pedir una copia de tus datos o eliminarlos cuando quieras.</div>
+        </sc-if>
+
+        <!-- Premium -->
+        <sc-if value="{{ setPremium }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;margin-top:8px"><div style="font-size:64px;line-height:1" aria-hidden="true"><img src="/_blob/6545f307ebdd08e9cd7a17af0fce56d6" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div><div style="font-size:26px;font-weight:800;margin-top:6px">Tu plan <span style="color:{{t.accentText}}">Pro</span></div></div>
+          <div style="margin-top:20px;border-radius:24px;padding:16px;background:{{t.soft}}">
+            <div style="font-size:18px;font-weight:800">Ahorra con el plan anual</div>
+            <div style="font-size:14px;color:{{t.muted}};margin-top:4px">Todo lo que ya usas, pero más barato. [DESCUENTO]</div>
+          </div>
+          <div style="margin-top:12px;border:2px solid {{accent}};border-radius:24px;padding:16px;background:{{t.card}};display:flex;align-items:center;gap:12px">
+            <div style="flex:1"><div style="font-size:16px;font-weight:800">Pro</div><div style="font-size:15px;margin-top:2px">$ [TU PRECIO] / mes</div><div style="font-size:13px;color:{{t.muted}};margin-top:4px">Se renueva el [FECHA]</div></div>
+            <div style="padding:8px 14px;border-radius:99px;background:{{accent}};color:#fff;font-size:13px;font-weight:800">Mensual</div>
+          </div>
+          <button onClick="{{ soon }}" style="width:100%;height:56px;margin-top:18px;border-radius:999px;background:{{accent}};color:#fff;font-size:16px;font-weight:800">Cambiar de plan</button>
+          <button onClick="{{ soon }}" style="width:100%;height:48px;margin-top:6px;font-size:14px;font-weight:700;color:{{t.muted}}">Cancelar suscripción</button>
+        </sc-if>
+
+        <!-- Novedades -->
+        <sc-if value="{{ setWhatsNew }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:4px;border-radius:24px;padding:20px;background:{{t.soft}}">
+            <div style="display:inline-block;padding:6px 12px;border-radius:10px;background:#FACC15;color:#1A1A1A;font-size:13px;font-weight:800;letter-spacing:1px">VERSIÓN 1.0.0</div>
+            <div style="font-size:24px;font-weight:800;margin-top:12px;letter-spacing:-0.5px">Lo nuevo</div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:16px"><span style="font-size:26px" aria-hidden="true"><img src="/_blob/c2cd0de53fa52349762d9fa50e5f290a" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span><div><div style="font-size:16px;font-weight:800">Análisis mensual</div><div style="font-size:14px;color:{{t.muted}};margin-top:2px;line-height:1.4">Gráficas por mes y consejos según cómo gastas.</div></div></div>
+          <div style="display:flex;gap:12px;margin-top:16px"><span style="font-size:26px" aria-hidden="true"><img src="/_blob/b4a7d79358d71c1563e662751197f495" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span><div><div style="font-size:16px;font-weight:800">País y moneda</div><div style="font-size:14px;color:{{t.muted}};margin-top:2px;line-height:1.4">Configura tu país al empezar y cámbialo cuando quieras.</div></div></div>
+          <div style="display:flex;gap:12px;margin-top:16px"><span style="font-size:26px" aria-hidden="true"><img src="/_blob/2e453981c84ba8814c3382e8a11cd026" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span><div><div style="font-size:16px;font-weight:800">Ajustes completos</div><div style="font-size:14px;color:{{t.muted}};margin-top:2px;line-height:1.4">Topes, periodos, listas, idioma de voz y más.</div></div></div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Aviso -->
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:absolute;left:20px;right:20px;bottom:110px;z-index:5;padding:14px 18px;border-radius:18px;background:{{t.text}};color:{{t.bg}};font-size:14px;font-weight:700;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.3)">{{toastText}}</div>
+  </sc-if>
+
+  <!-- Selector de fechas -->
+  <sc-if value="{{ pkOpen }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ pkClose }}" aria-label="Cerrar" style="position:absolute;inset:0;z-index:10;background:rgba(5,12,28,0.5);width:100%;height:100%"></button>
+    <div class="noscroll" style="position:absolute;z-index:11;left:10px;right:10px;bottom:10px;background:{{t.card}};border-radius:30px;padding:16px;box-shadow:0 -10px 40px rgba(0,0,0,0.3);max-height:94%;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:20px;font-weight:800">Elegir fechas</div><button onClick="{{ pkClose }}" aria-label="Cerrar" style="width:44px;height:44px;border-radius:50%;background:{{t.chip}};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800">✕</button></div>
+      <div class="noscroll" style="display:flex;gap:8px;overflow-x:auto;margin:8px -16px 0;padding:2px 16px"><sc-for list="{{ pkPresets }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.pick }}" style="flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:700;background:{{c.bg}};border:2px solid {{c.border}}"><sc-if value="{{ c.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{c.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{c.labelTxt}}</button></sc-for></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:12px">
+        <div style="flex:1;min-width:0;height:52px;box-sizing:border-box;border-radius:16px;border:2px solid {{pkFromB}};display:flex;align-items:center;gap:8px;padding:0 12px;font-size:14px;font-weight:700"><span aria-hidden="true"><img src="/_blob/9a7155fdffe0b4f74060f2098adc40b5" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{pkFrom}}</span></div>
+        <span aria-hidden="true" style="font-size:18px">→</span>
+        <div style="flex:1;min-width:0;height:52px;box-sizing:border-box;border-radius:16px;border:2px solid {{pkToB}};display:flex;align-items:center;gap:8px;padding:0 12px;font-size:14px;font-weight:700"><span aria-hidden="true"><img src="/_blob/9a7155fdffe0b4f74060f2098adc40b5" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{pkTo}}</span></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px">
+        <button onClick="{{ pkPrev }}" aria-label="Mes anterior" style="width:44px;height:44px;border-radius:50%;font-size:20px">←</button>
+        <div style="font-size:17px;font-weight:800">{{pkTitle}}</div>
+        <button onClick="{{ pkNext }}" aria-label="Mes siguiente" style="width:44px;height:44px;border-radius:50%;font-size:20px;opacity:{{pkNextOp}}">→</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));margin-top:4px"><sc-for list="{{ pkWd }}" as="w" hint-placeholder-count="7"><div style="text-align:center;font-size:12px;font-weight:700;color:{{t.muted}};padding:6px 0">{{w.l}}</div></sc-for></div>
+      <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));row-gap:2px"><sc-for list="{{ pkCells }}" as="c" hint-placeholder-count="30"><button onClick="{{ c.tap }}" style="height:44px;border-radius:14px;font-size:15px;font-weight:700;background:{{c.bg}};color:{{c.fg}};opacity:{{c.op}}"><sc-if value="{{ c.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{c.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{c.labelTxt}}</button></sc-for></div>
+      <button onClick="{{ pkApply }}" style="width:100%;height:54px;margin-top:12px;border-radius:999px;background:{{accent}};color:#fff;font-size:16px;font-weight:800;opacity:{{pkApplyOp}}">Aplicar</button>
+    </div>
+  </sc-if>
+
+  <!-- Hoja: agregar movimiento -->
+  <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ closeSheet }}" aria-label="Cerrar" style="position:absolute;inset:0;background:rgba(5,12,28,0.5);width:100%;height:100%"></button>
+    <div style="position:absolute;left:0;right:0;bottom:0;background:{{t.card}};border-radius:32px 32px 0 0;padding:14px 20px 28px;box-shadow:0 -10px 40px rgba(0,0,0,0.25)">
+      <div style="width:44px;height:5px;border-radius:99px;background:{{t.line}};margin:0 auto 12px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">
+        <div style="font-size:15px;font-weight:800">{{sheetTitle}}</div>
+        <sc-if value="{{ canVoice }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ openVoice }}" aria-label="Registrar con la voz" style="display:flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:{{t.soft}};color:{{t.accentText}};font-size:14px;font-weight:800">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Hablar
+          </button>
+        </sc-if>
+      </div>
+      <div style="display:flex;background:{{t.bg}};border-radius:999px;padding:4px">
+        <button onClick="{{ kindGasto }}" style="flex:1;min-height:44px;border-radius:999px;font-size:14px;font-weight:700;background:{{kind.gBg}};color:{{kind.gText}}">Gasto</button>
+        <button onClick="{{ kindIngreso }}" style="flex:1;min-height:44px;border-radius:999px;font-size:14px;font-weight:700;background:{{kind.iBg}};color:{{kind.iText}}">Ingreso</button>
+      </div>
+      <div style="text-align:center;margin:18px 0 6px;font-size:48px;font-weight:800;letter-spacing:-1.5px">{{amountDisplay}}<span style="font-size:22px;color:{{t.muted}};margin-left:6px">$</span></div>
+      <div class="noscroll" style="display:flex;gap:8px;overflow-x:auto;margin:0 -20px;padding:6px 20px">
+        <sc-for list="{{ catPicks }}" as="p" hint-placeholder-count="5">
+          <button onClick="{{ p.pick }}" style="flex:0 0 auto;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;font-size:14px;font-weight:700;background:{{p.bg}};border:2px solid {{p.border}}"><span aria-hidden="true"><sc-if value="{{ p.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{p.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{p.emojiTxt}}</span>{{p.name}}</button>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px">
+        <sc-for list="{{ keys }}" as="k" hint-placeholder-count="12">
+          <button onClick="{{ k.press }}" aria-label="{{k.aria}}" style="height:52px;border-radius:16px;background:{{t.bg}};font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center"><sc-if value="{{ k.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{k.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{k.labelTxt}}</button>
+        </sc-for>
+      </div>
+      <button onClick="{{ save }}" style="width:100%;height:56px;margin-top:14px;border-radius:999px;background:{{accent}};color:#fff;font-size:16px;font-weight:800">{{saveLabel}}</button>
+      <sc-if value="{{ isEditing }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ delTx }}" style="width:100%;height:50px;margin-top:8px;border-radius:999px;background:{{delBg}};color:{{delText}};font-size:15px;font-weight:800">{{delLabel}}</button>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- Voz -->
+  <sc-if value="{{ voiceOpen }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ closeVoice }}" aria-label="Cerrar" style="position:absolute;inset:0;z-index:6;background:rgba(5,12,28,0.55);width:100%;height:100%"></button>
+    <div style="position:absolute;z-index:7;left:0;right:0;bottom:0;background:{{t.card}};border-radius:32px 32px 0 0;padding:14px 20px 26px;box-shadow:0 -10px 40px rgba(0,0,0,0.25)">
+      <div style="width:44px;height:5px;border-radius:99px;background:{{t.line}};margin:0 auto 12px"></div>
+      <div style="text-align:center;font-size:18px;font-weight:800">Habla y yo lo registro</div>
+      <div style="text-align:center;font-size:13px;color:{{t.muted}};margin-top:4px;line-height:1.4">{{voiceHint}}</div>
+      <div style="display:flex;justify-content:center;margin-top:14px">
+        <button onClick="{{ toggleMic }}" aria-label="{{micAria}}" style="width:76px;height:76px;border-radius:50%;background:{{micBg}};color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(31,111,235,0.4)">
+          <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        </button>
+      </div>
+      <textarea value="{{voiceText}}" onInput="{{ onVoiceText }}" aria-label="Lo que dijiste" placeholder="O escríbelo aquí" rows="2" style="width:100%;box-sizing:border-box;margin-top:14px;border-radius:18px;border:2px solid {{t.line}};background:{{t.bg}};color:{{t.text}};padding:12px 14px;font-size:15px;font-weight:600;font-family:inherit;resize:none"></textarea>
+      <sc-if value="{{ noVoiceText }}" hint-placeholder-val="{{ true }}">
+        <div class="noscroll" style="display:flex;gap:8px;overflow-x:auto;margin:10px -20px 0;padding:2px 20px">
+          <sc-for list="{{ voiceExamples }}" as="e" hint-placeholder-count="3"><button onClick="{{ e.pick }}" style="flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:999px;background:{{t.chip}};font-size:13px;font-weight:700"><sc-if value="{{ e.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{e.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{e.labelTxt}}</button></sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ vHas }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:12px;background:{{t.soft}};border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <div style="flex:0 0 46px;height:46px;border-radius:14px;background:{{t.card}};display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true"><sc-if value="{{ vEmojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{vEmojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{vEmojiTxt}}</div>
+          <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:{{t.accentText}}">{{vKind}}</div><div style="font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{vDesc}}</div></div>
+          <div style="font-size:16px;font-weight:800">{{vAmount}}</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ vBad }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;font-size:14px;color:{{t.muted}};text-align:center">No encontré el valor. Prueba diciendo el monto, por ejemplo "30.000".</div></sc-if>
+      <button onClick="{{ saveVoice }}" style="width:100%;height:54px;margin-top:14px;border-radius:999px;background:{{accent}};color:#fff;font-size:16px;font-weight:800;opacity:{{voiceBtnOp}}">Guardar movimiento</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1F6FEB","options":["#1F6FEB","#0EA5E9","#4F46E5","#0891B2"]},"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      darkOverride: null, mode: 'personal', tab: 'home', sheet: false, filter: null, rng: { k: 'mes', from: '2026-11-01', to: '2026-11-15' }, pickOpen: false, pFrom: null, pTo: null, pView: '2026-11',
+      kind: 'gasto', amount: '', pick: 'comida', settings: null, voiceOpen: false, voiceText: '', listening: false, micFail: false,
+      planOpen: false, planTab: 'metas', onb: this.loadOnb(),
+      goals: [{ id: 1, name: 'Fondo de emergencia', emoji: '🛟', target: 10000000, saved: 3500000 }, { id: 2, name: 'Viaje a San Andrés', emoji: '🏝️', target: 4000000, saved: 1200000 }, { id: 3, name: 'Computador nuevo', emoji: '💻', target: 3500000, saved: 2800000 }],
+      debts: [{ id: 1, name: 'Tarjeta de crédito', emoji: '💳', bal: 2400000, rate: 28, min: 150000 }, { id: 2, name: 'Crédito libre inversión', emoji: '🏦', bal: 8000000, rate: 19, min: 420000 }, { id: 3, name: 'Préstamo de un amigo', emoji: '🤝', bal: 500000, rate: 0, min: 0 }],
+      assets: [{ id: 1, name: 'Cuentas y efectivo', emoji: '🏧', val: 3200000 }, { id: 2, name: 'Inversiones (CDT, fondos)', emoji: '📈', val: 5000000 }, { id: 3, name: 'Moto', emoji: '🛵', val: 7000000 }],
+      limits: { shop: 1500000, comida: 1200000, transp: 400000, mercado: 600000, salidas: 300000, perro: 250000 },
+      alertOn: true, thr: 80, cadence: 'Mensual', startDay: 1, votes: {},
+      aiRules: [ { id: 1, merchant: 'RAPPI', cat: 'Comida fuera' }, { id: 2, merchant: 'UBER', cat: 'Transporte' }, { id: 3, merchant: 'D1', cat: 'Mercado' }, { id: 4, merchant: 'ZARA', cat: 'Shopping' } ],
+      voice: 'es-CO', cur: 'COP', curQuery: '', repWeekly: true, repMonthly: true, repPace: true,
+      showIncome: true, autoConv: true, notifs: true, instant: true, toast: '',
+      editId: null, searchOpen: false, q: '', confirmDel: false,
+      txs: this.genTxs()
+    };
+  }
+  genTxs() {
+    const P2 = (n) => ('0' + n).slice(-2);
+    const out = []; let id = 1000;
+    const D = { shop: ['Zara', 'H&M', 'Adidas Outlet', 'Falabella', 'Nike Store', 'Mango', 'Tennis'], comida: ['Rappi', 'Crepes & Waffles', 'El Corral', 'Oma', 'Juan Valdez', 'Frisby', 'Archies'], transp: ['Uber', 'Taxi', 'Cabify', 'InDriver', 'Parqueadero', 'TransMilenio'], mercado: ['D1', 'Éxito', 'Ara', 'Jumbo', 'Plaza de mercado'], salidas: ['Bar Andrés', 'Cine Colombia', 'Cover discoteca', 'Karaoke', 'Billar'], perro: ['Veterinaria', 'Concentrado Dog Chow', 'Peluquería canina'] };
+    const ORDER = ['shop', 'comida', 'transp', 'mercado', 'salidas', 'perro'];
+    const MON = { '2026-07': [2000000, 1500000, 380000, 600000, 330000, 100000], '2026-08': [2200000, 1550000, 420000, 620000, 250000, 80000], '2026-09': [1700000, 1400000, 400000, 590000, 440000, 110000], '2026-10': [2150000, 1720000, 410000, 640000, 520000, 315112], '2026-11': [1700000, 1480000, 315000, 166000, 92000, 0] };
+    Object.keys(MON).forEach((ym) => {
+      ORDER.forEach((c, ci) => {
+        const tot = MON[ym][ci]; if (!tot) return;
+        const nov = ym === '2026-11'; let left = tot;
+        [0.45, 0.33, 0.22].forEach((w, k) => {
+          const amt = k === 2 ? left : Math.round(tot * w / 100) * 100; left -= amt;
+          const day = nov ? 2 + ((ci * 5 + k * 3) % 10) : 1 + ((ci * 7 + k * 9 + 3) % 27);
+          out.push({ id: id++, date: ym + '-' + P2(day), cat: c, desc: D[c][(ci + k * 2) % D[c].length].toUpperCase(), amt, kind: 'gasto' });
+        });
+      });
+      if (!nov0(ym)) out.push({ id: id++, date: ym + '-01', cat: 'ingreso', desc: 'Nómina', amt: 6200000, kind: 'ingreso' });
+    });
+    function nov0(ym) { return ym === '2026-11'; }
+    out.push({ id: id++, date: '2026-08-18', cat: 'ingreso', desc: 'Proyecto freelance', amt: 900000, kind: 'ingreso' });
+    return out.concat([
+      { id: 1, date: '2026-11-15', cat: 'comida', desc: 'Transferencia OPERADOR NACIO…', amt: 9000, kind: 'gasto' },
+      { id: 2, date: '2026-11-14', cat: 'comida', desc: 'AKIKIRIKI PAIPA', amt: 51300, kind: 'gasto' },
+      { id: 3, date: '2026-11-14', cat: 'shop', desc: 'CIUDADELA COMERCIAL', amt: 1600, kind: 'gasto' },
+      { id: 4, date: '2026-11-14', cat: 'comida', desc: 'OAKBERRY ACAI COLOMB', amt: 24900, kind: 'gasto' },
+      { id: 5, date: '2026-11-14', cat: 'shop', desc: 'LACORPACK purchase', amt: 40000, kind: 'gasto' },
+      { id: 6, date: '2026-11-13', cat: 'shop', desc: 'SECTOR 9 SAS', amt: 16741, kind: 'gasto' },
+      { id: 7, date: '2026-11-13', cat: 'transp', desc: 'Taxi aeropuerto', amt: 22500, kind: 'gasto' },
+      { id: 8, date: '2026-11-01', cat: 'ingreso', desc: 'Nómina', amt: 6200000, kind: 'ingreso' }
+    ]);
+  }
+
+  pad2(n) { return ('0' + n).slice(-2); }
+  dim(y, m) { return new Date(y, m, 0).getDate(); }
+  loadOnb() {
+    let o = null;
+    try { const raw = localStorage.getItem('finapp_onb'); if (raw) o = JSON.parse(raw); } catch (e) {}
+    if (o && o.goal && o.goal !== 'ver' && o.income > 0 && o.save > 0) return { income: o.income, save: o.save, goal: o.goal, goalName: o.goalName || '' };
+    if (o && (o.goal === 'ver' || o.use === 'negocio')) return null;
+    return { income: 6000000, save: 2000000, goal: 'ahorro', goalName: '' };
+  }
+  dowMon(iso) { const p = iso.split('-').map(Number); return (new Date(p[0], p[1] - 1, p[2]).getDay() + 6) % 7; }
+  addDays(iso, n) { const p = iso.split('-').map(Number); const d = new Date(Date.UTC(p[0], p[1] - 1, p[2]) + n * 86400000); return d.getUTCFullYear() + '-' + this.pad2(d.getUTCMonth() + 1) + '-' + this.pad2(d.getUTCDate()); }
+  diffDays(a, b) { const f = (x) => { const p = x.split('-').map(Number); return Date.UTC(p[0], p[1] - 1, p[2]); }; return Math.round((f(b) - f(a)) / 86400000); }
+
+
+  e3(vals) {
+    if (!Component.E3M) {
+      Component.E3M = {"👩‍💼":"/_blob/17c841474331e39cdfc01664f9f99194","🧑‍💼":"/_blob/e8463054aff83287134433fa165ccf24","📦":"/_blob/2a8b2e8278287700c75639d9e0da0710","🎯":"/_blob/4a8ea6b502ad9db6a573a82e1f7c9831","🧾":"/_blob/e944190175e32d1434c1e35565731eae","📅":"/_blob/9a7155fdffe0b4f74060f2098adc40b5","🗓":"/_blob/9a7155fdffe0b4f74060f2098adc40b5","🏦":"/_blob/bbabdb599cc04a040d2c69a263ca0abc","🏛":"/_blob/bbabdb599cc04a040d2c69a263ca0abc","📥":"/_blob/9135fc73f28a7af48eea4a127725b685","📤":"/_blob/50dda964de3ccfbf0689b4edb1e0e39e","🏢":"/_blob/9fd196524847b56be56c3254db0049fb","👤":"/_blob/83a6ff3505a07dcfc0072fc96f971e58","🛍":"/_blob/2ca6961ec2dadba291ce00011a0bfcff","💳":"/_blob/05e851b16a8630025f87eaa0258f49ee","🏷":"/_blob/4aaecb6e0005cbdcccf2346a1e35add6","🧠":"/_blob/e10574cac9d5e0ffd82da54ed2c7b908","🔁":"/_blob/9e951871a191a4307979bc89d1d5b8bc","💵":"/_blob/49023c6e659d6b0b1f0d1f6b4c80b055","🐷":"/_blob/f8a7cce4adcd7bd62b19ba8b767b9ac4","🧵":"/_blob/2e8b939f8661407950c183a69e342d8a","📊":"/_blob/c2cd0de53fa52349762d9fa50e5f290a","🌎":"/_blob/b4a7d79358d71c1563e662751197f495","🌍":"/_blob/b4a7d79358d71c1563e662751197f495","🛟":"/_blob/30749ca9c1e1e0ffa17cdc23f984c1c3","🎉":"/_blob/9405499628fd71b6723fbc0c2fdd6db8","📝":"/_blob/5189752a45049f84486c093ad32df0f1","🗂":"/_blob/1679c11f063d22aa4a5743685d932fb1","🧮":"/_blob/d6e60ebaefa4d6181a149d1eb81b6927","📄":"/_blob/355345a642cb4d44b8afdfbd0d26f5cf","🏪":"/_blob/1625021da9160045acf781979369069b","💡":"/_blob/0c455067641e6ef063ff914257a7315b","👖":"/_blob/fe13425b0aa75373e70ccee3a17b0ebc","💻":"/_blob/066d15bdc1cfe121a682ea2c125fe574","🤝":"/_blob/d74c167d08ecab1ad54756e255d12d7f","📈":"/_blob/9f335d6f42cc4825c6e89e50c9638dd3","🛠":"/_blob/a2779772783c69ba07e5df5a12762101","📱":"/_blob/db83f7f90f3393f38c274a7ae99c41f3","🔮":"/_blob/a2197eabf1eb75d43d16e5f0867d721d","🔔":"/_blob/2fa4d1673f80beeca4b8e7af45cd55db","🙂":"/_blob/0e305ae1108f03e0cda0db05660fccc8","💎":"/_blob/6545f307ebdd08e9cd7a17af0fce56d6","🥑":"/_blob/c2e3b2473df2d0f907a53bbf1a4282c4","💰":"/_blob/74521fe28bdb54dd4d2397829e646741","💬":"/_blob/f0d8c50fe89350a3f63ef42335979fae","🔒":"/_blob/50d59942fc726581a3c25fa423376d69","🌱":"/_blob/0db8276cea66849e8fc73c77814cb99c","🎤":"/_blob/a8592d3a83cd0ef808f18d6bcd77b4b7","🚀":"/_blob/993103504106f59f88ffbecd5f2e1422","📚":"/_blob/0769ad62aac892f44ccd2ee79f24a18b","🛒":"/_blob/0037b9758dc46252c1172ab5f084f25f","🗑":"/_blob/fc19682ba8e19672f33fe6035851f751","📎":"/_blob/07a2d28be58a518091a9558f88edd45e","👛":"/_blob/982acf55bdec35e45edd153bf836b03e","👗":"/_blob/175bfeecc6da39af08ee385f56034819","🚚":"/_blob/43b4af79f686e2ed4420dc3e108fe8ae","💧":"/_blob/7662f925983599a9fdd3884962322a36","📋":"/_blob/590f4adfbca14cb1f8586734ef27c548","🏔":"/_blob/d6c869f15bebb614f410ec4d477c8894","🏝":"/_blob/43e182b9a8dc3d1e9a6a89f5eb60d272","🏧":"/_blob/56d29612b1a5af4b1bff51260e7305ae","🛵":"/_blob/275f7178832668bebdaf07274abab9ef","🍔":"/_blob/60857b1aa882f9d32f8fb6261e7091b0","🚕":"/_blob/39af32c6dd7a3933cae6baa9755bc90b","🕺":"/_blob/3fa8da7b9adaf5023d9503e2f942bebe","🐶":"/_blob/0b417f587d164a2e42f9c3c3814e7a61","🤖":"/_blob/6317c78d9ec560369228a0ad4a1b48d7","💱":"/_blob/11f4b834f8e375063b78ce3e5a10f391","🌗":"/_blob/e1526408dab1a34ad8276dc3ddd9d816","📕":"/_blob/00be302335540dd2a90a417f944fc6ff","🐜":"/_blob/753d99a54f2f3465e02fbb1b14476190","🚨":"/_blob/c94941c439f5aca27aae12cdee866f03","🤫":"/_blob/b652eb4fff1bff3ec496eb6375dc0912","📴":"/_blob/6bad1f80a7ac75c006c4bc093bd2b98b","📍":"/_blob/30cacd2c8d18fe59c8ae4cab309f38a3","💭":"/_blob/498a7444c5cfb7d612f06d6f4b6e1d52","📜":"/_blob/178a7a0a201a75dbc6fceab90e645800","🍪":"/_blob/4cba9d9a63c6956da39a40232db9a6f9","🌙":"/_blob/11b74a484820f836c735094fddf92408","🔍":"/_blob/44b6a7a13d36c12b6abd5077e7866785","🏠":"/_blob/3fa7d009040a3baf79cde06c7f7b2615","🎓":"/_blob/f29ca0c5836707d918bb8ed63fca0048","🚗":"/_blob/aa36dfa954f9baf20932c364fba2737d","📐":"/_blob/1ac94db37a263cab9d554604b5072d2f","📷":"/_blob/57a1b01805f419e7951e6d8f7fbaa0de","🎁":"/_blob/e7797c66ec238743479dc2c5fb2ccf97","👜":"/_blob/116d9f259609278964d26adada986f7a","🪢":"/_blob/451b7630b628c21174bdf13b6b1aa26b","👕":"/_blob/4d952ffbb250bdbbe1e4a4775e66c3b4","📶":"/_blob/b7bd76031d9b335eab0037a375f41be3","🩺":"/_blob/9741af94ec94248a6124264aad7cf504","📉":"/_blob/da90af2b01b771b586357738ea59aa4c","🏆":"/_blob/66b8045f856a4b3579424418c8a8455e","🛡":"/_blob/3e04e4070fcb56de1a15225f9fe9c889","🚫":"/_blob/019cff5e37e8fdfd047067dc94fd73d0","🍰":"/_blob/b8b185fd3baec558a93465a522c0d359","🔧":"/_blob/dceda7fdf94af7806663fb71f326b080","🎨":"/_blob/c44fac3e22efd6ef0a7de4324aeca127","🧭":"/_blob/dddaad31ed93d97765c99531e84cf657","👀":"/_blob/38cd1dfedcd84ab055b67c7254d074eb","✅":"/_blob/3ba3de6c8715a78d8312e2f1d166c068","⚠":"/_blob/19498bfa47f53de4ed50fa0591ab6679","✏":"/_blob/4392d95821e027bfd33650a623c9be8c","⬇":"/_blob/6bad285f7df78d6575e50a860c13adee","⚖":"/_blob/975ab73da8aaf37386be41af6dfe505e","➕":"/_blob/978f7fc8b0a29c7cd5da63a7c5842fb2","✉":"/_blob/03977329e58c6f43e9b7c31cddf08eb8","✨":"/_blob/a3610656cd8f562341c0d13eb86646dd","⚙":"/_blob/2e453981c84ba8814c3382e8a11cd026","☁":"/_blob/08c6a675fda65f703c421c393a0bd3fd","⭐":"/_blob/9871354ab39033a56b4c7058a82f5773","⚡":"/_blob/eaa585deadef9e8a111cd8e7da108d62","☀":"/_blob/5db7106dd94caa3c83a434e1ac4ba808","✈":"/_blob/18459ff0a3f01133848e6a22833a4c62","✍":"/_blob/4392d95821e027bfd33650a623c9be8c","⬆":"/_blob/e933e44c8b609ad923205ec9f47cb512","➖":"/_blob/d55572dff39db8bc4651f12b593ac8ad","☕":"/_blob/2624e94558e5437a5ddf4e0e1a18c801"};
+      Component.E3R = new RegExp('^(?:' + Object.keys(Component.E3M).sort((a, b) => b.length - a.length).join('|') + ')', 'u');
+    }
+    const M = Component.E3M, R = Component.E3R, seen = new WeakMap();
+    const isKey = (k) => /emoji$/i.test(k) || k === 'icon' || k === 'label';
+    const walk = (o) => {
+      if (!o || typeof o !== 'object') return o;
+      if (seen.has(o)) return seen.get(o);
+      if (Array.isArray(o)) { const a = []; seen.set(o, a); for (let i = 0; i < o.length; i++) a.push(walk(o[i])); return a; }
+      const p = Object.getPrototypeOf(o);
+      if (p !== Object.prototype && p !== null) return o;
+      const out = {}; seen.set(o, out);
+      for (const k of Object.keys(o)) {
+        const v = o[k];
+        out[k] = walk(v);
+        if (isKey(k)) {
+          let img = '', txt = v;
+          if (typeof v === 'string') {
+            const n = v.replace(/\uFE0F/g, ''), m = R.exec(n);
+            if (m && (n.length === m[0].length || n[m[0].length] === ' ')) { img = M[m[0]]; txt = n.slice(m[0].length); }
+          }
+          out[k + 'Img'] = img; out[k + 'Txt'] = txt;
+        }
+      }
+      return out;
+    };
+    return walk(vals);
+  }
+
+  renderVals() { return this.e3(this.renderVals0()); }
+
+  renderVals0() {
+    const s = this.state;
+    const dark = s.darkOverride === null ? !!this.props.dark : s.darkOverride;
+    const accent = this.props.accent ?? '#1F6FEB';
+    const t = dark
+      ? { bg: '#0A0F1C', card: '#131B2D', text: '#EAF1FF', muted: '#9FB0CC', line: '#232D45', chip: '#1C2640', soft: '#16264A', accentText: '#7DB6FF', pos: '#4ADE9A', shadow: 'none' }
+      : { bg: '#F4F8FF', card: '#FFFFFF', text: '#0B1B33', muted: '#56657F', line: '#E3EBF8', chip: '#E9F0FC', soft: '#E6F0FF', accentText: '#1F6FEB', pos: '#0A7A4B', shadow: '0 6px 24px rgba(31,111,235,0.08)' };
+    const fmt = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    const short = (n) => n >= 1000000 ? (n / 1000000).toFixed(2).replace('.', ',') + 'M' : n >= 1000 ? Math.round(n / 1000) + 'K' : String(n);
+    // ---- Período y calendario ----
+    const TODAY = '2026-11-15';
+    const MN = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const MS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    const P2 = (n) => ('0' + n).slice(-2);
+    const dp = (x) => x.split('-').map(Number);
+    const fmtD = (x) => { const p = dp(x); return p[2] + ' ' + MS[p[1] - 1]; };
+    const fmtDY = (x) => { const p = dp(x); return p[2] + ' ' + MS[p[1] - 1] + ' ' + p[0]; };
+    const mName = (y, m) => MN[m - 1].charAt(0).toUpperCase() + MN[m - 1].slice(1) + ' ' + y;
+    const rg = s.rng;
+    const daysP = Math.max(1, this.diffDays(rg.from, rg.to) + 1);
+    const rf = dp(rg.from); const rt = dp(rg.to);
+    const isMonth = rf[0] === rt[0] && rf[1] === rt[1] && rf[2] === 1 && (rt[2] === this.dim(rt[0], rt[1]) || rg.to === TODAY);
+    const isCurMonth = isMonth && rf[0] === 2026 && rf[1] === 11;
+    const perLabel = isMonth ? mName(rf[0], rf[1]) : (rg.from === rg.to ? fmtDY(rg.from) : ((rf[0] === rt[0] ? fmtD(rg.from) : fmtDY(rg.from)) + ' – ' + fmtDY(rg.to)));
+    let prevFrom, prevTo, prevLabel;
+    if (isMonth) {
+      const pm = rf[1] === 1 ? [rf[0] - 1, 12] : [rf[0], rf[1] - 1];
+      prevFrom = pm[0] + '-' + P2(pm[1]) + '-01'; prevTo = pm[0] + '-' + P2(pm[1]) + '-' + P2(this.dim(pm[0], pm[1])); prevLabel = MN[pm[1] - 1];
+    } else { prevTo = this.addDays(rg.from, -1); prevFrom = this.addDays(prevTo, -(daysP - 1)); prevLabel = 'el período anterior'; }
+    const nmT = isMonth ? 1 : Math.max(1, Math.round(daysP / 30.44 * 10) / 10);
+    const dayLabel = (x) => x === TODAY ? 'Hoy' : x === this.addDays(TODAY, -1) ? 'Ayer' : fmtD(x) + (dp(x)[0] !== 2026 ? ' ' + dp(x)[0] : '');
+    const perSub = rg.to === TODAY ? 'cifras a hoy' : 'período cerrado';
+    const pkPresetsDef = [
+      { k: 'mes', label: 'Este mes', from: '2026-11-01', to: TODAY },
+      { k: 'prev', label: 'Mes pasado', from: '2026-10-01', to: '2026-10-31' },
+      { k: '3m', label: 'Últimos 3 meses', from: '2026-09-01', to: TODAY },
+      { k: 'anio', label: 'Este año', from: '2026-01-01', to: TODAY }
+    ];
+    const pkPresets = pkPresetsDef.map((p) => ({ label: p.label, bg: rg.k === p.k ? t.soft : 'transparent', border: rg.k === p.k ? accent : t.line, pick: () => this.setState({ rng: { k: p.k, from: p.from, to: p.to }, pickOpen: false }) }));
+    const pv = s.pView.split('-').map(Number);
+    const calFirst = this.dowMon(pv[0] + '-' + P2(pv[1]) + '-01');
+    const calN = this.dim(pv[0], pv[1]);
+    const pkCells = [];
+    for (let i = 0; i < calFirst; i++) pkCells.push({ label: '', tap: () => {}, bg: 'transparent', fg: t.text, op: 1 });
+    for (let dd = 1; dd <= calN; dd++) {
+      const iso = pv[0] + '-' + P2(pv[1]) + '-' + P2(dd);
+      const dis = iso > TODAY;
+      const isEnd = iso === s.pFrom || iso === s.pTo;
+      const inR = !!s.pFrom && !!s.pTo && iso > s.pFrom && iso < s.pTo;
+      pkCells.push({
+        label: String(dd), bg: isEnd ? accent : inR ? t.soft : 'transparent', fg: isEnd ? '#fff' : dis ? t.muted : t.text, op: dis ? 0.4 : 1,
+        tap: () => { if (dis) return; this.setState((st) => { let f = st.pFrom; let e = st.pTo; if (!f || e) { f = iso; e = null; } else if (iso < f) { f = iso; } else { e = iso; } return { pFrom: f, pTo: e }; }); }
+      });
+    }
+    const moveM = (delta) => () => this.setState((st) => { const q = st.pView.split('-').map(Number); let y = q[0]; let m = q[1] + delta; if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; } const key = y + '-' + P2(m); return key > '2026-11' ? null : { pView: key }; });
+    const vtxt = s.voiceText.trim();
+    const vp = vtxt ? this.parseVoice(vtxt, 'personal') : null;
+    const SRok = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+    // ---- Metas, deudas y patrimonio ----
+    const money0 = (n) => '$ ' + fmt(n);
+    const goalSaved = s.goals.reduce((a, g) => a + g.saved, 0);
+    const assetsSum = s.assets.reduce((a, x) => a + x.val, 0);
+    const debtSum = s.debts.reduce((a, d) => a + d.bal, 0);
+    const netWorth = assetsSum + goalSaved - debtSum;
+    const goalRows = s.goals.map((g) => {
+      const pct = Math.min(100, Math.round(g.saved / g.target * 100));
+      const addG = (n) => () => { this.setState((st) => ({ goals: st.goals.map((x) => x.id === g.id ? Object.assign({}, x, { saved: Math.min(x.target, x.saved + n) }) : x) })); this.flash(g.saved + n >= g.target ? '¡Meta cumplida! 🎉' : 'Ahorraste ' + short(n) + ' para ' + g.name); };
+      return { emoji: g.emoji, name: g.name, pct, sub: g.saved >= g.target ? '¡Cumplida!' : fmt(g.saved) + ' de ' + fmt(g.target) + ' · faltan ' + short(g.target - g.saved), bar: g.saved >= g.target ? t.pos : accent, add1: addG(100000), add2: addG(500000) };
+    });
+    const mRate = (r) => Math.pow(1 + r / 100, 1 / 12) - 1;
+    const monthlyInt = s.debts.reduce((a, d) => a + d.bal * mRate(d.rate), 0);
+    const topDebt = s.debts.filter((d) => d.bal > 0).sort((a, b) => b.rate - a.rate)[0];
+    const debtTip = topDebt ? 'Paga los mínimos de todas y manda el dinero extra a "' + topDebt.name + '": tiene la tasa más alta (' + topDebt.rate + '% EA) y es la que más intereses te cuesta.' : '¡No tienes deudas! Ese dinero ahora puede ir a tus metas.';
+    const debtRows = s.debts.map((d) => {
+      const payD = (n) => () => { this.setState((st) => ({ debts: st.debts.map((x) => x.id === d.id ? Object.assign({}, x, { bal: Math.max(0, x.bal - n) }) : x) })); this.flash(d.bal - n <= 0 ? '¡Deuda saldada! 🎉' : 'Abonaste ' + short(n) + ' a ' + d.name); };
+      return { emoji: d.emoji, name: d.name, balStr: money0(d.bal), sub: (d.rate ? d.rate + '% EA' : 'Sin intereses') + (d.min ? ' · cuota ' + short(d.min) : ''), priority: !!topDebt && topDebt.id === d.id && d.bal > 0, pBg: t.soft, pText: t.accentText, pay1: payD(200000), pay2: payD(1000000) };
+    });
+    const assetRows = s.assets.map((a) => ({
+      emoji: a.emoji, name: a.name, valStr: short(a.val), editable: true,
+      minus: () => this.setState((st) => ({ assets: st.assets.map((x) => x.id === a.id ? Object.assign({}, x, { val: Math.max(0, x.val - 500000) }) : x) })),
+      plus: () => this.setState((st) => ({ assets: st.assets.map((x) => x.id === a.id ? Object.assign({}, x, { val: x.val + 500000 }) : x) }))
+    })).concat([{ emoji: '🎯', name: 'Ahorrado en metas', valStr: short(goalSaved), editable: false, minus: () => {}, plus: () => {} }]);
+    const nwSeries = [-3200000, -1900000, -300000, 900000, 2100000].concat([netWorth]);
+    const nwMax = Math.max.apply(null, nwSeries.map((x) => Math.abs(x)).concat([1]));
+    const nwBars = nwSeries.map((v, i) => ({ label: ['Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov'][i], h: Math.max(6, Math.round(Math.abs(v) / nwMax * 100)), bar: i === 5 ? accent : (v < 0 ? '#E5484D' : (dark ? '#2B3A5E' : '#BBD3F7')) }));
+    const cats = [
+      { id: 'shop', name: 'Shopping', emoji: '🛍️', tint: dark ? '#26376A' : '#D5E3FF', base: 1700000, limit: s.limits.shop },
+      { id: 'comida', name: 'Comida fuera', emoji: '🍔', tint: dark ? '#4A3622' : '#FFE3C2', base: 1480000, limit: s.limits.comida },
+      { id: 'transp', name: 'Transporte', emoji: '🚕', tint: dark ? '#43401F' : '#FFF1B8', base: 315000, limit: s.limits.transp },
+      { id: 'mercado', name: 'Mercado', emoji: '🥑', tint: dark ? '#26421F' : '#DDF5C9', base: 166000, limit: s.limits.mercado },
+      { id: 'salidas', name: 'Salidas', emoji: '🕺', tint: dark ? '#43285A' : '#EBD8FF', base: 92000, limit: s.limits.salidas },
+      { id: 'perro', name: 'Perro', emoji: '🐶', tint: dark ? '#4A3A2A' : '#F6E3CF', base: 0, limit: s.limits.perro }
+    ];
+    const byId = {}; cats.forEach((c) => { byId[c.id] = c; });
+    byId.ingreso = { id: 'ingreso', name: 'Ingreso', emoji: '💰', tint: dark ? '#17402F' : '#D4F5E4' };
+    const inRg = (x, a, b) => x.date >= a && x.date <= b;
+    const txP = s.txs.filter((x) => inRg(x, rg.from, rg.to));
+    const txPrev = s.txs.filter((x) => inRg(x, prevFrom, prevTo));
+    const spent = {}; const prevCat = {}; cats.forEach((c) => { spent[c.id] = 0; prevCat[c.id] = 0; });
+    let income = 0;
+    txP.forEach((x) => { if (x.kind === 'gasto') spent[x.cat] += x.amt; else income += x.amt; });
+    txPrev.forEach((x) => { if (x.kind === 'gasto') prevCat[x.cat] += x.amt; });
+    const total = cats.reduce((a, c) => a + spent[c.id], 0);
+    const prev = cats.reduce((a, c) => a + prevCat[c.id], 0);
+    const d = prev > 0 ? Math.round(((total - prev) / prev) * 100) : 0;
+    const deltaStr = (d > 0 ? '+' : '−') + Math.abs(d) + '%';
+    const deltaLine = prev > 0 ? deltaStr + ' vs ' + prevLabel : 'Sin gastos en ' + prevLabel;
+    const perWord = isMonth ? 'en ' + MN[rf[1] - 1] : (rg.from === rg.to ? 'el ' + fmtD(rg.from) : 'del ' + fmtD(rg.from) + ' al ' + fmtD(rg.to));
+    const lim = (c) => c.limit * nmT;
+    const top = cats.slice().sort((a, b) => spent[b.id] - spent[a.id])[0];
+    const share = total > 0 ? Math.round((spent[top.id] / total) * 100) : 0;
+    const wTxt = isCurMonth ? 'este mes' : 'en este período';
+    const insightText = total === 0 ? 'Aún no hay gastos en este período. Cambia las fechas para ver otros meses.'
+      : top.limit > 0 && spent[top.id] > lim(top)
+      ? top.name + ' es el ' + share + '% de tus gastos. Si lo bajas a $' + fmt(lim(top)) + ' ahorrarías $' + fmt(spent[top.id] - lim(top)) + ' ' + wTxt + '.'
+      : top.name + ' es tu mayor gasto: el ' + share + '% del total ' + (isCurMonth ? 'este mes' : 'del período') + '.';
+    const maxSpent = Math.max.apply(null, cats.map((c) => spent[c.id]).concat([1]));
+    const cards = cats.filter((c) => spent[c.id] > 0).sort((a, b) => spent[b.id] - spent[a.id]).map((c) => ({
+      emoji: c.emoji, name: c.name, tint: c.tint, short: short(spent[c.id]),
+      pct: Math.max(6, Math.round((spent[c.id] / maxSpent) * 100)),
+      border: s.filter === c.id ? accent : 'transparent',
+      pick: () => this.setState((st) => ({ filter: st.filter === c.id ? null : c.id }))
+    }));
+    const qq = s.q.trim().toLowerCase();
+    const listAll = txP.filter((x) => (s.filter === null || x.cat === s.filter) && (qq === '' || x.desc.toLowerCase().indexOf(qq) >= 0 || byId[x.cat].name.toLowerCase().indexOf(qq) >= 0)).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id);
+    const gDates = listAll.map((x) => x.date).filter((x, i, a) => a.indexOf(x) === i);
+    const groups = gDates.map((dt) => {
+      const list = listAll.filter((x) => x.date === dt);
+      const sum = list.filter((x) => x.kind === 'gasto').reduce((a, x) => a + x.amt, 0);
+      return {
+        label: dayLabel(dt), totalStr: sum ? '$ ' + fmt(sum) : '',
+        items: list.map((x) => ({
+          emoji: byId[x.cat].emoji, tint: byId[x.cat].tint, cat: byId[x.cat].name, desc: x.desc,
+          amountStr: (x.kind === 'ingreso' ? '+ $ ' : '$ ') + fmt(x.amt),
+          color: x.kind === 'ingreso' ? t.pos : t.text,
+          open: () => this.setState({ sheet: true, editId: x.id, kind: x.kind, amount: String(x.amt), pick: x.kind === 'gasto' ? x.cat : 'comida', confirmDel: false })
+        }))
+      };
+    });
+    const budgets = cats.map((c) => {
+      const none = c.limit <= 0; const L = lim(c);
+      const r = none ? 0 : spent[c.id] / L;
+      const over = r > 1; const warn = s.alertOn && r >= s.thr / 100 && !over;
+      return {
+        emoji: c.emoji, name: c.name, tint: c.tint, line: none ? '$ ' + fmt(spent[c.id]) + ' · sin tope' : '$ ' + fmt(spent[c.id]) + ' de $ ' + fmt(L),
+        pct: Math.min(100, Math.round(r * 100)),
+        bar: over ? (dark ? '#FDA066' : '#C2410C') : warn ? (dark ? '#FACC15' : '#A16207') : accent,
+        status: none ? 'Sin tope' : over ? 'Superado' : warn ? 'Cuidado' : Math.round(r * 100) + '%',
+        chipBg: over ? (dark ? '#4A2A14' : '#FFE9DA') : warn ? (dark ? '#4A3F10' : '#FFF4C7') : t.soft,
+        chipText: over ? (dark ? '#FDA066' : '#9A3412') : warn ? (dark ? '#FACC15' : '#854D0E') : t.accentText
+      };
+    });
+    const press = (v) => () => this.setState((st) => {
+      if (v === 'back') return { amount: st.amount.slice(0, -1) };
+      if (st.amount.length >= 10) return null;
+      if (st.amount === '' && (v === '0' || v === '000')) return null;
+      return { amount: st.amount + v };
+    });
+    const keys = ['1','2','3','4','5','6','7','8','9','000','0','back'].map((k) => ({
+      label: k === 'back' ? '⌫' : k, aria: k === 'back' ? 'Borrar' : k, press: press(k)
+    }));
+    const pickable = cats.map((c) => ({
+      emoji: c.emoji, name: c.name,
+      bg: s.pick === c.id ? t.soft : 'transparent',
+      border: s.pick === c.id ? accent : t.line,
+      pick: () => this.setState({ pick: c.id })
+    }));
+    const toast = (msg) => () => { this.setState({ toast: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 2200); };
+    const soon = toast('Esta pantalla llega en la siguiente versión del prototipo');
+    const tog = (key) => () => this.setState((st) => ({ [key]: !st[key] }));
+    const row = (emoji, title, sub, o) => Object.assign({ emoji, title, sub, hasSub: !!sub, isToggle: false, isNav: true, badge: '', hasBadge: false, tap: soon, justify: 'flex-start', trackBg: t.line }, o || {});
+    const sw = (emoji, title, sub, key) => row(emoji, title, sub, { isToggle: true, isNav: false, tap: tog(key), justify: s[key] ? 'flex-end' : 'flex-start', trackBg: s[key] ? accent : (dark ? '#33405C' : '#C9D4E8') });
+    const inList = 'En tu lista “Personal”';
+    const langs = [
+      ['🇨🇴', 'Español (Colombia)', 'es-CO'], ['🇪🇸', 'Español (España)', 'es-ES'], ['🇲🇽', 'Español (México)', 'es-MX'], ['🇦🇷', 'Español (Argentina)', 'es-AR'],
+      ['🇺🇸', 'Inglés (EE. UU.)', 'en-US'], ['🇬🇧', 'Inglés (Reino Unido)', 'en-GB'], ['🇧🇷', 'Portugués (Brasil)', 'pt-BR'], ['🇫🇷', 'Francés (Francia)', 'fr-FR'], ['🇮🇹', 'Italiano (Italia)', 'it-IT'], ['🇩🇪', 'Alemán (Alemania)', 'de-DE']
+    ];
+    const curs = [
+      ['COP', 'Peso colombiano'], ['USD', 'Dólar estadounidense'], ['EUR', 'Euro'], ['MXN', 'Peso mexicano'], ['ARS', 'Peso argentino'],
+      ['CLP', 'Peso chileno'], ['PEN', 'Sol peruano'], ['BRL', 'Real brasileño'], ['GBP', 'Libra esterlina'], ['CAD', 'Dólar canadiense']
+    ];
+    const voiceName = (langs.filter((l) => l[2] === s.voice)[0] || langs[0])[1];
+    const curName = (curs.filter((c) => c[0] === s.cur)[0] || curs[0])[1];
+    const view = (v) => () => this.setState({ settings: v });
+    const csv = toast('Tu CSV está listo (simulado en el prototipo)');
+    const sections = [
+      { title: 'Contenido', rows: [
+        row('🥑', 'Editar categorías', inList, { tap: view('categories') }),
+        row('💰', 'Presupuestos', inList, { tap: view('budgets') }),
+        row('#️⃣', 'Editar etiquetas', inList),
+        row('🔁', 'Lista de recurrentes', inList),
+        row('📅', 'Periodo por defecto', 'Si prefieres segmentar tus datos distinto a mensual', { tap: view('period') }),
+        row('📝', 'Tus listas', '', { hasBadge: true, badge: '1', tap: view('lists') }),
+        row('📤', 'Compartir lista', 'Personal'),
+        row('📊', 'Exportar CSV', '', { tap: csv }),
+        row('📥', 'Importar CSV', 'Desde un CSV exportado de la app', { tap: view('importcsv') }),
+        row('💬', 'Conectar WhatsApp', 'Registra gastos chateando con el bot'),
+        sw('➕', 'Mostrar ingresos', inList, 'showIncome'),
+        row('🤖', 'Mejoras con IA', inList, { tap: view('ai') })
+      ] },
+      { title: 'Idioma y región', rows: [
+        row('🇨🇴', 'Idioma de voz', voiceName, { tap: view('voice') }),
+        row('💵', 'Moneda', curName + ' (' + s.cur + ')', { tap: view('currency') }),
+        sw('💱', 'Conversión automática', 'Los montos en otra moneda se convierten a ' + s.cur, 'autoConv')
+      ] },
+      { title: 'Más', rows: [
+        row('💳', 'Rastreo automático de gastos', 'Atajos de Apple y mensajes del banco · Así se configura', { tap: view('tracking') }),
+        row('☁️', 'Cuenta', '', { tap: view('account') }),
+        row('💎', 'Premium', '', { hasBadge: true, badge: 'Activo', tap: view('premium') }),
+        row('🌗', 'Apariencia', 'Define el aspecto de tu app', { tap: view('appearance') }),
+        row('🆕', 'Novedades', 'Versión 1.0.0', { tap: view('whatsnew') }),
+        row('⭐', '¿Te gusta la app?', 'Déjanos una reseña'),
+        sw('🔔', 'Permitir notificaciones', 'Garantizado, sin spam', 'notifs'),
+        sw('⚡', 'Registro instantáneo', 'Guarda los gastos por voz sin revisarlos', 'instant'),
+        row('🛠️', 'Sugerencias', 'Vota y propón funciones', { tap: view('suggestions') }),
+        row('✉️', '¿Algún problema?', 'Escríbenos'),
+        row('📕', 'Legal', 'Política de privacidad y términos de uso', { tap: view('legal') })
+      ] }
+    ];
+    // ---- Análisis ----
+    const DAY = isCurMonth ? 15 : 1, DIM = isCurMonth ? 30 : 1;
+    const novTot = s.txs.filter((x) => x.kind === 'gasto' && x.date.slice(0, 7) === '2026-11').reduce((a, x) => a + x.amt, 0);
+    const hist = [['Jun', 4380000], ['Jul', 4910000], ['Ago', 5120000], ['Sep', 4640000], ['Oct', 5755112], ['Nov', novTot]];
+    const histMax = Math.max.apply(null, hist.map((h) => h[1]).concat([income]));
+    const chart = hist.map((h, i) => ({
+      label: h[0], short: short(h[1]), h: Math.max(6, Math.round((h[1] / histMax) * 140)),
+      bg: i === hist.length - 1 ? accent : (dark ? '#2A3A5E' : '#BFD6FA')
+    }));
+    const incBottom = Math.round((income / histMax) * 140);
+    const proj = Math.round((total / DAY) * DIM);
+    const projPct = prev > 0 ? Math.round(((proj - prev) / prev) * 100) : 0;
+    const saveRate = income > 0 ? Math.round(((income - total) / income) * 100) : 0;
+    const wants = spent.shop + spent.comida + spent.salidas;
+    const wantsPct = income > 0 ? Math.round((wants / income) * 100) : 0;
+    const shopPct = income > 0 ? Math.round((spent.shop / income) * 100) : 0;
+    const small = txP.filter((x) => x.kind === 'gasto' && x.amt < 25000);
+    const smallSum = small.reduce((a2, x) => a2 + x.amt, 0);
+    const overList = cats.filter((c) => c.limit > 0 && spent[c.id] > lim(c)).map((c) => c.name);
+    const tone = {
+      warn: { bg: dark ? '#3A2A1A' : '#FFF1E6', fg: dark ? '#FDA066' : '#9A3412' },
+      good: { bg: dark ? '#12332A' : '#E3F7EC', fg: dark ? '#4ADE9A' : '#0A6B42' },
+      info: { bg: t.soft, fg: t.accentText }
+    };
+    const ins = [];
+    ins.push(isCurMonth ? { emoji: proj > prev ? '⚠️' : '✅', tone: proj > prev ? 'warn' : 'good', title: 'Ritmo del mes', text: 'Al ritmo actual cerrarías noviembre en $ ' + fmt(proj) + ', ' + Math.abs(projPct) + '% ' + (projPct >= 0 ? 'más' : 'menos') + ' que octubre.' } : { emoji: '🗓️', tone: 'info', title: 'Resumen del período', text: 'Gastaste $ ' + fmt(total) + ' (' + perLabel + ')' + (prev > 0 ? ', ' + Math.abs(projPct) + '% ' + (projPct >= 0 ? 'más' : 'menos') + ' que ' + prevLabel + '.' : '.') });
+    if (shopPct > 10) ins.push({ emoji: '🛍️', tone: 'warn', title: 'Shopping pesa mucho', text: 'Shopping es el ' + shopPct + '% de lo que ganas. Más del 10% no es recomendable: tu tope sería $ ' + fmt(income * 0.1) + '.' });
+    ins.push(wantsPct > 30
+      ? { emoji: '🎯', tone: 'warn', title: 'Gustos por encima de la regla 50/30/20', text: 'Shopping, comida fuera y salidas son el ' + wantsPct + '% de tus ingresos. La regla sugiere hasta 30%.' }
+      : { emoji: '🎯', tone: 'good', title: 'Gustos bajo control', text: 'Tus gustos son el ' + wantsPct + '% de tus ingresos, dentro del 30% sugerido por la regla 50/30/20.' });
+    ins.push(saveRate >= 20
+      ? { emoji: '🐷', tone: 'good', title: 'Vas ahorrando bien', text: 'Llevas ' + saveRate + '% de tus ingresos sin gastar, por encima del 20% sugerido.' }
+      : { emoji: '🐷', tone: 'warn', title: 'Ahorro bajo', text: 'Solo te queda el ' + saveRate + '% de tus ingresos. Intenta llegar al 20%.' });
+    if (small.length >= 3) ins.push({ emoji: '🐜', tone: 'info', title: 'Gastos hormiga', text: small.length + ' gastos pequeños (menos de $ 25.000) suman $ ' + fmt(smallSum) + ' este mes. Las compras chicas repetidas pesan.' });
+    if (overList.length) ins.push({ emoji: '🚨', tone: 'warn', title: 'Topes superados', text: 'Superaste el tope en ' + overList.join(' y ') + '.' });
+    const insights = ins.map((i) => ({ emoji: i.emoji, title: i.title, text: i.text, bg: tone[i.tone].bg, fg: tone[i.tone].fg }));
+    const catCmp = cats.filter((c) => spent[c.id] > 0).map((c) => {
+      const pr = Math.round((spent[c.id] / DAY) * DIM);
+      const d2 = prevCat[c.id] ? Math.round(((pr - prevCat[c.id]) / prevCat[c.id]) * 100) : 0;
+      const up = d2 > 0;
+      return { emoji: c.emoji, name: c.name, tint: c.tint, projStr: '$ ' + fmt(pr), deltaStr: (up ? '▲ +' : '▼ −') + Math.abs(d2) + '%', dBg: up ? tone.warn.bg : tone.good.bg, dText: up ? tone.warn.fg : tone.good.fg };
+    });
+    const rep = (emoji, title, sub, key) => ({ emoji, title, sub, tap: tog(key), justify: s[key] ? 'flex-end' : 'flex-start', trackBg: s[key] ? accent : (dark ? '#33405C' : '#C9D4E8') });
+    const reports = [
+      rep('🗓️', 'Resumen semanal', 'Cada lunes, cómo te fue la semana', 'repWeekly'),
+      rep('📈', 'Resumen mensual', 'El día 1, con comparación frente al mes anterior', 'repMonthly'),
+      rep('⏱️', 'Alerta de ritmo', 'Te avisamos si vas gastando más que el mes pasado', 'repPace')
+    ];
+
+    // ---- Ajustes: listas genéricas ----
+    const mk = (o) => Object.assign({ emoji: '', title: '', sub: '', trail: '', check: false, tap: soon, chipFont: 24 }, o, { hasSub: !!o.sub, hasTrail: !!o.trail });
+    let gen = []; let genNote = '';
+    if (s.settings === 'lists') {
+      genNote = 'Elige la lista activa. Cada lista tiene sus propias categorías y topes.';
+      gen = [mk({ emoji: '🤫', title: 'Lista personal', sub: 'Solo tú', check: true }), mk({ emoji: '➕', title: 'Crear lista nueva', sub: 'Para pareja, familia o un viaje' })];
+    } else if (s.settings === 'importcsv') {
+      genNote = 'Elige dónde importar los movimientos.';
+      gen = [mk({ emoji: '🆕', title: 'Crear lista nueva', sub: 'Los movimientos entran en una lista aparte' }), mk({ emoji: '📝', title: 'Agregar a una lista existente', sub: 'Se suman a “Personal”' })];
+    } else if (s.settings === 'voice') {
+      gen = langs.map((l) => mk({ emoji: l[0], title: l[1], sub: l[2], check: s.voice === l[2], tap: () => this.setState({ voice: l[2] }) }));
+    } else if (s.settings === 'currency') {
+      genNote = 'Los montos en otra moneda se convierten automáticamente a la que elijas.';
+      const q = s.curQuery.trim().toLowerCase();
+      gen = curs.filter((c) => !q || c[0].toLowerCase().indexOf(q) >= 0 || c[1].toLowerCase().indexOf(q) >= 0)
+        .map((c) => mk({ emoji: c[0], chipFont: 13, title: c[1], sub: c[0], check: s.cur === c[0], tap: () => this.setState({ cur: c[0] }) }));
+    } else if (s.settings === 'suggestions') {
+      genNote = 'Vota lo que quieres ver primero o propón una idea nueva.';
+      const sug = [
+        ['fe', '🧾', 'Facturación electrónica (DIAN)', 'Factura desde el módulo de negocios', 412],
+        ['bank', '🏦', 'Conexión directa con tu banco', 'Importa movimientos sin atajos', 388],
+        ['multi', '🌍', 'Varias monedas en una lista', 'Para viajes y compras en el exterior', 301],
+        ['off', '📴', 'Registro sin conexión', 'Guarda por voz y categoriza al volver internet', 254],
+        ['loc', '📍', 'Ubicación del gasto', 'Ubicación actual o manual en cada movimiento', 190]
+      ];
+      gen = sug.map((x) => mk({ emoji: x[1], title: x[2], sub: x[3], trail: '▲ ' + (x[4] + (s.votes[x[0]] ? 1 : 0)), check: !!s.votes[x[0]], tap: () => this.setState((st) => ({ votes: Object.assign({}, st.votes, { [x[0]]: !st.votes[x[0]] }) })) }));
+      gen.push(mk({ emoji: '💭', title: '¿Otra idea?', sub: 'Sugiere algo que no esté en la lista' }));
+    } else if (s.settings === 'ai') {
+      genNote = 'Cada vez que corriges una categoría automática, la app lo recuerda para la próxima.';
+      gen = s.aiRules.map((r2) => mk({ emoji: (cats.filter((c) => c.name === r2.cat)[0] || { emoji: '🏷️' }).emoji, title: r2.merchant, sub: r2.cat, trail: 'Quitar', tap: () => this.setState((st) => ({ aiRules: st.aiRules.filter((z) => z.id !== r2.id) })) }));
+      if (gen.length === 0) gen = [mk({ emoji: '✨', title: 'Aún no hay correcciones', sub: 'Aparecerán aquí cuando cambies una categoría' })];
+    } else if (s.settings === 'legal') {
+      genNote = 'Estos textos están en revisión para cumplir la normativa colombiana de protección de datos.';
+      gen = [mk({ emoji: '📜', title: 'Términos de servicio' }), mk({ emoji: '🔒', title: 'Política de privacidad' }), mk({ emoji: '🧾', title: 'Tratamiento de datos personales', sub: 'Autorización y derechos del titular' }), mk({ emoji: '🍪', title: 'Política de cookies' })];
+    }
+    const genViews = ['lists', 'importcsv', 'voice', 'currency', 'suggestions', 'ai', 'legal'];
+
+    // ---- Ajustes: presupuestos y periodo ----
+    const stepLimit = (id, delta) => () => this.setState((st) => ({ limits: Object.assign({}, st.limits, { [id]: Math.max(0, st.limits[id] + delta) }) }));
+    const limitRows = cats.map((c) => ({ emoji: c.emoji, name: c.name, tint: c.tint, limitStr: c.limit > 0 ? '$ ' + fmt(c.limit) : 'Sin tope', dec: stepLimit(c.id, -50000), inc: stepLimit(c.id, 50000) }));
+    const cadChips = ['Mensual', 'Quincenal', 'Semanal', 'Anual'].map((n) => ({ name: n, bg: s.cadence === n ? accent : 'transparent', fg: s.cadence === n ? '#fff' : t.text, border: s.cadence === n ? accent : t.line, pick: () => this.setState({ cadence: n }) }));
+
+    const themeOptions = [
+      { emoji: '📱', label: 'Sistema', sub: 'Sigue el modo de tu teléfono', sel: s.darkOverride === null, pick: () => this.setState({ darkOverride: null }) },
+      { emoji: '🌙', label: 'Oscuro', sub: 'Fondo negro azulado, ideal de noche', sel: s.darkOverride === true, pick: () => this.setState({ darkOverride: true }) },
+      { emoji: '☀️', label: 'Claro', sub: 'Fondo blanco con azul claro', sel: s.darkOverride === false, pick: () => this.setState({ darkOverride: false }) }
+    ].map((o) => Object.assign(o, { border: o.sel ? accent : t.line }));
+    const catRows = cats.map((c) => ({ emoji: c.emoji, name: c.name, tint: c.tint, spentStr: '$ ' + fmt(spent[c.id]) }));
+    const titles = { main: 'Ajustes', appearance: 'Apariencia', categories: 'Categorías', budgets: 'Presupuestos', period: 'Periodo por defecto', lists: 'Tus listas', importcsv: 'Importar CSV', suggestions: 'Sugerencias', ai: 'Mejoras con IA', voice: 'Idioma de voz', currency: 'Moneda', tracking: 'Rastreo automático', account: 'Cuenta', premium: 'Premium', whatsnew: 'Novedades', legal: 'Legal' };
+    const isG = s.kind === 'gasto';
+    const on = (cond) => cond ? accent : 'transparent';
+    const onb = s.onb; let sp = null;
+    if (onb) {
+      const cap = onb.income - onb.save; const capP = cap * Math.max(1, nmT); const left = capP - total; const pct = capP > 0 ? Math.min(100, Math.round(total / capP * 100)) : 0;
+      const dLeft = isCurMonth ? Math.max(1, this.dim(rf[0], rf[1]) - 15 + 1) : 0;
+      const over = left < 0; const warn = !over && pct >= 80;
+      sp = {
+        cap: capP, pct, emoji: onb.goal === 'deudas' ? '💳' : onb.goal === 'meta' ? '🎯' : '🐷',
+        title: onb.goal === 'deudas' ? 'Plan para salir de deudas' : onb.goal === 'meta' ? 'Meta: ' + (onb.goalName || 'ahorro') : 'Plan de ahorro',
+        bar: over ? '#EF4444' : warn ? '#F59E0B' : accent, chip: over ? 'Te pasaste' : warn ? 'Cuidado' : 'Vas bien',
+        chipBg: over ? (dark ? '#4A2A14' : '#FFE9DA') : warn ? (dark ? '#3F3410' : '#FFF4C7') : (dark ? '#143A2B' : '#DDF7E9'), chipFg: over ? (dark ? '#FDA066' : '#9A3412') : warn ? (dark ? '#FACC15' : '#854D0E') : t.pos,
+        line: over ? 'Ya gastaste $ ' + fmt(-left) + ' más de lo que te permite tu plan. Frena los gastos que no son necesarios.' : 'Llevas $ ' + fmt(total) + ' y te quedan $ ' + fmt(left) + ' para gastar' + (dLeft ? ' (unos $ ' + fmt(left / dLeft) + ' por día hasta fin de mes)' : '') + '. Así separas $ ' + fmt(onb.save) + ' ' + (onb.goal === 'deudas' ? 'para tus deudas' : 'para ahorrar') + '.'
+      };
+    }
+    return {
+      t, dark, light: !dark, accent,
+      sections, themeOptions, catRows, soon,
+      showAnalysis: s.mode === 'personal' && s.tab === 'analysis',
+      chart, incBottom, insights, catCmp, reports,
+      saveStr: saveRate + '%', projStr: '$ ' + fmt(proj),
+      goAnalysis: () => this.setState({ mode: 'personal', tab: 'analysis' }),
+      genItems: gen, genNote, hasGenNote: genNote !== '', setGeneric: genViews.indexOf(s.settings) >= 0, isCurrency: s.settings === 'currency',
+      curSearch: s.curQuery, setCurQuery: (e) => this.setState({ curQuery: e.target.value }),
+      setBudgets: s.settings === 'budgets', setPeriod: s.settings === 'period', setTracking: s.settings === 'tracking',
+      setAccount: s.settings === 'account', setPremium: s.settings === 'premium', setWhatsNew: s.settings === 'whatsnew',
+      limitRows, cadChips, alertOn: s.alertOn, thr: s.thr, startDay: s.startDay,
+      alertToggle: { justify: s.alertOn ? 'flex-end' : 'flex-start', trackBg: s.alertOn ? accent : (dark ? '#33405C' : '#C9D4E8') },
+      toggleAlert: () => this.setState((st) => ({ alertOn: !st.alertOn })),
+      setThr: (e) => this.setState({ thr: parseInt(e.target.value, 10) }),
+      decDay: () => this.setState((st) => ({ startDay: Math.max(1, st.startDay - 1) })),
+      incDay: () => this.setState((st) => ({ startDay: Math.min(28, st.startDay + 1) })),
+      applyPeriod: () => { this.setState({ settings: 'main', toast: 'Periodo aplicado' }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 2200); },
+      showIncomeCards: s.showIncome,
+      settingsOpen: s.settings !== null,
+      setMain: s.settings === 'main',
+      setAppearance: s.settings === 'appearance',
+      setCategories: s.settings === 'categories',
+      settingsSub: s.settings !== null && s.settings !== 'main',
+      settingsTitle: titles[s.settings] || 'Ajustes',
+      hasToast: s.toast !== '', toastText: s.toast,
+      openSettings: () => this.setState({ settings: 'main' }),
+      closeSettings: () => this.setState({ settings: null }),
+      backSettings: () => this.setState({ settings: 'main' }),
+      showHome: s.mode === 'personal' && s.tab === 'home',
+      showBudget: s.mode === 'personal' && s.tab === 'budget',
+      showNegocio: s.mode === 'negocio',
+      seg: { pBg: on(s.mode === 'personal'), pText: s.mode === 'personal' ? '#fff' : t.muted, nBg: on(s.mode === 'negocio'), nText: s.mode === 'negocio' ? '#fff' : t.muted },
+      tab: { analysisColor: s.mode === 'personal' && s.tab === 'analysis' ? t.accentText : t.muted, homeColor: s.mode === 'personal' && s.tab === 'home' ? t.accentText : t.muted, budgetColor: s.mode === 'personal' && s.tab === 'budget' ? t.accentText : t.muted },
+      perLabel, perSub, openPicker: () => this.setState({ pickOpen: true, pFrom: rg.from, pTo: rg.to, pView: rg.to.slice(0, 7) }),
+      pkOpen: s.pickOpen, pkClose: () => this.setState({ pickOpen: false }), pkPresets,
+      pkFrom: s.pFrom ? fmtDY(s.pFrom) : 'Fecha inicial', pkTo: s.pTo ? fmtDY(s.pTo) : 'Fecha final',
+      pkFromB: (!s.pFrom || s.pTo) ? accent : t.line, pkToB: (s.pFrom && !s.pTo) ? accent : t.line,
+      pkTitle: mName(pv[0], pv[1]), pkPrev: moveM(-1), pkNext: moveM(1), pkNextOp: s.pView >= '2026-11' ? 0.3 : 1,
+      pkWd: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((l) => ({ l })), pkCells,
+      pkApply: () => { if (!s.pFrom) return; this.setState({ rng: { k: 'custom', from: s.pFrom, to: s.pTo || s.pFrom }, pickOpen: false }); },
+      pkApplyOp: s.pFrom ? 1 : 0.4,
+      hasSavePlan: !!sp, spEmoji: sp ? sp.emoji : '', spTitle: sp ? sp.title : '', spCapStr: sp ? '$ ' + fmt(sp.cap) : '', spPct: sp ? sp.pct : 0, spBar: sp ? sp.bar : accent, spChip: sp ? sp.chip : '', spChipBg: sp ? sp.chipBg : t.soft, spChipFg: sp ? sp.chipFg : t.accentText, spLine: sp ? sp.line : '',
+      cierreTitle: isCurMonth ? 'Cierre estimado vs octubre' : 'Gastado vs ' + prevLabel, deltaLine, perWord,
+      totalStr: fmt(total), deltaStr, incomeStr: '$ ' + fmt(income), balanceStr: '$ ' + fmt(income - total),
+      insightText, cards, groups, budgets, keys, catPicks: pickable,
+      hasFilter: s.filter !== null,
+      sheetOpen: s.sheet,
+      isEditing: s.editId !== null,
+      sheetTitle: s.editId !== null ? 'Editar movimiento' : 'Nuevo movimiento',
+      saveLabel: s.editId !== null ? 'Guardar cambios' : 'Guardar',
+      delLabel: s.confirmDel ? 'Toca otra vez para borrar' : 'Borrar movimiento',
+      delBg: s.confirmDel ? (dark ? '#4A1F1F' : '#FDE2E2') : 'transparent',
+      delText: dark ? '#FCA5A5' : '#B42318',
+      searchOpen: s.searchOpen, q: s.q, hasQuery: s.q !== '',
+      searchBtnBg: s.searchOpen ? t.soft : t.card,
+      emptyList: groups.length === 0,
+      emptyEmoji: s.q !== '' ? '🔍' : s.filter !== null ? '🗂️' : '🌱',
+      emptyTitle: s.q !== '' ? 'Sin resultados' : s.filter !== null ? 'Nada en esta categoría' : 'Aún no hay movimientos',
+      emptySub: s.q !== '' ? 'Prueba con otra palabra o revisa la ortografía.' : s.filter !== null ? 'Quita el filtro para ver todos tus movimientos.' : 'Toca el botón + para registrar tu primer gasto o ingreso.',
+      toggleSearch: () => this.setState((st) => ({ searchOpen: !st.searchOpen, q: '' })),
+      onQuery: (e) => this.setState({ q: e.target.value }),
+      clearQuery: () => this.setState({ q: '' }),
+      delTx: () => {
+        if (!this.state.confirmDel) { this.setState({ confirmDel: true }); return; }
+        const id = this.state.editId;
+        this.setState((st) => ({ txs: st.txs.filter((x) => x.id !== id), sheet: false, editId: null, confirmDel: false, amount: '', toast: 'Movimiento borrado' }));
+        clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 2200);
+      },
+      kind: { gBg: on(isG), gText: isG ? '#fff' : t.muted, iBg: on(!isG), iText: !isG ? '#fff' : t.muted },
+      amountDisplay: s.amount === '' ? '0' : fmt(parseInt(s.amount, 10)),
+      toggleTheme: () => this.setState({ darkOverride: !dark }),
+
+      canVoice: s.editId === null,
+      voiceOpen: s.voiceOpen, voiceText: s.voiceText, noVoiceText: vtxt === '',
+      openVoice: () => this.setState({ sheet: false, voiceOpen: true, voiceText: '' }),
+      closeVoice: () => { if (this._rec) this._rec.stop(); this.setState({ voiceOpen: false, listening: false }); },
+      onVoiceText: (e) => this.setState({ voiceText: e.target.value }),
+      voiceHint: s.micFail ? 'Aquí no puedo usar el micrófono. Toca el cuadro de texto y usa el micrófono de tu teclado 🎤' : s.listening ? 'Te escucho… toca para terminar' : SRok ? 'Toca el micrófono y cuéntame el movimiento' : 'Escribe la frase como si la dijeras',
+      micBg: s.listening ? '#E5484D' : accent, micAria: s.listening ? 'Detener' : 'Empezar a hablar',
+      toggleMic: () => {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) { this.setState({ micFail: true }); this.flash('Este navegador no tiene dictado. Usa el micrófono de tu teclado.'); return; }
+        if (this._rec) { this._rec.stop(); return; }
+        const r = new SR(); r.lang = 'es-CO'; r.interimResults = true;
+        r.onresult = (ev) => { let tx = ''; for (let i = 0; i < ev.results.length; i++) tx += ev.results[i][0].transcript; this.setState({ voiceText: tx }); };
+        r.onend = () => { this._rec = null; this.setState({ listening: false }); };
+        r.onerror = () => { this._rec = null; this.setState({ listening: false, micFail: true }); this.flash('No pude abrir el micrófono desde esta vista. Usa el micrófono del teclado.'); };
+        this._rec = r; this.setState({ listening: true, voiceText: '', micFail: false }); try { r.start(); } catch (e) { this._rec = null; this.setState({ listening: false, micFail: true }); }
+      },
+      voiceExamples: ['Me gasté 30.000 en una hamburguesa en el Corral', 'Uber 18 mil al trabajo', 'Me pagaron dos millones de freelance'].map((x) => ({ label: x, pick: () => this.setState({ voiceText: x }) })),
+      vHas: !!(vp && vp.ok), vBad: !!(vp && !vp.ok),
+      vEmoji: vp ? byId[vp.cat].emoji : '', vKind: vp ? (vp.kind === 'ingreso' ? 'Ingreso' : 'Gasto · ' + byId[vp.cat].name) : '', vDesc: vp ? vp.desc : '', vAmount: vp ? fmt(vp.amount) : '',
+      voiceBtnOp: vp && vp.ok ? 1 : 0.4,
+      saveVoice: () => {
+        const q = this.parseVoice(this.state.voiceText.trim(), 'personal');
+        if (!q.ok) return;
+        const tx = { id: Date.now(), date: TODAY, cat: q.cat, desc: q.desc, amt: q.amount, kind: q.kind };
+        this.setState((st) => ({ txs: [tx].concat(st.txs), voiceOpen: false, listening: false, voiceText: '', filter: null, q: '', mode: 'personal', tab: 'home' }));
+        this.flash('Movimiento guardado con tu voz');
+      },
+
+      openPlan: () => this.setState({ planOpen: true, planTab: 'metas' }), closePlan: () => this.setState({ planOpen: false }),
+      planOpen: s.planOpen, netWorthShort: (netWorth < 0 ? '−' : '') + '$ ' + short(Math.abs(netWorth)),
+      planTabs: [['metas', 'Metas'], ['deudas', 'Deudas'], ['patri', 'Patrimonio']].map((k) => ({ label: k[1], bg: s.planTab === k[0] ? t.soft : 'transparent', border: s.planTab === k[0] ? accent : t.line, pick: () => this.setState({ planTab: k[0] }) })),
+      tabMetas: s.planTab === 'metas', tabDeudas: s.planTab === 'deudas', tabPatri: s.planTab === 'patri',
+      goalRows, goalPresets: [['✈️', 'Viaje'], ['🏠', 'Vivienda'], ['🎓', 'Estudios'], ['🚗', 'Vehículo']].map((g) => ({ label: g[0] + ' ' + g[1], pick: () => { this.setState((st) => ({ goals: st.goals.concat([{ id: Date.now(), name: g[1], emoji: g[0], target: 5000000, saved: 0 }]) })); this.flash('Meta creada: ' + g[1]); } })),
+      debtRows, debtTotal: money0(debtSum), debtInterest: money0(Math.round(monthlyInt)), debtTip,
+      netWorthStr: (netWorth < 0 ? '−' : '') + '$ ' + fmt(Math.abs(netWorth)), nwColor: netWorth >= 0 ? t.pos : '#E5484D',
+      nwBars, assetRows, assetsStr: money0(assetsSum + goalSaved),
+      goPersonal: () => this.setState({ mode: 'personal' }),
+      goNegocio: () => { window.location.href = 'Negocio.dc.html'; },
+      goHome: () => this.setState({ mode: 'personal', tab: 'home' }),
+      goBudget: () => this.setState({ mode: 'personal', tab: 'budget' }),
+      clearFilter: () => this.setState({ filter: null }),
+      openSheet: () => this.setState({ sheet: true, amount: '', editId: null, confirmDel: false, kind: 'gasto' }),
+      closeSheet: () => this.setState({ sheet: false, editId: null, confirmDel: false }),
+      kindGasto: () => this.setState({ kind: 'gasto' }),
+      kindIngreso: () => this.setState({ kind: 'ingreso' }),
+      save: () => { clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 2200); this.setState((st) => {
+        const n = parseInt(st.amount, 10);
+        if (!n) return null;
+        const isInc = st.kind === 'ingreso';
+        if (st.editId !== null) {
+          return { txs: st.txs.map((x) => x.id === st.editId ? Object.assign({}, x, { amt: n, kind: st.kind, cat: isInc ? 'ingreso' : st.pick }) : x), sheet: false, editId: null, confirmDel: false, amount: '', toast: 'Cambios guardados' };
+        }
+        const tx = { id: Date.now(), date: TODAY, cat: isInc ? 'ingreso' : st.pick, desc: isInc ? 'Ingreso' : byId[st.pick].name, amt: n, kind: st.kind };
+        return { txs: [tx].concat(st.txs), sheet: false, amount: '', filter: null, q: '', mode: 'personal', tab: 'home' };
+      }); }
+    };
+  }
+  numFrom(raw) {
+    const t = raw.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const m = t.match(/(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)\s*(millones|millon|mil|k)?\b/);
+    if (m) {
+      let n = m[1]; const mult = m[2];
+      if (/^\d{1,3}([.,]\d{3})+$/.test(n)) n = n.replace(/[.,]/g, ''); else n = n.replace(',', '.');
+      let v = parseFloat(n);
+      if (mult === 'mil' || mult === 'k') v *= 1000; else if (mult === 'millon' || mult === 'millones') v *= 1000000;
+      if (v > 0) return Math.round(v);
+    }
+    const W = { un: 1, uno: 1, una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12, trece: 13, catorce: 14, quince: 15, veinte: 20, veinticinco: 25, treinta: 30, cuarenta: 40, cincuenta: 50, sesenta: 60, setenta: 70, ochenta: 80, noventa: 90, cien: 100, ciento: 100, doscientos: 200, trescientos: 300, cuatrocientos: 400, quinientos: 500, seiscientos: 600, setecientos: 700, ochocientos: 800, novecientos: 900, medio: 0.5 };
+    let big = 0, sum = 0, cur = 0, found = false;
+    t.split(/[\s,]+/).forEach((w) => {
+      if (W[w] !== undefined) { cur += W[w]; found = true; }
+      else if (w === 'y' ) { /* skip */ }
+      else if (w === 'mil') { sum += (cur || 1) * 1000; cur = 0; found = true; }
+      else if (w === 'millon' || w === 'millones') { big += (cur || 1) * 1000000; cur = 0; found = true; }
+    });
+    const v = big + sum + cur;
+    return found && v >= 100 ? Math.round(v) : 0;
+  }
+  parseVoice(text, mode) {
+    const t = text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const has = (arr) => arr.some((k) => t.indexOf(k) >= 0);
+    const amount = this.numFrom(text);
+    const pending = has(['fiado', 'a credito', 'me deben', 'me pagan', 'me pagaran', 'pendiente', 'por cobrar', 'por pagar']);
+    const STOP = ['me','gaste','gasto','pague','compre','vendi','recibi','pesos','peso','un','una','uno','millon','millones','mil','k','y','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa','cien','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos','medio'];
+    let cut = text.trim().replace(/[,.]?\s*(me pagan|me pagaran|me deben|a credito|fiado|pendiente).*$/i, '');
+    let toks = cut.split(/\s+/).filter((w) => {
+      const n = w.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9.,]/g, '');
+      return n !== '' && !/^\d[\d.,]*$/.test(n) && (STOP.indexOf(n) < 0);
+    });
+    while (toks.length && ['en', 'de', 'a', 'el', 'la', 'por', 'del', 'al', 'unos', 'unas', 'los', 'las'].indexOf(toks[0].toLowerCase()) >= 0) toks.shift();
+    let desc = toks.join(' ');
+    desc = desc.charAt(0).toUpperCase() + desc.slice(1);
+    if (desc.length > 40) desc = desc.slice(0, 40).trim() + '…';
+    if (mode === 'personal') {
+      let cat = 'shop';
+      if (has(['me pagaron', 'recibi', 'salario', 'sueldo', 'me llego', 'ingreso', 'me consignaron', 'nomina'])) cat = 'ingreso';
+      else if (has(['hamburguesa', 'corral', 'almuerzo', 'comida', 'restaurante', 'cafe', 'pizza', 'domicilio', 'desayuno', 'cena', 'helado', 'rappi'])) cat = 'comida';
+      else if (has(['uber', 'taxi', 'gasolina', 'bus', 'metro', 'pasaje', 'peaje', 'didi', 'transmilenio', 'parqueadero'])) cat = 'transp';
+      else if (has(['mercado', 'supermercado', 'exito', 'jumbo', 'verdura', 'fruta', 'carulla', 'olimpica', 'tienda', ' d1', ' ara '])) cat = 'mercado';
+      else if (has(['cine', 'bar ', 'fiesta', 'concierto', 'cerveza', 'trago', 'salida', 'discoteca', 'rumba'])) cat = 'salidas';
+      else if (has(['perro', 'veterinari', 'croqueta', 'mascota', 'gato'])) cat = 'perro';
+      return { ok: amount > 0, amount, cat, kind: cat === 'ingreso' ? 'ingreso' : 'gasto', desc: desc || 'Movimiento' };
+    }
+    let type = 'fijo';
+    if (has(['aporte', 'socio'])) type = 'aporte';
+    else if (has(['prestamo', 'credito bancario'])) type = 'prestamo';
+    else if (has(['retiro', 'mi sueldo', 'me pague'])) type = 'retiro';
+    else if (has(['impuesto', 'dian', ' iva', ' ica', 'simple', 'renta'])) type = 'impuesto';
+    else if (has(['vendi', 'venta', 'cobre', 'me pagaron', 'ingreso', 'me compraron', 'facture'])) type = 'venta';
+    else if (has(['arriendo', 'nomina', 'contador', 'auxiliar', 'internet', 'servicios', 'software', 'sueldo', 'salario', 'luz', 'agua', 'seguro'])) type = 'fijo';
+    else if (has(['transporte', 'publicidad', 'comision', 'envio', 'flete', 'gasolina', 'viatico', 'marketing', 'anuncio'])) type = 'variable';
+    else if (has(['stand', 'equipo', 'maquina', 'mobiliario', 'computador', 'herramienta'])) type = 'inversion';
+    else if (has(['proveedor', 'materia prima', 'mercancia', 'fabricacion', 'fabrique', 'tela', 'empaque', 'inventario', 'compre producto', 'insumo'])) type = 'compra';
+    return { ok: amount > 0, amount, type, desc: desc || 'Movimiento', paid: !pending };
+  }
+  flash(msg) { this.setState({ toast: msg }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 2200); }
+}
+</script>
+</body>
+</html>

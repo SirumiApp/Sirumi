@@ -1,0 +1,43 @@
+import { View } from 'react-native';
+
+import { ESPACIO } from '@/theme';
+
+import { Emoji, type NombreEmoji } from './emoji/Emoji';
+import { Logo } from './Logo';
+import { Pantalla } from './Pantalla';
+import { Tarjeta } from './Tarjeta';
+import { Texto } from './Texto';
+
+type Props = {
+  saludo: string;
+  titulo: string;
+  emoji: NombreEmoji;
+  mensaje: string;
+  detalle: string;
+};
+
+/** Pantalla de una sección que aún no tiene contenido, con la marca de Sirumi. */
+export function PantallaVacia({ saludo, titulo, emoji, mensaje, detalle }: Props) {
+  return (
+    <Pantalla>
+      <Logo />
+      <View style={{ gap: ESPACIO.xs, marginTop: ESPACIO.s }}>
+        <Texto variante="suave">{saludo}</Texto>
+        <Texto variante="titulo">{titulo}</Texto>
+      </View>
+      <Tarjeta style={{ alignItems: 'center', paddingVertical: ESPACIO.xl }}>
+        <Emoji name={emoji} size={72} />
+        <Texto variante="subtitulo" style={{ textAlign: 'center', marginTop: ESPACIO.s }}>
+          {mensaje}
+        </Texto>
+        <Texto variante="suave" style={{ textAlign: 'center' }}>
+          {detalle}
+        </Texto>
+      </Tarjeta>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: ESPACIO.s }}>
+        <Emoji name="grafica-que-sube" size={20} />
+        <Texto variante="pequeno">Tu plata, hacia arriba.</Texto>
+      </View>
+    </Pantalla>
+  );
+}

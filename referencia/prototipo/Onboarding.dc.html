@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Bienvenida y registro</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0}
+button,a{font-family:inherit;cursor:pointer}
+button{border:0;background:none;color:inherit;padding:0}
+input{font-family:inherit}
+.noscroll::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;overflow:hidden;background:#F4F8FF;color:#0B1B33;font-family:'Plus Jakarta Sans',system-ui,sans-serif;display:flex;flex-direction:column">
+
+  <!-- Barra superior -->
+  <div style="display:flex;align-items:center;gap:12px;padding:20px 20px 8px;min-height:64px;box-sizing:border-box">
+    <sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ back }}" aria-label="Volver" style="width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid #E3EBF8;display:flex;align-items:center;justify-content:center;flex:0 0 44px">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+    </sc-if>
+    <div style="flex:1;display:flex;gap:6px">
+      <sc-for list="{{ dots }}" as="d" hint-placeholder-count="6"><div style="flex:1;height:6px;border-radius:99px;background:{{d.bg}}"></div></sc-for>
+    </div>
+  </div>
+
+  <div class="noscroll" style="flex:1;overflow-y:auto;padding:12px 20px 24px">
+
+    <!-- 1 · País -->
+    <sc-if value="{{ s1 }}" hint-placeholder-val="{{ true }}">
+      <div style="font-size:44px;line-height:1" aria-hidden="true"><img src="/_blob/b4a7d79358d71c1563e662751197f495" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-0.6px;margin-top:12px;line-height:1.15">¿Desde dónde usas la app?</div>
+      <div style="font-size:15px;color:#56657F;margin-top:8px;line-height:1.45">Con tu país ajustamos la moneda y el formato de tus montos. Podrás cambiarlo cuando quieras en Ajustes.</div>
+      <div style="margin-top:18px;display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ countries }}" as="c" hint-placeholder-count="6">
+          <button onClick="{{ c.pick }}" style="width:100%;text-align:left;display:flex;align-items:center;gap:14px;min-height:64px;padding:8px 16px;border-radius:20px;background:#fff;border:2px solid {{c.border}}">
+            <span style="font-size:30px" aria-hidden="true">{{c.flag}}</span>
+            <span style="flex:1;font-size:16px;font-weight:800">{{c.name}}</span>
+            <span style="font-size:13px;font-weight:800;padding:5px 11px;border-radius:99px;background:#E6F0FF;color:#1F6FEB">{{c.cur}}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="margin-top:14px;padding:14px 16px;border-radius:20px;background:#E6F0FF;font-size:14px;line-height:1.45">Así verás tus montos: <strong>{{preview}}</strong></div>
+      <button onClick="{{ openSel }}" style="width:100%;min-height:52px;margin-top:14px;border-radius:999px;background:transparent;border:2px solid #C9D6EE;font-size:15px;font-weight:800;color:#1F6FEB"><img src="/_blob/e8463054aff83287134433fa165ccf24" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"> Tengo un código de vendedor</button>
+    </sc-if>
+
+    <!-- 2 · Datos -->
+    <sc-if value="{{ s2 }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:44px;line-height:1" aria-hidden="true"><img src="/_blob/0e305ae1108f03e0cda0db05660fccc8" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-0.6px;margin-top:12px;line-height:1.15">Cuéntanos de ti</div>
+      <div style="font-size:15px;color:#56657F;margin-top:8px;line-height:1.45">Usamos estos datos para crear y proteger tu cuenta.</div>
+
+      <label for="f-name" style="display:block;font-size:14px;font-weight:800;margin-top:20px">Nombre completo</label>
+      <input id="f-name" type="text" autocomplete="name" placeholder="Tu nombre" value="{{ name }}" onInput="{{ setName }}" style="width:100%;box-sizing:border-box;height:54px;margin-top:8px;border-radius:18px;border:2px solid {{nameBorder}};background:#fff;padding:0 16px;font-size:16px;color:#0B1B33">
+      <sc-if value="{{ nameErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#9A3412;margin-top:6px;font-weight:700">Escribe tu nombre.</div></sc-if>
+
+      <label for="f-mail" style="display:block;font-size:14px;font-weight:800;margin-top:16px">Correo electrónico</label>
+      <input id="f-mail" type="email" autocomplete="email" placeholder="tu@correo.com" value="{{ email }}" onInput="{{ setEmail }}" style="width:100%;box-sizing:border-box;height:54px;margin-top:8px;border-radius:18px;border:2px solid {{emailBorder}};background:#fff;padding:0 16px;font-size:16px;color:#0B1B33">
+      <sc-if value="{{ emailErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#9A3412;margin-top:6px;font-weight:700">Escribe un correo válido.</div></sc-if>
+
+      <label for="f-phone" style="display:block;font-size:14px;font-weight:800;margin-top:16px">Celular</label>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <div style="flex:0 0 auto;height:54px;padding:0 14px;border-radius:18px;background:#fff;border:2px solid #E3EBF8;display:flex;align-items:center;gap:6px;font-size:16px;font-weight:700"><span aria-hidden="true">{{sel.flag}}</span>{{sel.prefix}}</div>
+        <input id="f-phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="300 000 0000" value="{{ phone }}" onInput="{{ setPhone }}" style="flex:1;min-width:0;box-sizing:border-box;height:54px;border-radius:18px;border:2px solid {{phoneBorder}};background:#fff;padding:0 16px;font-size:16px;color:#0B1B33">
+      </div>
+      <sc-if value="{{ phoneErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#9A3412;margin-top:6px;font-weight:700">Escribe un número de celular válido.</div></sc-if>
+
+      <div style="font-size:14px;font-weight:800;margin-top:20px">Documento de identidad <span style="font-weight:600;color:#56657F">(opcional)</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <sc-for list="{{ idChips }}" as="c" hint-placeholder-count="3">
+          <button onClick="{{ c.pick }}" style="min-height:44px;padding:0 14px;border-radius:999px;font-size:14px;font-weight:700;background:{{c.bg}};color:{{c.fg}};border:2px solid {{c.border}}">{{c.name}}</button>
+        </sc-for>
+      </div>
+      <label for="f-id" style="position:absolute;left:-9999px">Número de documento</label>
+      <input id="f-id" type="text" inputmode="numeric" placeholder="Número de documento" value="{{ idNum }}" onInput="{{ setIdNum }}" style="width:100%;box-sizing:border-box;height:54px;margin-top:10px;border-radius:18px;border:2px solid #E3EBF8;background:#fff;padding:0 16px;font-size:16px;color:#0B1B33">
+      <div style="font-size:13px;color:#56657F;margin-top:8px;line-height:1.45">Solo lo pedimos para facturar desde el módulo de negocios. Puedes dejarlo vacío por ahora.</div>
+    </sc-if>
+
+    <!-- 3 · Uso -->
+    <sc-if value="{{ s3 }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:44px;line-height:1" aria-hidden="true"><img src="/_blob/dddaad31ed93d97765c99531e84cf657" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-0.6px;margin-top:12px;line-height:1.15">¿Para qué la vas a usar?</div>
+      <div style="font-size:15px;color:#56657F;margin-top:8px;line-height:1.45">La app tiene dos módulos. Activa el que necesites y cambia cuando quieras.</div>
+      <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ uses }}" as="u" hint-placeholder-count="3">
+          <button onClick="{{ u.pick }}" style="width:100%;text-align:left;display:flex;align-items:center;gap:14px;min-height:84px;padding:12px 16px;border-radius:22px;background:#fff;border:2px solid {{u.border}}">
+            <span style="flex:0 0 52px;height:52px;border-radius:18px;background:#E6F0FF;display:flex;align-items:center;justify-content:center;font-size:28px" aria-hidden="true"><sc-if value="{{ u.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{u.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{u.emojiTxt}}</span>
+            <span style="flex:1"><span style="display:block;font-size:16px;font-weight:800">{{u.title}}</span><span style="display:block;font-size:13px;color:#56657F;margin-top:2px;line-height:1.35">{{u.sub}}</span></span>
+          </button>
+        </sc-for>
+      </div>
+      <sc-if value="{{ askBiz }}" hint-placeholder-val="{{ true }}">
+        <label for="f-biz" style="display:block;font-size:14px;font-weight:800;margin-top:20px">¿Cómo se llama tu negocio? <span style="font-weight:600;color:#56657F">(opcional)</span></label>
+        <input id="f-biz" type="text" placeholder="Por ejemplo: Pepito SAS" value="{{ biz }}" onInput="{{ setBiz }}" style="width:100%;box-sizing:border-box;height:54px;margin-top:8px;border-radius:18px;border:2px solid #E3EBF8;background:#fff;padding:0 16px;font-size:16px;font-weight:700;font-family:inherit;color:#0B1B33">
+        <div style="font-size:13px;color:#56657F;margin-top:6px;line-height:1.45">Saldrá arriba en tu módulo de negocio. Lo puedes cambiar después.</div>
+      </sc-if>
+    </sc-if>
+
+    <!-- 4 · Objetivo personal -->
+    <sc-if value="{{ s4 }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:44px;line-height:1" aria-hidden="true"><img src="/_blob/4a8ea6b502ad9db6a573a82e1f7c9831" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-0.6px;margin-top:12px;line-height:1.15">{{goalTitle}}</div>
+      <div style="font-size:15px;color:#56657F;margin-top:8px;line-height:1.45">Elige lo principal. Armamos la app alrededor de eso y lo puedes cambiar cuando quieras.</div>
+      <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ goals }}" as="g" hint-placeholder-count="4">
+          <button onClick="{{ g.pick }}" style="width:100%;text-align:left;display:flex;align-items:center;gap:14px;min-height:84px;padding:12px 16px;border-radius:22px;background:#fff;border:2px solid {{g.border}}">
+            <span style="flex:0 0 52px;height:52px;border-radius:18px;background:#E6F0FF;display:flex;align-items:center;justify-content:center;font-size:28px" aria-hidden="true"><sc-if value="{{ g.emojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{g.emojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{g.emojiTxt}}</span>
+            <span style="flex:1"><span style="display:block;font-size:16px;font-weight:800">{{g.title}}</span><span style="display:block;font-size:13px;color:#56657F;margin-top:2px;line-height:1.35">{{g.sub}}</span></span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- 5 · Tu plan -->
+    <sc-if value="{{ s5 }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:44px;line-height:1" aria-hidden="true"><sc-if value="{{ planEmojiImg }}" hint-placeholder-val="{{ false }}"><img src="{{planEmojiImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{planEmojiTxt}}</div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-0.6px;margin-top:12px;line-height:1.15">{{planTitle}}</div>
+      <div style="font-size:15px;color:#56657F;margin-top:8px;line-height:1.45">{{planSub}}</div>
+      <label for="f-inc" style="display:block;font-size:14px;font-weight:800;margin-top:20px">¿Cuánto ganas al mes? <span style="font-weight:600;color:#56657F">(en promedio)</span></label>
+      <input id="f-inc" type="text" inputmode="numeric" placeholder="6.000.000" value="{{ incF }}" onInput="{{ setInc }}" style="width:100%;box-sizing:border-box;height:56px;margin-top:8px;border-radius:18px;border:2px solid {{incBorder}};background:#fff;padding:0 16px;font-size:20px;font-weight:800;color:#0B1B33">
+      <sc-if value="{{ pSave }}" hint-placeholder-val="{{ true }}">
+        <label for="f-sv" style="display:block;font-size:14px;font-weight:800;margin-top:16px">¿Cuánto quieres ahorrar al mes?</label>
+        <input id="f-sv" type="text" inputmode="numeric" placeholder="2.000.000" value="{{ saveF }}" onInput="{{ setSave }}" style="width:100%;box-sizing:border-box;height:56px;margin-top:8px;border-radius:18px;border:2px solid {{valBorder}};background:#fff;padding:0 16px;font-size:20px;font-weight:800;color:#0B1B33">
+      </sc-if>
+      <sc-if value="{{ pDebt }}" hint-placeholder-val="{{ false }}">
+        <label for="f-db" style="display:block;font-size:14px;font-weight:800;margin-top:16px">¿Cuánto puedes abonar a tus deudas al mes?</label>
+        <input id="f-db" type="text" inputmode="numeric" placeholder="1.000.000" value="{{ debtF }}" onInput="{{ setDebt }}" style="width:100%;box-sizing:border-box;height:56px;margin-top:8px;border-radius:18px;border:2px solid {{valBorder}};background:#fff;padding:0 16px;font-size:20px;font-weight:800;color:#0B1B33">
+      </sc-if>
+      <sc-if value="{{ pGoal }}" hint-placeholder-val="{{ false }}">
+        <label for="f-gn" style="display:block;font-size:14px;font-weight:800;margin-top:16px">¿Para qué es?</label>
+        <input id="f-gn" type="text" placeholder="Viaje, moto, fondo de emergencia…" value="{{ gName }}" onInput="{{ setGName }}" style="width:100%;box-sizing:border-box;height:54px;margin-top:8px;border-radius:18px;border:2px solid #E3EBF8;background:#fff;padding:0 16px;font-size:16px;font-weight:700;color:#0B1B33">
+        <label for="f-ga" style="display:block;font-size:14px;font-weight:800;margin-top:16px">¿Cuánto necesitas juntar?</label>
+        <input id="f-ga" type="text" inputmode="numeric" placeholder="12.000.000" value="{{ gAmtF }}" onInput="{{ setGAmt }}" style="width:100%;box-sizing:border-box;height:56px;margin-top:8px;border-radius:18px;border:2px solid {{valBorder}};background:#fff;padding:0 16px;font-size:20px;font-weight:800;color:#0B1B33">
+        <div style="font-size:14px;font-weight:800;margin-top:16px">¿En cuántos meses?</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <sc-for list="{{ monthChips }}" as="m" hint-placeholder-count="5"><button onClick="{{ m.pick }}" style="min-height:44px;min-width:56px;padding:0 14px;border-radius:999px;font-size:14px;font-weight:800;background:{{m.bg}};color:{{m.fg}};border:2px solid {{m.border}}"><sc-if value="{{ m.labelImg }}" hint-placeholder-val="{{ false }}"><img src="{{m.labelImg}}" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></sc-if>{{m.labelTxt}}</button></sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ planErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#9A3412;margin-top:10px;font-weight:700">{{planErrText}}</div></sc-if>
+      <sc-if value="{{ planOk }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:20px;background:#E6F0FF;border-radius:24px;padding:18px">
+          <div style="font-size:13px;font-weight:800;color:#1F6FEB">TU PLAN</div>
+          <div style="font-size:15px;margin-top:6px;line-height:1.4">{{planLine1}}</div>
+          <div style="font-size:34px;font-weight:800;letter-spacing:-1px;margin-top:4px">{{maxStr}}</div>
+          <div style="font-size:14px;color:#56657F;line-height:1.4">{{planLine2}}</div>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    <!-- 6 · Autorizaciones -->
+    <sc-if value="{{ s6 }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:44px;line-height:1" aria-hidden="true"><img src="/_blob/50d59942fc726581a3c25fa423376d69" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-0.6px;margin-top:12px;line-height:1.15">Tus datos, tu control</div>
+      <div style="font-size:15px;color:#56657F;margin-top:8px;line-height:1.45">Antes de crear tu cuenta necesitamos tu autorización. Puedes consultar, corregir o eliminar tus datos cuando quieras.</div>
+      <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ consents }}" as="k" hint-placeholder-count="3">
+          <button onClick="{{ k.tap }}" style="width:100%;text-align:left;display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-radius:20px;background:#fff;border:2px solid {{k.border}}">
+            <span style="flex:0 0 28px;height:28px;margin-top:1px;border-radius:9px;background:{{k.boxBg}};border:2px solid {{k.boxBorder}};display:flex;align-items:center;justify-content:center;color:#fff">
+              <sc-if value="{{ k.on }}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></sc-if>
+            </span>
+            <span style="flex:1;font-size:14px;line-height:1.45"><strong>{{k.title}}</strong><span style="display:block;color:#56657F;margin-top:2px">{{k.sub}}</span></span>
+          </button>
+        </sc-for>
+      </div>
+      <sc-if value="{{ consentErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#9A3412;margin-top:10px;font-weight:700">Acepta los dos primeros puntos para continuar.</div></sc-if>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+        <button onClick="{{ readCo }}" style="min-height:48px;border-radius:16px;background:#fff;border:2px solid #E3EBF8;font-size:14px;font-weight:800;text-align:left;padding:0 14px"><img src="/_blob/355345a642cb4d44b8afdfbd0d26f5cf" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"> Leer la política de tratamiento de datos (Colombia)</button>
+        <button onClick="{{ readInt }}" style="min-height:48px;border-radius:16px;background:#fff;border:2px solid #E3EBF8;font-size:14px;font-weight:800;text-align:left;padding:0 14px"><img src="/_blob/b4a7d79358d71c1563e662751197f495" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"> Leer la política de privacidad (internacional)</button>
+      </div>
+      <div style="font-size:12px;color:#56657F;margin-top:12px;line-height:1.5">Borrador pendiente de revisión legal. Los datos entre corchetes se completan antes de publicar.</div>
+    </sc-if>
+
+    <!-- 5 · Listo -->
+    <sc-if value="{{ s7 }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;margin-top:60px">
+        <div style="font-size:72px;line-height:1" aria-hidden="true"><img src="/_blob/9405499628fd71b6723fbc0c2fdd6db8" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+        <div style="font-size:30px;font-weight:800;letter-spacing:-0.7px;margin-top:16px">¡Todo listo!</div>
+        <div style="font-size:15px;color:#56657F;margin-top:8px;line-height:1.45">Tu cuenta quedó configurada.</div>
+      </div>
+      <div style="margin-top:28px;background:#fff;border:1px solid #E3EBF8;border-radius:24px;padding:6px 18px">
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #E3EBF8;font-size:15px"><span style="color:#56657F">País</span><strong>{{sel.flag}} {{sel.name}}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #E3EBF8;font-size:15px"><span style="color:#56657F">Moneda</span><strong>{{sel.cur}}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:14px 0;font-size:15px"><span style="color:#56657F">Uso</span><strong>{{useName}}</strong></div>
+        <sc-if value="{{ showPlanRow }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid #E3EBF8;font-size:15px"><span style="color:#56657F">{{planRowLabel}}</span><strong>{{planRowVal}}</strong></div></sc-if>
+        <sc-if value="{{ showBiz }}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid #E3EBF8;font-size:15px"><span style="color:#56657F">Negocio</span><strong>{{biz}}</strong></div></sc-if>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- Botón principal -->
+  <div style="padding:8px 20px 28px">
+    <sc-if value="{{ notLast }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ next }}" style="width:100%;height:56px;border-radius:999px;background:#1F6FEB;color:#fff;font-size:16px;font-weight:800;box-shadow:0 8px 20px rgba(31,111,235,0.35)">{{ctaLabel}}</button>
+    </sc-if>
+    <sc-if value="{{ s7 }}" hint-placeholder-val="{{ false }}">
+      <a href="Main.dc.html" style="display:flex;align-items:center;justify-content:center;width:100%;height:56px;border-radius:999px;background:#1F6FEB;color:#fff;font-size:16px;font-weight:800;text-decoration:none;box-shadow:0 8px 20px rgba(31,111,235,0.35)">Entrar a la app</a>
+    </sc-if>
+  </div>
+  <sc-if value="{{ selOpen }}" hint-placeholder-val="{{ false }}">
+    <div role="dialog" aria-label="Entrar como vendedor" style="position:absolute;inset:0;z-index:21;background:#F4F8FF;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:12px;padding:20px 20px 8px"><button onClick="{{ closeSel }}" aria-label="Cerrar" style="width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid #E3EBF8;font-size:18px;font-weight:800;flex:0 0 44px">✕</button><div style="font-size:20px;font-weight:800">Entrar como vendedor</div></div>
+      <div class="noscroll" style="flex:1;overflow-y:auto;padding:12px 20px 30px">
+        <sc-if value="{{ selAsk }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:44px;line-height:1" aria-hidden="true"><img src="/_blob/0037b9758dc46252c1172ab5f084f25f" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+          <div style="font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-top:12px;line-height:1.15">Escribe el código que te dio el dueño</div>
+          <div style="font-size:15px;color:#56657F;margin-top:8px;line-height:1.45">Con este código entras solo al Sirumi POS de su negocio para vender. No necesitas crear cuenta.</div>
+          <input value="{{selCode}}" onInput="{{ onSelCode }}" inputmode="numeric" aria-label="Código de vendedor" placeholder="000000" style="width:100%;box-sizing:border-box;margin-top:18px;height:64px;border-radius:18px;border:2px solid #C9D6EE;background:#fff;text-align:center;font-size:30px;font-weight:800;letter-spacing:10px;font-family:inherit;color:#0B1B33">
+          <sc-if value="{{ selErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:#9A3412;margin-top:8px">Ese código no existe o está pausado. Pídele al dueño que lo revise.</div></sc-if>
+          <div style="font-size:12px;color:#56657F;margin-top:10px">Para probar: 482913</div>
+          <button onClick="{{ checkSel }}" style="width:100%;height:56px;margin-top:18px;border-radius:999px;background:#1F6FEB;color:#fff;font-size:16px;font-weight:800">Entrar</button>
+        </sc-if>
+        <sc-if value="{{ selDone }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:44px;line-height:1" aria-hidden="true"><img src="/_blob/3ba3de6c8715a78d8312e2f1d166c068" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"></div>
+          <div style="font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-top:12px;line-height:1.15">Listo, {{selName}}</div>
+          <div style="font-size:15px;color:#56657F;margin-top:8px;line-height:1.45">Entraste al Sirumi POS de <strong>{{selBiz}}</strong>. Puedes vender, cobrar y registrar clientes. No ves sus ventas, cuentas ni su parte personal.</div>
+          <a href="Negocio.dc.html" style="display:flex;align-items:center;justify-content:center;width:100%;height:56px;margin-top:20px;border-radius:999px;background:#1F6FEB;color:#fff;font-size:16px;font-weight:800;text-decoration:none">Abrir el POS</a>
+          <div style="margin-top:22px;padding:16px;border-radius:20px;background:#fff;border:1px solid #E3EBF8"><div style="font-size:15px;font-weight:800">¿Quieres también tu propia cuenta?</div><div style="font-size:13px;color:#56657F;margin-top:4px;line-height:1.45">Lleva tus finanzas personales en Sirumi. Es aparte: el dueño del negocio no la ve.</div><button onClick="{{ ownToo }}" style="width:100%;min-height:48px;margin-top:12px;border-radius:999px;background:#E6F0FF;color:#1F6FEB;font-size:14px;font-weight:800">Crear mi cuenta</button></div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ polOpen }}" hint-placeholder-val="{{ false }}">
+    <div role="dialog" aria-label="Política" style="position:absolute;inset:0;z-index:20;background:#F4F8FF;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:12px;padding:20px 20px 8px">
+        <button onClick="{{ closePol }}" aria-label="Cerrar" style="width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid #E3EBF8;font-size:18px;font-weight:800;flex:0 0 44px">✕</button>
+        <div style="font-size:20px;font-weight:800">Política de datos</div>
+      </div>
+      <div style="display:flex;gap:8px;padding:4px 20px 8px">
+        <button onClick="{{ tabCo }}" style="flex:1;min-height:44px;border-radius:999px;font-size:14px;font-weight:800;background:{{coBg}};color:{{coFg}};border:2px solid #1F6FEB">🇨🇴 Colombia</button>
+        <button onClick="{{ tabInt }}" style="flex:1;min-height:44px;border-radius:999px;font-size:14px;font-weight:800;background:{{intBg}};color:{{intFg}};border:2px solid #1F6FEB"><img src="/_blob/b4a7d79358d71c1563e662751197f495" alt="" aria-hidden="true" style="width:1.3em;height:1.3em;object-fit:contain;vertical-align:-0.28em;display:inline-block;flex:none"> Internacional</button>
+      </div>
+      <div class="noscroll" style="flex:1;overflow-y:auto;padding:8px 20px 30px">
+        <sc-for list="{{ polRows }}" as="r" hint-placeholder-count="12"><div style="font-size:{{r.size}}px;font-weight:{{r.weight}};margin-top:{{r.mt}}px;line-height:1.5;color:{{r.color}}">{{r.text}}</div></sc-for>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { selOpen: false, selCode: '', selOk: null, selErr: false, goal: 'ahorro', inc: '6000000', sv: '2000000', db: '', gn: '', ga: '', gm: 12, polOpen: false, polTab: 'co', step: 1, country: 'CO', name: '', email: '', phone: '', idType: 0, idNum: '', use: 'ambos', biz: '', tried: false, c1: false, c2: false, c3: false, c4: false, consentTried: false, tried5: false };
+  }
+
+  e3(vals) {
+    if (!Component.E3M) {
+      Component.E3M = {"👩‍💼":"/_blob/17c841474331e39cdfc01664f9f99194","🧑‍💼":"/_blob/e8463054aff83287134433fa165ccf24","📦":"/_blob/2a8b2e8278287700c75639d9e0da0710","🎯":"/_blob/4a8ea6b502ad9db6a573a82e1f7c9831","🧾":"/_blob/e944190175e32d1434c1e35565731eae","📅":"/_blob/9a7155fdffe0b4f74060f2098adc40b5","🗓":"/_blob/9a7155fdffe0b4f74060f2098adc40b5","🏦":"/_blob/bbabdb599cc04a040d2c69a263ca0abc","🏛":"/_blob/bbabdb599cc04a040d2c69a263ca0abc","📥":"/_blob/9135fc73f28a7af48eea4a127725b685","📤":"/_blob/50dda964de3ccfbf0689b4edb1e0e39e","🏢":"/_blob/9fd196524847b56be56c3254db0049fb","👤":"/_blob/83a6ff3505a07dcfc0072fc96f971e58","🛍":"/_blob/2ca6961ec2dadba291ce00011a0bfcff","💳":"/_blob/05e851b16a8630025f87eaa0258f49ee","🏷":"/_blob/4aaecb6e0005cbdcccf2346a1e35add6","🧠":"/_blob/e10574cac9d5e0ffd82da54ed2c7b908","🔁":"/_blob/9e951871a191a4307979bc89d1d5b8bc","💵":"/_blob/49023c6e659d6b0b1f0d1f6b4c80b055","🐷":"/_blob/f8a7cce4adcd7bd62b19ba8b767b9ac4","🧵":"/_blob/2e8b939f8661407950c183a69e342d8a","📊":"/_blob/c2cd0de53fa52349762d9fa50e5f290a","🌎":"/_blob/b4a7d79358d71c1563e662751197f495","🌍":"/_blob/b4a7d79358d71c1563e662751197f495","🛟":"/_blob/30749ca9c1e1e0ffa17cdc23f984c1c3","🎉":"/_blob/9405499628fd71b6723fbc0c2fdd6db8","📝":"/_blob/5189752a45049f84486c093ad32df0f1","🗂":"/_blob/1679c11f063d22aa4a5743685d932fb1","🧮":"/_blob/d6e60ebaefa4d6181a149d1eb81b6927","📄":"/_blob/355345a642cb4d44b8afdfbd0d26f5cf","🏪":"/_blob/1625021da9160045acf781979369069b","💡":"/_blob/0c455067641e6ef063ff914257a7315b","👖":"/_blob/fe13425b0aa75373e70ccee3a17b0ebc","💻":"/_blob/066d15bdc1cfe121a682ea2c125fe574","🤝":"/_blob/d74c167d08ecab1ad54756e255d12d7f","📈":"/_blob/9f335d6f42cc4825c6e89e50c9638dd3","🛠":"/_blob/a2779772783c69ba07e5df5a12762101","📱":"/_blob/db83f7f90f3393f38c274a7ae99c41f3","🔮":"/_blob/a2197eabf1eb75d43d16e5f0867d721d","🔔":"/_blob/2fa4d1673f80beeca4b8e7af45cd55db","🙂":"/_blob/0e305ae1108f03e0cda0db05660fccc8","💎":"/_blob/6545f307ebdd08e9cd7a17af0fce56d6","🥑":"/_blob/c2e3b2473df2d0f907a53bbf1a4282c4","💰":"/_blob/74521fe28bdb54dd4d2397829e646741","💬":"/_blob/f0d8c50fe89350a3f63ef42335979fae","🔒":"/_blob/50d59942fc726581a3c25fa423376d69","🌱":"/_blob/0db8276cea66849e8fc73c77814cb99c","🎤":"/_blob/a8592d3a83cd0ef808f18d6bcd77b4b7","🚀":"/_blob/993103504106f59f88ffbecd5f2e1422","📚":"/_blob/0769ad62aac892f44ccd2ee79f24a18b","🛒":"/_blob/0037b9758dc46252c1172ab5f084f25f","🗑":"/_blob/fc19682ba8e19672f33fe6035851f751","📎":"/_blob/07a2d28be58a518091a9558f88edd45e","👛":"/_blob/982acf55bdec35e45edd153bf836b03e","👗":"/_blob/175bfeecc6da39af08ee385f56034819","🚚":"/_blob/43b4af79f686e2ed4420dc3e108fe8ae","💧":"/_blob/7662f925983599a9fdd3884962322a36","📋":"/_blob/590f4adfbca14cb1f8586734ef27c548","🏔":"/_blob/d6c869f15bebb614f410ec4d477c8894","🏝":"/_blob/43e182b9a8dc3d1e9a6a89f5eb60d272","🏧":"/_blob/56d29612b1a5af4b1bff51260e7305ae","🛵":"/_blob/275f7178832668bebdaf07274abab9ef","🍔":"/_blob/60857b1aa882f9d32f8fb6261e7091b0","🚕":"/_blob/39af32c6dd7a3933cae6baa9755bc90b","🕺":"/_blob/3fa8da7b9adaf5023d9503e2f942bebe","🐶":"/_blob/0b417f587d164a2e42f9c3c3814e7a61","🤖":"/_blob/6317c78d9ec560369228a0ad4a1b48d7","💱":"/_blob/11f4b834f8e375063b78ce3e5a10f391","🌗":"/_blob/e1526408dab1a34ad8276dc3ddd9d816","📕":"/_blob/00be302335540dd2a90a417f944fc6ff","🐜":"/_blob/753d99a54f2f3465e02fbb1b14476190","🚨":"/_blob/c94941c439f5aca27aae12cdee866f03","🤫":"/_blob/b652eb4fff1bff3ec496eb6375dc0912","📴":"/_blob/6bad1f80a7ac75c006c4bc093bd2b98b","📍":"/_blob/30cacd2c8d18fe59c8ae4cab309f38a3","💭":"/_blob/498a7444c5cfb7d612f06d6f4b6e1d52","📜":"/_blob/178a7a0a201a75dbc6fceab90e645800","🍪":"/_blob/4cba9d9a63c6956da39a40232db9a6f9","🌙":"/_blob/11b74a484820f836c735094fddf92408","🔍":"/_blob/44b6a7a13d36c12b6abd5077e7866785","🏠":"/_blob/3fa7d009040a3baf79cde06c7f7b2615","🎓":"/_blob/f29ca0c5836707d918bb8ed63fca0048","🚗":"/_blob/aa36dfa954f9baf20932c364fba2737d","📐":"/_blob/1ac94db37a263cab9d554604b5072d2f","📷":"/_blob/57a1b01805f419e7951e6d8f7fbaa0de","🎁":"/_blob/e7797c66ec238743479dc2c5fb2ccf97","👜":"/_blob/116d9f259609278964d26adada986f7a","🪢":"/_blob/451b7630b628c21174bdf13b6b1aa26b","👕":"/_blob/4d952ffbb250bdbbe1e4a4775e66c3b4","📶":"/_blob/b7bd76031d9b335eab0037a375f41be3","🩺":"/_blob/9741af94ec94248a6124264aad7cf504","📉":"/_blob/da90af2b01b771b586357738ea59aa4c","🏆":"/_blob/66b8045f856a4b3579424418c8a8455e","🛡":"/_blob/3e04e4070fcb56de1a15225f9fe9c889","🚫":"/_blob/019cff5e37e8fdfd047067dc94fd73d0","🍰":"/_blob/b8b185fd3baec558a93465a522c0d359","🔧":"/_blob/dceda7fdf94af7806663fb71f326b080","🎨":"/_blob/c44fac3e22efd6ef0a7de4324aeca127","🧭":"/_blob/dddaad31ed93d97765c99531e84cf657","👀":"/_blob/38cd1dfedcd84ab055b67c7254d074eb","✅":"/_blob/3ba3de6c8715a78d8312e2f1d166c068","⚠":"/_blob/19498bfa47f53de4ed50fa0591ab6679","✏":"/_blob/4392d95821e027bfd33650a623c9be8c","⬇":"/_blob/6bad285f7df78d6575e50a860c13adee","⚖":"/_blob/975ab73da8aaf37386be41af6dfe505e","➕":"/_blob/978f7fc8b0a29c7cd5da63a7c5842fb2","✉":"/_blob/03977329e58c6f43e9b7c31cddf08eb8","✨":"/_blob/a3610656cd8f562341c0d13eb86646dd","⚙":"/_blob/2e453981c84ba8814c3382e8a11cd026","☁":"/_blob/08c6a675fda65f703c421c393a0bd3fd","⭐":"/_blob/9871354ab39033a56b4c7058a82f5773","⚡":"/_blob/eaa585deadef9e8a111cd8e7da108d62","☀":"/_blob/5db7106dd94caa3c83a434e1ac4ba808","✈":"/_blob/18459ff0a3f01133848e6a22833a4c62","✍":"/_blob/4392d95821e027bfd33650a623c9be8c","⬆":"/_blob/e933e44c8b609ad923205ec9f47cb512","➖":"/_blob/d55572dff39db8bc4651f12b593ac8ad","☕":"/_blob/2624e94558e5437a5ddf4e0e1a18c801"};
+      Component.E3R = new RegExp('^(?:' + Object.keys(Component.E3M).sort((a, b) => b.length - a.length).join('|') + ')', 'u');
+    }
+    const M = Component.E3M, R = Component.E3R, seen = new WeakMap();
+    const isKey = (k) => /emoji$/i.test(k) || k === 'icon' || k === 'label';
+    const walk = (o) => {
+      if (!o || typeof o !== 'object') return o;
+      if (seen.has(o)) return seen.get(o);
+      if (Array.isArray(o)) { const a = []; seen.set(o, a); for (let i = 0; i < o.length; i++) a.push(walk(o[i])); return a; }
+      const p = Object.getPrototypeOf(o);
+      if (p !== Object.prototype && p !== null) return o;
+      const out = {}; seen.set(o, out);
+      for (const k of Object.keys(o)) {
+        const v = o[k];
+        out[k] = walk(v);
+        if (isKey(k)) {
+          let img = '', txt = v;
+          if (typeof v === 'string') {
+            const n = v.replace(/\uFE0F/g, ''), m = R.exec(n);
+            if (m && (n.length === m[0].length || n[m[0].length] === ' ')) { img = M[m[0]]; txt = n.slice(m[0].length); }
+          }
+          out[k + 'Img'] = img; out[k + 'Txt'] = txt;
+        }
+      }
+      return out;
+    };
+    return walk(vals);
+  }
+
+  renderVals() { return this.e3(this.renderVals0()); }
+
+  renderVals0() {
+    const s = this.state;
+    const POL = {"co": [["t", "Política de Tratamiento de Datos Personales (Colombia)"], ["p", "Versión borrador · Vigente desde: [FECHA]. Aplica a las personas que usan la app desde cualquier país y cuyos datos son tratados en Colombia o por un responsable en Colombia. Esta política desarrolla la Ley 1581 de 2012, el Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015) y demás normas que los modifiquen."], ["h", "1. Responsable del tratamiento"], ["p", "Responsable: TEXLIA PLATFORM S.A.S., titular de la marca Sirumi, NIT 901.929.333-4, domicilio en Bogotá D.C., Colombia."], ["p", "Correo para consultas y reclamos: sirumi.app@gmail.com. Dirección de notificación: Carrera 20 n.º 134-38, Bogotá D.C."], ["h", "2. Qué datos recolectamos"], ["p", "Datos de cuenta: nombre, correo electrónico, celular, país y, solo si tú lo decides, tipo y número de documento (se usa para facturar desde el módulo de negocios)."], ["p", "Datos financieros que tú registras: ingresos, gastos, saldos, deudas, metas, ventas, costos, inventario, cuentas por cobrar y por pagar, y los archivos (Excel, CSV u otros) que subas."], ["p", "Datos de terceros que tú ingresas, como nombre, teléfono o NIT de tus clientes y proveedores. Tú eres quien responde por tener derecho a registrarlos."], ["p", "Datos técnicos: tipo de dispositivo, sistema operativo, idioma, identificadores de la app y registros de errores."], ["p", "No pedimos datos sensibles (salud, origen étnico, orientación política, datos biométricos, entre otros) ni datos de menores de edad. Si por error subes alguno dentro de un archivo, puedes pedirnos eliminarlo."], ["h", "3. Para qué los usamos (finalidades)"], ["p", "Crear y mantener tu cuenta, y que la app funcione: calcular tus gastos, topes, metas, utilidades, impuestos estimados e informes."], ["p", "Leer y organizar los archivos que subes, incluso con herramientas de inteligencia artificial, para extraer movimientos, productos y saldos y guardarlos en tu cuenta, siempre con tu confirmación."], ["p", "Responder tus preguntas y solicitudes de soporte."], ["p", "Seguridad de la cuenta, prevención de fraude y mejora técnica del servicio, con datos agregados o anonimizados cuando sea posible."], ["p", "Enviarte avisos del servicio y, solo si lo autorizas aparte, consejos y novedades. Puedes retirar esa autorización cuando quieras."], ["p", "Cumplir obligaciones legales y atender requerimientos de autoridades competentes."], ["p", "No vendemos tus datos ni los usamos para publicidad de terceros."], ["h", "4. Inteligencia artificial y proveedores"], ["p", "Para algunas funciones usamos proveedores tecnológicos que actúan como encargados del tratamiento: alojamiento y base de datos, envío de correos y modelos de inteligencia artificial."], ["p", "Cuando usas funciones de IA (por ejemplo, leer un Excel o responder una pregunta sobre tus números), enviamos al proveedor solo el contenido necesario para esa tarea. Por contrato, ese proveedor no puede usar esos datos para fines distintos a prestarnos el servicio."], ["p", "La IA puede equivocarse. Por eso te mostramos lo que entendió y esperamos tu confirmación antes de guardar. Los cálculos de impuestos son estimaciones y no reemplazan a un contador."], ["h", "5. Transferencias y transmisiones internacionales"], ["p", "Nuestros proveedores pueden estar fuera de Colombia (por ejemplo, en Estados Unidos o la Unión Europea). Cuando enviamos datos al exterior para que los trate un encargado, firmamos los acuerdos necesarios para que mantenga niveles de protección adecuados."], ["p", "Cuando se trate de una transferencia a otro responsable en un país sin nivel adecuado de protección, la haremos solo con tu autorización expresa o en los demás casos que permite el artículo 26 de la Ley 1581 de 2012."], ["h", "6. Tus derechos como titular"], ["p", "Conocer, actualizar y rectificar tus datos."], ["p", "Solicitar prueba de la autorización que nos diste."], ["p", "Ser informado, previa solicitud, del uso que se ha dado a tus datos."], ["p", "Presentar quejas ante la Superintendencia de Industria y Comercio (SIC) por infracciones a la ley, una vez agotado el trámite de consulta o reclamo ante nosotros."], ["p", "Revocar la autorización y/o solicitar la supresión de tus datos cuando no se respeten los principios, derechos y garantías, o cuando ya no sean necesarios, salvo que exista un deber legal o contractual de conservarlos."], ["p", "Acceder de forma gratuita a tus datos personales."], ["h", "7. Cómo ejercer tus derechos"], ["p", "Escríbenos a sirumi.app@gmail.com con tu nombre, el correo de tu cuenta y lo que solicitas. También puedes exportar o eliminar tus datos desde Ajustes."], ["p", "Consultas: las respondemos en máximo 10 días hábiles. Si necesitamos más tiempo, te avisamos el motivo y la nueva fecha, que no superará 5 días hábiles adicionales."], ["p", "Reclamos (corrección, actualización o supresión): los atendemos en máximo 15 días hábiles. Si necesitamos más tiempo, te avisamos y no superará 8 días hábiles adicionales."], ["h", "8. Autorización"], ["p", "Tratamos tus datos con tu autorización previa, expresa e informada, que nos das al crear tu cuenta marcando las casillas correspondientes. Conservamos prueba de ello (fecha, versión del texto y medio)."], ["p", "Si dejas de usar la app o revocas tu autorización, eliminamos o anonimizamos tus datos, salvo los que debamos conservar por ley."], ["h", "9. Menores de edad"], ["p", "La app es para personas mayores de 18 años. No recolectamos intencionalmente datos de menores. Si detectamos una cuenta de un menor, la eliminamos."], ["h", "10. Seguridad"], ["p", "Aplicamos medidas técnicas y organizativas razonables: conexión cifrada, cifrado de datos almacenados, control de acceso por usuario (nadie ve tus datos si no es necesario para darte soporte y con registro de ello) y copias de seguridad."], ["p", "Ningún sistema es 100% seguro. Si ocurre un incidente que afecte tus datos, te avisaremos y reportaremos a la autoridad cuando corresponda."], ["h", "11. Conservación"], ["p", "Guardamos tus datos mientras tengas la cuenta activa. Si la eliminas, los borramos o anonimizamos en un plazo máximo de [30] días, salvo los registros que la ley nos obliga a conservar. Las copias de seguridad se depuran en su ciclo normal."], ["h", "12. Cambios y vigencia"], ["p", "Si hacemos cambios sustanciales a esta política, te avisaremos por la app o por correo antes de que apliquen y, si la ley lo exige, te pediremos una nueva autorización."], ["p", "Registro Nacional de Bases de Datos: por ahora Texlia Platform S.A.S. no está obligada a inscribir sus bases de datos, porque sus activos totales no superan 100.000 UVT. Si llega a superarlos, las inscribirá en el plazo legal."]], "int": [["t", "Política de Privacidad (Internacional)"], ["p", "Versión borrador · Vigente desde: [FECHA]. Aplica a todas las personas que usan la app fuera de Colombia, incluidas las que se encuentran en la Unión Europea, el Reino Unido, Estados Unidos (por ejemplo, California) y América Latina. Si vives en Colombia, aplica además la política colombiana."], ["h", "1. Quiénes somos"], ["p", "Controlador de los datos: TEXLIA PLATFORM S.A.S. (Sirumi), NIT 901.929.333-4, Carrera 20 n.º 134-38, Bogotá D.C., Colombia. Contacto de privacidad: sirumi.app@gmail.com. Representante en la UE/Reino Unido, si aplica: [NOMBRE Y DATOS]."], ["h", "2. Datos que tratamos"], ["p", "Cuenta: nombre, correo, teléfono, país y, de forma opcional, documento de identidad."], ["p", "Contenido financiero que tú ingresas o subes: movimientos, saldos, deudas, metas, ventas, inventario, contactos de clientes y proveedores, y archivos."], ["p", "Datos técnicos: dispositivo, sistema operativo, idioma, identificadores y registros de errores."], ["p", "No buscamos categorías especiales de datos ni datos de menores de 18 años."], ["h", "3. Para qué los usamos y base legal"], ["p", "Prestarte el servicio (ejecución del contrato): cuenta, registro de tus finanzas, informes, metas y topes."], ["p", "Funciones de inteligencia artificial, como leer archivos o responder preguntas sobre tus datos (tu consentimiento, que puedes retirar en cualquier momento)."], ["p", "Seguridad, prevención de fraude y mejora del servicio (interés legítimo), con datos agregados cuando sea posible."], ["p", "Avisos del servicio (ejecución del contrato) y novedades o consejos (tu consentimiento)."], ["p", "Cumplir obligaciones legales (obligación legal)."], ["h", "4. Inteligencia artificial"], ["p", "Usamos modelos de IA de proveedores externos para algunas funciones. Les enviamos únicamente lo necesario para la tarea. No permitimos que usen tus datos para entrenar sus modelos."], ["p", "No tomamos decisiones automatizadas con efectos legales sobre ti. La IA propone y tú confirmas. Puede cometer errores, y la información de la app, incluidos los impuestos estimados, no es asesoría financiera, contable, legal ni tributaria."], ["h", "5. Con quién compartimos datos"], ["p", "Con proveedores que tratan datos por encargo nuestro (alojamiento, base de datos, correo, IA, analítica de errores) bajo contratos que los obligan a proteger tus datos."], ["p", "Con autoridades, cuando una ley o una orden válida lo exija."], ["p", "En una eventual fusión o venta del servicio, con aviso previo y las mismas garantías."], ["p", "No vendemos ni compartimos tu información personal con terceros para publicidad (incluyendo \"venta\" o \"compartir\" según la ley de California)."], ["h", "6. Transferencias internacionales"], ["p", "Tus datos pueden tratarse en Colombia, Estados Unidos, la Unión Europea u otros países donde estén nuestros proveedores. Cuando la ley lo exige, usamos garantías como cláusulas contractuales tipo, decisiones de adecuación u otros mecanismos válidos."], ["h", "7. Cuánto tiempo los guardamos"], ["p", "Mientras tu cuenta esté activa. Tras eliminarla, borramos o anonimizamos tus datos en máximo [30] días, salvo los que debamos conservar por ley. Las copias de seguridad se depuran en su ciclo normal."], ["h", "8. Tus derechos"], ["p", "Acceso, rectificación, eliminación, portabilidad, limitación y oposición al tratamiento, y retirar tu consentimiento cuando este sea la base legal."], ["p", "Si estás en el EEE o el Reino Unido (GDPR / UK GDPR): puedes presentar una queja ante tu autoridad de protección de datos."], ["p", "Si estás en California (CCPA/CPRA): puedes saber qué datos tenemos, pedir que los borremos o corrijamos, limitar el uso de datos sensibles y no ser discriminado por ejercer tus derechos. No vendemos ni compartimos tus datos."], ["p", "Para ejercer cualquiera: escribe a sirumi.app@gmail.com o usa Ajustes para exportar o eliminar tus datos. Respondemos en máximo 30 días (45 en California, prorrogables según la ley)."], ["h", "9. Seguridad"], ["p", "Cifrado en tránsito y en reposo, control de acceso, copias de seguridad y revisión periódica de proveedores. Si hay una brecha que te afecte, te avisaremos y notificaremos a la autoridad en los plazos legales."], ["h", "10. Menores"], ["p", "El servicio es solo para mayores de 18 años. Si descubrimos una cuenta de un menor, la eliminamos."], ["h", "11. Cookies y analítica"], ["p", "En la app usamos solo almacenamiento técnico necesario y analítica básica de errores y uso, sin publicidad. Si habilitamos analítica adicional en la web, te pediremos consentimiento donde la ley lo exija."], ["h", "12. Cambios"], ["p", "Si cambiamos esta política de forma importante, te avisaremos con anticipación por la app o por correo. La fecha de vigencia siempre aparece arriba."]]};
+    const num = (v) => parseInt(String(v || '0').replace(/\D/g, ''), 10) || 0;
+    const fm = (v) => { const n = num(v); return n ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.') : ''; };
+    const C = [
+      { id: 'CO', flag: '🇨🇴', name: 'Colombia', cur: 'COP', prefix: '+57', sep: '.', ids: ['Cédula de ciudadanía', 'Cédula de extranjería', 'Pasaporte', 'PPT'] },
+      { id: 'US', flag: '🇺🇸', name: 'Estados Unidos', cur: 'USD', prefix: '+1', sep: ',', ids: ['ID estatal / licencia', 'Pasaporte'] },
+      { id: 'MX', flag: '🇲🇽', name: 'México', cur: 'MXN', prefix: '+52', sep: ',', ids: ['CURP', 'INE', 'Pasaporte'] },
+      { id: 'AR', flag: '🇦🇷', name: 'Argentina', cur: 'ARS', prefix: '+54', sep: '.', ids: ['DNI', 'Pasaporte'] },
+      { id: 'CL', flag: '🇨🇱', name: 'Chile', cur: 'CLP', prefix: '+56', sep: '.', ids: ['RUT', 'Pasaporte'] },
+      { id: 'PE', flag: '🇵🇪', name: 'Perú', cur: 'PEN', prefix: '+51', sep: ',', ids: ['DNI', 'Pasaporte'] },
+      { id: 'EC', flag: '🇪🇨', name: 'Ecuador', cur: 'USD', prefix: '+593', sep: ',', ids: ['Cédula', 'Pasaporte'] },
+      { id: 'PA', flag: '🇵🇦', name: 'Panamá', cur: 'USD', prefix: '+507', sep: ',', ids: ['Cédula', 'Pasaporte'] },
+      { id: 'BR', flag: '🇧🇷', name: 'Brasil', cur: 'BRL', prefix: '+55', sep: '.', ids: ['CPF', 'Pasaporte'] },
+      { id: 'ES', flag: '🇪🇸', name: 'España', cur: 'EUR', prefix: '+34', sep: '.', ids: ['DNI / NIE', 'Pasaporte'] }
+    ];
+    const sel = C.filter((c) => c.id === s.country)[0];
+    const money = '$ 1' + sel.sep + '250' + sel.sep + '000';
+    const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.email.trim());
+    const phoneOk = s.phone.replace(/\D/g, '').length >= 7;
+    const nameOk = s.name.trim().length >= 2;
+    const bad = '#C2410C', ok = '#E3EBF8';
+    const stepN = s.step;
+    const personal = s.use !== 'negocio';
+    const path = [1, 2, 3].concat(personal ? (s.goal !== 'ver' ? [4, 5] : [4]) : []).concat([6, 7]);
+    const pos = path.indexOf(stepN);
+    const income = num(s.inc), saveA = num(s.sv), debtA = num(s.db), gAmt = num(s.ga);
+    const monthly = s.gm > 0 ? Math.ceil(gAmt / s.gm) : 0;
+    const req = s.goal === 'ahorro' ? saveA : s.goal === 'deudas' ? debtA : monthly;
+    const planValid = income > 0 && req > 0 && req < income;
+    const maxSpend = income - req;
+    const sym = '$ ';
+    const planInfo = s.goal === 'ahorro' ? { emoji: '🐷', title: 'Tu plan de ahorro', sub: 'Con lo que ganas y lo que quieres ahorrar, calculamos cuánto puedes gastar al mes.', l1: 'Si ganas ' + sym + fm(s.inc) + ' y ahorras ' + sym + fm(s.sv) + ', lo máximo que puedes gastar al mes es:', l2: 'Registra tus gastos y te avisamos cuando te acerques al límite.' }
+      : s.goal === 'deudas' ? { emoji: '💳', title: 'Tu plan para salir de deudas', sub: 'Separamos primero lo que abonas a tus deudas y vemos cuánto te queda para vivir.', l1: 'Si ganas ' + sym + fm(s.inc) + ' y abonas ' + sym + fm(s.db) + ' a tus deudas, te quedan para gastar:', l2: 'Luego registras tus deudas y te decimos a cuál pagarle primero.' }
+      : { emoji: '🎯', title: 'Tu meta de ahorro', sub: 'Cuéntanos la meta y calculamos cuánto separar cada mes.', l1: 'Para juntar ' + sym + fm(s.ga) + ' en ' + s.gm + ' meses necesitas separar ' + sym + fm(String(monthly)) + ' al mes. Te quedan para gastar:', l2: 'Cada mes que cumplas, tu meta avanza.' };
+    const errText = income <= 0 ? 'Escribe cuánto ganas al mes.' : req <= 0 ? 'Escribe el monto para calcular tu plan.' : 'Ese monto es igual o mayor a lo que ganas. Prueba con uno menor.';
+    const onbData = () => ({ use: s.use, name: s.name, country: s.country, biz: s.biz.trim(), goal: personal ? s.goal : null, income: personal && s.goal !== 'ver' ? income : 0, save: personal && s.goal !== 'ver' && planValid ? req : 0, goalName: s.goal === 'meta' ? s.gn : '', goalAmt: s.goal === 'meta' ? gAmt : 0, goalMonths: s.goal === 'meta' ? s.gm : 0, ai: !!s.c4 });
+    const polKind = (k) => k === 't' ? { size: 20, weight: 800, mt: 4, color: '#0B1B33' } : k === 'h' ? { size: 16, weight: 800, mt: 18, color: '#0B1B33' } : { size: 14, weight: 500, mt: 8, color: '#2A3A55' };
+    const useNames = { personal: 'Finanzas personales', negocio: 'Mi negocio', ambos: 'Personal y negocio' };
+    const mkUse = (id, emoji, title, sub) => ({ emoji, title, sub, border: s.use === id ? '#1F6FEB' : ok, pick: () => this.setState({ use: id }) });
+    const mkC = (key, title, sub, req) => ({ title, sub, on: s[key], border: s[key] ? '#1F6FEB' : (s.consentTried && req ? bad : ok), boxBg: s[key] ? '#1F6FEB' : '#fff', boxBorder: s[key] ? '#1F6FEB' : '#9FB0CC', tap: () => this.setState((st) => ({ [key]: !st[key] })) });
+    return {
+      sel, preview: money,
+      s1: stepN === 1, s2: stepN === 2, s3: stepN === 3, s4: stepN === 4, s5: stepN === 5, s6: stepN === 6, s7: stepN === 7,
+      canBack: stepN > 1 && stepN < 7, notLast: stepN < 7,
+      dots: path.map((n, i) => ({ bg: i <= pos ? '#1F6FEB' : '#D5E3FF' })),
+      countries: C.map((c) => ({ flag: c.flag, name: c.name, cur: c.cur, border: s.country === c.id ? '#1F6FEB' : ok, pick: () => this.setState({ country: c.id, idType: 0 }) })),
+      name: s.name, email: s.email, phone: s.phone, idNum: s.idNum,
+      setName: (e) => this.setState({ name: e.target.value }),
+      setEmail: (e) => this.setState({ email: e.target.value }),
+      setPhone: (e) => this.setState({ phone: e.target.value }),
+      setIdNum: (e) => this.setState({ idNum: e.target.value }),
+      nameErr: s.tried && !nameOk, emailErr: s.tried && !emailOk, phoneErr: s.tried && !phoneOk,
+      nameBorder: s.tried && !nameOk ? bad : ok, emailBorder: s.tried && !emailOk ? bad : ok, phoneBorder: s.tried && !phoneOk ? bad : ok,
+      idChips: sel.ids.map((n, i) => ({ name: n, bg: s.idType === i ? '#1F6FEB' : 'transparent', fg: s.idType === i ? '#fff' : '#0B1B33', border: s.idType === i ? '#1F6FEB' : '#E3EBF8', pick: () => this.setState({ idType: i }) })),
+      uses: [
+        mkUse('personal', '👛', 'Mis finanzas personales', 'Gastos, ingresos, topes y análisis del mes.'),
+        mkUse('negocio', '🏪', 'Mi negocio o emprendimiento', 'Ventas, costos y si estás ganando o perdiendo.'),
+        mkUse('ambos', '✨', 'Las dos cosas', 'Un solo lugar para tu plata y la del negocio.')
+      ],
+      goalTitle: s.use === 'ambos' ? '¿Qué quieres lograr con tu cuenta personal?' : '¿Qué quieres lograr con tu plata?',
+      useName: useNames[s.use], biz: s.biz, askBiz: s.use !== 'personal', showBiz: s.use !== 'personal' && s.biz.trim() !== '', setBiz: (e) => this.setState({ biz: e.target.value }),
+      consents: [
+        mkC('c1', 'Acepto los Términos y la Política de privacidad', 'Obligatorio para crear tu cuenta.', true),
+        mkC('c2', 'Autorizo el tratamiento de mis datos personales', 'Para que la app funcione y proteja tu cuenta.', true),
+        mkC('c4', 'Permito que la IA lea los archivos que yo suba', 'Opcional. Se usa para leer tus Excel y responder tus preguntas. Siempre confirmas antes de guardar.', false),
+        mkC('c3', 'Quiero recibir consejos y novedades', 'Opcional. Puedes cancelarlo cuando quieras.', false)
+      ],
+      consentErr: s.consentTried && (!s.c1 || !s.c2),
+      ctaLabel: stepN === 6 ? 'Crear mi cuenta' : 'Continuar',
+      goals: [
+        { id: 'ver', emoji: '👀', title: 'Solo ver en qué gasto', sub: 'Registro mis gastos y listo. Sin metas ni presión.' },
+        { id: 'ahorro', emoji: '🐷', title: 'Ahorrar una cantidad cada mes', sub: 'Te digo cuánto puedes gastar como máximo.' },
+        { id: 'meta', emoji: '🎯', title: 'Ahorrar para algo puntual', sub: 'Viaje, moto, fondo de emergencia: calculo cuánto separar al mes.' },
+        { id: 'deudas', emoji: '💳', title: 'Salir de deudas', sub: 'Ordeno tus pagos y te digo cuánto abonar.' }
+      ].map((g) => Object.assign({}, g, { border: s.goal === g.id ? '#1F6FEB' : ok, pick: () => this.setState({ goal: g.id }) })),
+      planEmoji: planInfo.emoji, planTitle: planInfo.title, planSub: planInfo.sub, planLine1: planInfo.l1, planLine2: planInfo.l2,
+      incF: fm(s.inc), saveF: fm(s.sv), debtF: fm(s.db), gAmtF: fm(s.ga), gName: s.gn,
+      setInc: (e) => this.setState({ inc: e.target.value.replace(/\D/g, '') }), setSave: (e) => this.setState({ sv: e.target.value.replace(/\D/g, '') }), setDebt: (e) => this.setState({ db: e.target.value.replace(/\D/g, '') }), setGAmt: (e) => this.setState({ ga: e.target.value.replace(/\D/g, '') }), setGName: (e) => this.setState({ gn: e.target.value }),
+      pSave: s.goal === 'ahorro', pDebt: s.goal === 'deudas', pGoal: s.goal === 'meta',
+      monthChips: [3, 6, 12, 18, 24].map((m) => ({ label: m + ' m', bg: s.gm === m ? '#1F6FEB' : 'transparent', fg: s.gm === m ? '#fff' : '#0B1B33', border: s.gm === m ? '#1F6FEB' : ok, pick: () => this.setState({ gm: m }) })),
+      incBorder: s.tried5 && income <= 0 ? bad : ok, valBorder: s.tried5 && !planValid ? bad : ok,
+      planErr: s.tried5 && !planValid, planErrText: errText, planOk: planValid, maxStr: sym + fm(String(maxSpend > 0 ? maxSpend : 0)),
+      showPlanRow: personal && s.goal !== 'ver' && planValid, planRowLabel: s.goal === 'ahorro' ? 'Gasto máximo al mes' : 'Te queda para gastar', planRowVal: sym + fm(String(maxSpend > 0 ? maxSpend : 0)),
+      selOpen: s.selOpen, openSel: () => this.setState({ selOpen: true, selCode: '', selOk: null, selErr: false }), closeSel: () => this.setState({ selOpen: false }),
+      selCode: s.selCode, onSelCode: (e) => this.setState({ selCode: e.target.value.replace(/\D/g, '').slice(0, 6), selErr: false }), selAsk: !s.selOk, selDone: !!s.selOk, selErr: s.selErr,
+      selName: s.selOk ? s.selOk.name : '', selBiz: s.selOk ? s.selOk.biz : '',
+      checkSel: () => { const DEMO = { '482913': { name: 'Laura', biz: 'Mi emprendimiento' } }; const hit = DEMO[s.selCode]; if (!hit) { this.setState({ selErr: true }); return; } try { localStorage.setItem('sirumi_seller', JSON.stringify({ code: s.selCode })); } catch (e) {} this.setState({ selOk: hit }); },
+      ownToo: () => this.setState({ selOpen: false, selOk: null }),
+      polOpen: s.polOpen, readCo: () => this.setState({ polOpen: true, polTab: 'co' }), readInt: () => this.setState({ polOpen: true, polTab: 'int' }), closePol: () => this.setState({ polOpen: false }),
+      tabCo: () => this.setState({ polTab: 'co' }), tabInt: () => this.setState({ polTab: 'int' }),
+      coBg: s.polTab === 'co' ? '#1F6FEB' : '#fff', coFg: s.polTab === 'co' ? '#fff' : '#0B1B33', intBg: s.polTab === 'int' ? '#1F6FEB' : '#fff', intFg: s.polTab === 'int' ? '#fff' : '#0B1B33',
+      polRows: POL[s.polTab].map((r) => Object.assign({ text: r[1] }, polKind(r[0]))),
+      back: () => this.setState((st) => { const pers = st.use !== 'negocio'; const prev = st.step === 6 ? (pers ? (st.goal !== 'ver' ? 5 : 4) : 3) : st.step - 1; return { step: Math.max(1, prev) }; }),
+      next: () => {
+        const st = this.state; const pers = st.use !== 'negocio';
+        if (st.step === 2) {
+          const eo = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(st.email.trim());
+          const po = st.phone.replace(/\D/g, '').length >= 7;
+          const no = st.name.trim().length >= 2;
+          if (!(eo && po && no)) { this.setState({ tried: true }); return; }
+        }
+        if (st.step === 5 && !planValid) { this.setState({ tried5: true }); return; }
+        if (st.step === 6 && !(st.c1 && st.c2)) { this.setState({ consentTried: true }); return; }
+        if (st.step === 6) { try { localStorage.setItem('finapp_onb', JSON.stringify(Object.assign(onbData(), { at: new Date().toISOString(), policyVersion: 'borrador-1' }))); } catch (e) {} }
+        const nx = st.step === 3 ? (pers ? 4 : 6) : st.step === 4 ? (st.goal === 'ver' ? 6 : 5) : st.step + 1;
+        this.setState({ step: nx });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>
