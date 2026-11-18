@@ -16,11 +16,11 @@ export function aplicarTecla(actual: string, tecla: (typeof TECLAS)[number]): st
 }
 
 /** Teclado para escribir plata, con botón 000. */
-export function TecladoNumerico({ valor, onCambio }: { valor: string; onCambio: (valor: string) => void }) {
+export function TecladoNumerico({ valor, onCambio, compacto = false }: { valor: string; onCambio: (valor: string) => void; compacto?: boolean }) {
   const { t } = useTranslation();
   const { colores } = useTema();
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: ESPACIO.s }}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: compacto ? 6 : ESPACIO.s }}>
       {TECLAS.map((tecla) => (
         <Pressable
           key={tecla}
@@ -29,7 +29,7 @@ export function TecladoNumerico({ valor, onCambio }: { valor: string; onCambio: 
           onPress={() => onCambio(aplicarTecla(valor, tecla))}
           style={({ pressed }) => ({
             width: '31.5%',
-            minHeight: ALTO_TOCABLE + 8,
+            minHeight: compacto ? ALTO_TOCABLE + 4 : ALTO_TOCABLE + 8,
             borderRadius: RADIO.l,
             alignItems: 'center',
             justifyContent: 'center',

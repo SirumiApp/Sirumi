@@ -259,6 +259,8 @@ export const en: Traducciones = {
     editar: 'Edit transaction',
     dictar: 'Say it or type it',
     dictarEjemplo: 'E.g. 25k lunch',
+    dictarBoton: 'Dictate the transaction',
+    dictarTip: 'Now tap the microphone on your keyboard and say the expense, for example "25k lunch".',
     dictarAyuda: "Tap your keyboard's microphone and say the expense. We fill in the amount, category and description.",
     gasto: 'Expense',
     ingreso: 'Income',

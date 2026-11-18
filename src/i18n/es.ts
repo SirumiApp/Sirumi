@@ -260,6 +260,8 @@ export const es = {
     editar: 'Editar movimiento',
     dictar: 'Dilo o escríbelo',
     dictarEjemplo: 'Ej: 25 mil almuerzo',
+    dictarBoton: 'Dictar el movimiento',
+    dictarTip: 'Ahora toca el micrófono de tu teclado y di el gasto, por ejemplo "25 mil almuerzo".',
     dictarAyuda: 'Toca el micrófono de tu teclado y di el gasto. Nosotros llenamos el monto, la categoría y la descripción.',
     gasto: 'Gasto',
     ingreso: 'Ingreso',
