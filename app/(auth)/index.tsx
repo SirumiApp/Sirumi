@@ -19,7 +19,7 @@ export default function BienvenidaPantalla() {
         </Texto>
       </View>
       <View style={{ gap: ESPACIO.s }}>
-        <Boton titulo="Crear mi cuenta" onPress={() => router.push('/crear-cuenta')} />
+        <Boton titulo="Crear mi cuenta" onPress={() => router.push('/onboarding')} />
         <Boton titulo="Ya tengo cuenta" variante="secundario" onPress={() => router.push('/entrar')} />
       </View>
     </Pantalla>

@@ -23,13 +23,16 @@ export default function RaizLayout() {
 
 function Navegacion() {
   const { oscuro, colores } = useTema();
-  const { sesion, cargando } = useSesion();
+  const { sesion, cargando, onboardingListo, enOnboarding } = useSesion();
+
+  // Mientras se crea la cuenta dentro del onboarding no se desmonta nada (se perdería lo escrito).
+  const esperando = cargando && !enOnboarding;
 
   useEffect(() => {
-    if (!cargando) SplashScreen.hideAsync();
-  }, [cargando]);
+    if (!esperando) SplashScreen.hideAsync();
+  }, [esperando]);
 
-  if (cargando) return null;
+  if (esperando) return null;
 
   const base = oscuro ? DarkTheme : DefaultTheme;
   const temaNavegacion = {
@@ -48,12 +51,16 @@ function Navegacion() {
     <ThemeProvider value={temaNavegacion}>
       <StatusBar style={oscuro ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false }}>
-        {/* Con sesión: la app. Sin sesión: bienvenida, registro y entrada. */}
-        <Stack.Protected guard={!!sesion}>
+        {/* Con sesión y onboarding terminado: la app. Sin sesión: bienvenida y entrada.
+            El onboarding sirve para crear la cuenta (sin sesión) o para completarla (con sesión). */}
+        <Stack.Protected guard={!!sesion && onboardingListo === true && !enOnboarding}>
           <Stack.Screen name="(tabs)" />
         </Stack.Protected>
         <Stack.Protected guard={!sesion}>
           <Stack.Screen name="(auth)" />
+        </Stack.Protected>
+        <Stack.Protected guard={!sesion || onboardingListo === false || enOnboarding}>
+          <Stack.Screen name="onboarding" />
         </Stack.Protected>
       </Stack>
     </ThemeProvider>

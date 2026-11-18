@@ -15,6 +15,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          id: string
+          initial_balance: number
+          is_main: boolean
+          kind: string
+          name: string
+          owner_type: string
+          user_id: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          id?: string
+          initial_balance?: number
+          is_main?: boolean
+          kind: string
+          name: string
+          owner_type: string
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          id?: string
+          initial_balance?: number
+          is_main?: boolean
+          kind?: string
+          name?: string
+          owner_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_members: {
         Row: {
           business_id: string
@@ -115,39 +159,84 @@ export type Database = {
           country: string
           created_at: string
           currency: string
+          document_number: string | null
+          document_type: string | null
           full_name: string | null
           id: string
+          onboarded_at: string | null
           phone: string | null
           preferences: Json
           updated_at: string
+          usage: string | null
         }
         Insert: {
           country?: string
           created_at?: string
           currency?: string
+          document_number?: string | null
+          document_type?: string | null
           full_name?: string | null
           id: string
+          onboarded_at?: string | null
           phone?: string | null
           preferences?: Json
           updated_at?: string
+          usage?: string | null
         }
         Update: {
           country?: string
           created_at?: string
           currency?: string
+          document_number?: string | null
+          document_type?: string | null
           full_name?: string | null
           id?: string
+          onboarded_at?: string | null
           phone?: string | null
           preferences?: Json
           updated_at?: string
+          usage?: string | null
         }
         Relationships: []
+      }
+      warehouses: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          is_main: boolean
+          name: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          is_main?: boolean
+          name: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          is_main?: boolean
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warehouses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      completar_onboarding: { Args: { datos: Json }; Returns: undefined }
       crear_negocio: {
         Args: { ciudad?: string; nombre: string; tipo?: string }
         Returns: {

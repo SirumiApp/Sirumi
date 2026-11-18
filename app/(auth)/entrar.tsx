@@ -71,7 +71,7 @@ export default function EntrarPantalla() {
       {error && <Aviso mensaje={error} />}
 
       <Boton titulo="Entrar" onPress={entrar} cargando={cargando} />
-      <Boton titulo="Crear una cuenta nueva" variante="texto" onPress={() => router.replace('/crear-cuenta')} />
+      <Boton titulo="Crear una cuenta nueva" variante="texto" onPress={() => router.push('/onboarding')} />
     </Pantalla>
   );
 }
