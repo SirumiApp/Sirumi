@@ -151,9 +151,9 @@ export function unidadesDeEquilibrio(ventasEquilibrio: number, precio: number): 
 }
 
 /** B8b · Lo que te deben, lo que debes y cómo quedaría la caja si todo se cobra y se paga. */
-export function porCobrarYPagar(movs: MovNegocio[], arranque: { deudasIniciales: number }, caja: number) {
+export function porCobrarYPagar(movs: MovNegocio[], arranque: { deudasIniciales: number; porCobrarInicial?: number }, caja: number) {
   const pendientes = movs.filter((m) => !m.pagado);
-  const porCobrar = suma(pendientes.filter((m) => m.tipo === 'venta'), (m) => m.monto);
+  const porCobrar = suma(pendientes.filter((m) => m.tipo === 'venta'), (m) => m.monto) + (arranque.porCobrarInicial ?? 0);
   const porPagar = suma(pendientes.filter((m) => m.tipo !== 'venta'), (m) => m.monto) + arranque.deudasIniciales;
   return { porCobrar, porPagar, proyeccion: caja + porCobrar - porPagar };
 }

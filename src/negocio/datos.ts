@@ -1,0 +1,189 @@
+import { useCallback, useEffect, useState } from 'react';
+
+import { useSesion } from '@/auth/sesion';
+import type { Json } from '@/lib/database.types';
+import type { Fecha } from '@/lib/fechas';
+import { iconoDeCuenta, type MovNegocio, type TipoNegocio, type Transferencia } from '@/lib/negocio';
+import { supabase } from '@/lib/supabase';
+
+export type Regimen = 'simple' | 'ordinario' | 'natural';
+
+/** Operación normal y lo que el negocio tenía al arrancar (businesses.setup). Todo opcional. */
+export type Configuracion = {
+  ventas_mes?: number;
+  fijos_mes?: number;
+  costo_porcentaje?: number;
+  grupo_actividad?: 1 | 2 | 3 | 4;
+  por_cobrar_inicial?: number;
+  equipos?: number;
+  deuda_proveedores?: number;
+  prestamos?: number;
+  arranque_listo?: boolean;
+};
+
+export type Negocio = { id: string; nombre: string; regimen: Regimen | null; configuracion: Configuracion };
+export type Cuenta = { id: string; nombre: string; tipo: 'banco' | 'billetera' | 'efectivo'; saldoInicial: number; principal: boolean };
+export type Tarjeta = { id: string; nombre: string; cupo: number; deudaInicial: number };
+
+export type DatosNegocio = {
+  negocio: Negocio | null;
+  cuentas: Cuenta[];
+  tarjetas: Tarjeta[];
+  movimientos: MovNegocio[];
+  traslados: Transferencia[];
+  cargando: boolean;
+};
+
+const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], cargando: true };
+
+/** El negocio de la persona (el primero donde es dueña) con todo lo necesario para las reglas B. */
+export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => void } {
+  const { sesion } = useSesion();
+  const idUsuario = sesion?.user.id;
+  const [datos, setDatos] = useState<DatosNegocio>(VACIO);
+
+  const cargar = useCallback(async () => {
+    if (!idUsuario) return;
+    const { data: miembro } = await supabase
+      .from('business_members')
+      .select('business_id, role, businesses(id, name, tax_regime, setup)')
+      .eq('user_id', idUsuario)
+      .order('created_at')
+      .limit(1)
+      .maybeSingle();
+    const b = miembro?.businesses as { id: string; name: string; tax_regime: string | null; setup: Json } | null | undefined;
+    if (!b) return setDatos({ ...VACIO, cargando: false });
+
+    const [cuentas, tarjetas, movimientos, traslados] = await Promise.all([
+      supabase.from('accounts').select('id, name, kind, initial_balance, is_main').eq('business_id', b.id).order('created_at'),
+      supabase.from('credit_cards').select('id, name, credit_limit, initial_debt').eq('business_id', b.id).order('created_at'),
+      supabase
+        .from('movements')
+        .select('id, date, kind, amount, paid, account_id, card_id, description')
+        .eq('business_id', b.id)
+        .order('date', { ascending: false })
+        .order('created_at', { ascending: false }),
+      supabase.from('transfers').select('date, from_account, to_account, to_card, amount').eq('business_id', b.id),
+    ]);
+
+    setDatos({
+      negocio: { id: b.id, nombre: b.name, regimen: (b.tax_regime as Regimen | null) ?? null, configuracion: (b.setup ?? {}) as Configuracion },
+      cuentas: (cuentas.data ?? []).map((c) => ({
+        id: c.id,
+        nombre: c.name,
+        tipo: c.kind as Cuenta['tipo'],
+        saldoInicial: c.initial_balance,
+        principal: c.is_main,
+      })),
+      tarjetas: (tarjetas.data ?? []).map((t) => ({ id: t.id, nombre: t.name, cupo: t.credit_limit, deudaInicial: t.initial_debt })),
+      movimientos: (movimientos.data ?? []).map((m) => ({
+        id: m.id,
+        fecha: m.date,
+        tipo: m.kind as TipoNegocio,
+        monto: m.amount,
+        pagado: m.paid,
+        cuenta: m.account_id,
+        tarjeta: m.card_id,
+        concepto: m.description,
+      })),
+      traslados: (traslados.data ?? []).map((t) => ({ fecha: t.date, desde: t.from_account, haciaCuenta: t.to_account, haciaTarjeta: t.to_card, monto: t.amount })),
+      cargando: false,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `version` solo sirve para forzar una nueva lectura
+  }, [idUsuario, version]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- carga desde el servidor
+    cargar();
+  }, [cargar]);
+
+  return { ...datos, recargar: cargar };
+}
+
+/** Para quien eligió solo finanzas personales: crea su negocio con Efectivo y Bodega principal. */
+export async function crearMiNegocio(nombre: string, nombres: { efectivo: string; bodega: string }) {
+  const { data, error } = await supabase.rpc('crear_negocio', { nombre });
+  if (error || !data) return { error: error ?? new Error('sin negocio') };
+  const id = (data as { id: string }).id;
+  const [c, w] = await Promise.all([
+    supabase.from('accounts').insert({ owner_type: 'negocio', business_id: id, name: nombres.efectivo, kind: 'efectivo', is_main: true }),
+    supabase.from('warehouses').insert({ business_id: id, name: nombres.bodega, is_main: true }),
+  ]);
+  return { error: c.error ?? w.error };
+}
+
+export type DatosArranque = {
+  nombre: string;
+  regimen: Regimen | null;
+  configuracion: Configuracion;
+  /** Cuentas que quedan (sin id = nuevas). Efectivo viene con su id. */
+  cuentas: { id?: string; nombre: string; saldo: number }[];
+  cuentasQuitadas: string[];
+  tarjetas: { id?: string; nombre: string; cupo: number; deuda: number }[];
+  tarjetasQuitadas: string[];
+};
+
+/** Guarda el arranque. Devuelve cuántos movimientos pasaron a la cuenta principal por quitar cuentas. */
+export async function guardarArranque(negocio: Negocio, d: DatosArranque): Promise<{ error: unknown; movidos: number; errorTarjeta: boolean }> {
+  const r1 = await supabase
+    .from('businesses')
+    .update({ name: d.nombre.trim() || negocio.nombre, tax_regime: d.regimen, setup: { ...negocio.configuracion, ...d.configuracion, arranque_listo: true } as Json })
+    .eq('id', negocio.id);
+  if (r1.error) return { error: r1.error, movidos: 0, errorTarjeta: false };
+
+  for (const c of d.cuentas) {
+    const fila = { name: c.nombre.trim(), initial_balance: Math.round(c.saldo) };
+    const r = c.id
+      ? await supabase.from('accounts').update(fila).eq('id', c.id)
+      : await supabase.from('accounts').insert({ ...fila, owner_type: 'negocio', business_id: negocio.id, kind: iconoDeCuenta(c.nombre) === 'billetera' ? 'billetera' : 'banco' });
+    if (r.error) return { error: r.error, movidos: 0, errorTarjeta: false };
+  }
+
+  let movidos = 0;
+  for (const id of d.cuentasQuitadas) {
+    const r = await supabase.rpc('quitar_cuenta_negocio', { cuenta: id });
+    if (r.error) return { error: r.error, movidos, errorTarjeta: false };
+    movidos += (r.data as number) ?? 0;
+  }
+
+  for (const t of d.tarjetas) {
+    const fila = { name: t.nombre.trim(), credit_limit: Math.round(t.cupo), initial_debt: Math.round(t.deuda) };
+    const r = t.id ? await supabase.from('credit_cards').update(fila).eq('id', t.id) : await supabase.from('credit_cards').insert({ ...fila, business_id: negocio.id });
+    if (r.error) return { error: r.error, movidos, errorTarjeta: false };
+  }
+  for (const id of d.tarjetasQuitadas) {
+    const r = await supabase.from('credit_cards').delete().eq('id', id);
+    // Una tarjeta con movimientos no se puede borrar (la base de datos lo impide).
+    if (r.error) return { error: r.error, movidos, errorTarjeta: true };
+  }
+  return { error: null, movidos, errorTarjeta: false };
+}
+
+export type DatosMovNegocio = {
+  fecha: Fecha;
+  tipo: TipoNegocio;
+  monto: number;
+  pagado: boolean;
+  cuenta: string | null;
+  tarjeta: string | null;
+  concepto: string;
+};
+
+export function guardarMovNegocio(negocioId: string, d: DatosMovNegocio, id?: string) {
+  const fila = {
+    owner_type: 'negocio',
+    business_id: negocioId,
+    date: d.fecha,
+    kind: d.tipo,
+    amount: Math.round(d.monto),
+    paid: d.pagado,
+    account_id: d.pagado ? d.cuenta : null,
+    card_id: d.pagado ? d.tarjeta : null,
+    description: d.concepto.trim() || null,
+  };
+  return id ? supabase.from('movements').update(fila).eq('id', id) : supabase.from('movements').insert(fila);
+}
+
+export function borrarMovNegocio(id: string) {
+  return supabase.from('movements').delete().eq('id', id);
+}

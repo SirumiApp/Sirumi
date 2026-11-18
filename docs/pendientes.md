@@ -14,6 +14,15 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [ ] **Lista de recurrentes** y **etiquetas**: no están en el alcance de la v1; decidir si entran.
 - Fuera de la v1 según la especificación: listas compartidas, WhatsApp, rastreo automático con mensajes del banco, conversión de monedas, mejoras con IA, idioma de voz y registro instantáneo.
 
+## Negocio (siguientes partes del módulo 03)
+- [ ] Mover plata entre cuentas y pagar tarjetas (la tabla de traslados ya existe), con historial.
+- [ ] Informes: estado de resultados, flujo de caja, entradas y salidas, costos y equilibrio, ventas, cartera, inventario, impuestos (B7, tabla por año), cierre del día, dueño y capital, balance.
+- [ ] Impuestos estimados (B7) en la utilidad neta del Resumen (hoy se muestra antes de impuestos).
+- [ ] Clientes y proveedores (ficha y estadísticas) y contacto en los movimientos.
+- [ ] Pagos recurrentes con recordatorio.
+- [ ] Inventario a costo en el arranque (cuando existan productos).
+- [ ] Sirumi POS (módulo 05) e inventario (módulo 04).
+
 ## Producción
 - [ ] Proyecto de Supabase de producción en us-east-1 (el actual `sirumi-dev` está en us-east-2).
 - [ ] Servicio de correo propio (SMTP) y volver a activar la confirmación de correo con código.

@@ -190,6 +190,9 @@ describe('B8b · por cobrar, por pagar y proyección', () => {
     ];
     expect(porCobrarYPagar(movs, { deudasIniciales: 2_000_000 }, 3_000_000)).toEqual({ porCobrar: 1_000_000, porPagar: 2_500_000, proyeccion: 1_500_000 });
   });
+  it('lo que los clientes debían al arrancar también se cobra', () => {
+    expect(porCobrarYPagar([], { deudasIniciales: 0, porCobrarInicial: 700_000 }, 100_000)).toEqual({ porCobrar: 700_000, porPagar: 0, proyeccion: 800_000 });
+  });
 });
 
 describe('B8c · salud del negocio (ejemplo del documento)', () => {

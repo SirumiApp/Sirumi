@@ -1,9 +1,10 @@
 import type { Tabs } from 'expo-router';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useNegocio } from '@/negocio/contexto';
 import { usePersonal } from '@/personal/contexto';
 import { ESPACIO, FUENTES, sombraAccion, sombraFlotante, useTema } from '@/theme';
 
@@ -34,6 +35,7 @@ export function BarraFlotante({ state, navigateToTab }: PropsBarra) {
   const { t } = useTranslation();
   const { colores, oscuro } = useTema();
   const { abrirHoja } = usePersonal();
+  const negocio = useNegocio();
   const abajo = useSafeAreaInsets().bottom;
   const actual = state.routes[state.index]?.name;
   const enNegocio = NEGOCIO.some((i) => i !== '+' && i.ruta === actual);
@@ -62,7 +64,7 @@ export function BarraFlotante({ state, navigateToTab }: PropsBarra) {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={t('navegacion.agregar')}
-                  onPress={() => (enNegocio ? Alert.alert(t('navegacion.muyPronto'), t('navegacion.negocioPronto')) : abrirHoja(null))}
+                  onPress={() => (enNegocio ? negocio.abrirHoja(null) : abrirHoja(null))}
                   style={({ pressed }) => [
                     {
                       width: 56,

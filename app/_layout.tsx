@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { ProveedorSesion, useSesion } from '@/auth/sesion';
 import { cargarIdiomaGuardado } from '@/i18n';
+import { ProveedorNegocio } from '@/negocio/contexto';
 import { ProveedorPersonal } from '@/personal/contexto';
 import { FUENTES_A_CARGAR, ProveedorTema, useTema } from '@/theme';
 
@@ -56,21 +57,24 @@ function Navegacion() {
     <ThemeProvider value={temaNavegacion}>
       <StatusBar style={oscuro ? 'light' : 'dark'} />
       <ProveedorPersonal>
-        <Stack screenOptions={{ headerShown: false }}>
-          {/* Con sesión y onboarding terminado: la app. Sin sesión: bienvenida y entrada.
+        <ProveedorNegocio>
+          <Stack screenOptions={{ headerShown: false }}>
+            {/* Con sesión y onboarding terminado: la app. Sin sesión: bienvenida y entrada.
             El onboarding sirve para crear la cuenta (sin sesión) o para completarla (con sesión). */}
-          <Stack.Protected guard={!!sesion && onboardingListo === true && !enOnboarding}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="ajustes" />
-            <Stack.Screen name="plan" />
-          </Stack.Protected>
-          <Stack.Protected guard={!sesion}>
-            <Stack.Screen name="(auth)" />
-          </Stack.Protected>
-          <Stack.Protected guard={!sesion || onboardingListo === false || enOnboarding}>
-            <Stack.Screen name="onboarding" />
-          </Stack.Protected>
-        </Stack>
+            <Stack.Protected guard={!!sesion && onboardingListo === true && !enOnboarding}>
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="ajustes" />
+              <Stack.Screen name="plan" />
+              <Stack.Screen name="arranque" />
+            </Stack.Protected>
+            <Stack.Protected guard={!sesion}>
+              <Stack.Screen name="(auth)" />
+            </Stack.Protected>
+            <Stack.Protected guard={!sesion || onboardingListo === false || enOnboarding}>
+              <Stack.Screen name="onboarding" />
+            </Stack.Protected>
+          </Stack>
+        </ProveedorNegocio>
       </ProveedorPersonal>
     </ThemeProvider>
   );

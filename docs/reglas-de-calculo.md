@@ -135,9 +135,9 @@ Convenciones:
 - Unidades de equilibrio de un producto = techo(equilibrio / precio).
 
 ### B8b. Lo que te deben, lo que debes y proyección
-- Por cobrar = suma de ventas pendientes. Por pagar = suma de los demás movimientos pendientes (compras, fijos, variables, inversión) + deudas iniciales con proveedores y préstamos del arranque.
+- Por cobrar = suma de ventas pendientes + lo que los clientes debían al arrancar. Por pagar = suma de los demás movimientos pendientes (compras, fijos, variables, inversión) + deudas iniciales con proveedores y préstamos del arranque.
 - Proyección = caja (B4) + por cobrar − por pagar.
-- Meses de caja = caja / gastos del mes (fijos + variables de la operación normal). Sin gastos no se calcula.
+- Meses de caja = caja / gastos del mes. Gastos del mes = gastos fijos de la operación normal (si no los escribió, los fijos registrados en el período) + gastos variables registrados en el período. Sin gastos no se calcula.
 
 ### B8c. Salud del negocio (0 a 100, del prototipo)
 - +30 si la utilidad neta > 0; si no, +12 si la utilidad operativa > 0.
