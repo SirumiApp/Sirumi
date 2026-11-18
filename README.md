@@ -20,4 +20,5 @@ Tu plata, hacia arriba. App de finanzas personales y de negocio para Colombia (E
 ## Supabase
 - Proyecto de desarrollo: `sirumi-dev` (ref `jztukmmqvggcrmhxlger`, región us-east-2). Para producción hay que crear uno en us-east-1.
 - La app usa solo la clave pública (`.env`, ver `.env.example`). En Expo están guardadas como variables `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_KEY`.
+- Mientras desarrollamos, la confirmación del correo está **desactivada** (se entra apenas se crea la cuenta). Antes del lanzamiento hay que volver a activarla.
 - Pendiente antes del lanzamiento: conectar un servicio de correo propio (SMTP) para poder usar las plantillas de `supabase/plantillas` (código de 6 números) y quitar el límite de 2 correos por hora.
