@@ -22,8 +22,17 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] Clientes y proveedores (ficha, autorización Ley 1581, estadísticas) y contacto en los movimientos.
 - [x] Pagos recurrentes con aviso dentro de la app (Resumen) y "Registrar pago".
 - [ ] Notificación en el celular para los pagos recurrentes (requiere la app instalada).
-- [ ] Inventario a costo en el arranque (cuando existan productos).
-- [ ] Sirumi POS (módulo 05) e inventario (módulo 04).
+- [x] Inventario a costo en el arranque y en el balance (sale de los productos).
+- [ ] Sirumi POS (módulo 05).
+
+## Inventario (módulo 04)
+- [x] 4a: reglas C1–C7 con pruebas; tablas y funciones de stock (nunca negativo, todo queda registrado); bodegas; lista de inventario; nuevo producto con tallas, colores, cantidades y códigos; detalle con stock por bodega, ajuste de conteo, variantes, editar y deshacer.
+- [ ] 4b: pantalla de entrada y salida de mercancía (con motivo y "quedarían Y"), mover entre bodegas desde el producto, escáner de códigos con la cámara, foto del producto, importar y exportar catálogo (CSV).
+
+## Ideas de Nicolás (nov 2026) — ver docs/hoja-de-ruta.md
+- [ ] Importar extracto del banco (CSV/Excel, regla B9) para negocio y personal. PDF con IA en la v2.
+- [ ] Calendario de impuestos y retenciones con recordatorios (según régimen y último dígito del NIT; fechas por año en una tabla, validar con contador).
+- [ ] Pagos recurrentes personales y modo "solo personal" más limpio.
 
 ## Modo ejemplo
 - [x] Ajustes → "Ver la app con un ejemplo" y botón "Ver un ejemplo primero" cuando la cuenta está vacía. Datos inventados en `src/ejemplo/` (no tocan la base de datos; guardar está bloqueado con aviso).

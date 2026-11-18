@@ -18,6 +18,10 @@ export default function Mas() {
         <Texto variante="suave">{t('negocioApp.informes.detalle')}</Texto>
       </View>
 
+      <GrupoAjustes>
+        <FilaAjuste emoji="paquete" titulo={t('inventario.titulo')} detalle={t('inventario.detalle')} onPress={() => router.push('/inventario')} />
+      </GrupoAjustes>
+
       <GrupoAjustes titulo={t('negocioApp.informes.grupoInformes')}>
         <FilaAjuste emoji="balanza" titulo={t('negocioApp.informes.balance')} detalle={t('negocioApp.informes.balanceDetalle')} onPress={() => router.push('/informe/balance')} />
         <FilaAjuste emoji="portapapeles" titulo={t('negocioApp.informes.cartera')} detalle={t('negocioApp.informes.carteraDetalle')} onPress={() => router.push('/informe/cartera')} />

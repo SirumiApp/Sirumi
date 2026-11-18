@@ -8,7 +8,9 @@ import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { diasEntre, hoyEn, periodoAnterior } from '@/lib/fechas';
 import { balance, cartera, duenoYCapital, entradasYSalidas, type Antiguedad } from '@/lib/informes';
+import { valorInventario } from '@/lib/inventario';
 import { useNegocio } from '@/negocio/contexto';
+import { paraReglas } from '@/negocio/inventarioDatos';
 import { BotonCompartir, conSigno, FilaCifra, ListaFilas, textoInforme } from '@/negocio/Piezas';
 import { calcularResumen } from '@/negocio/resumen';
 import { etiquetaDia, rangoCorto } from '@/personal/etiquetas';
@@ -27,7 +29,7 @@ export default function Informe() {
   const textosFecha = useTextosFecha();
   const { cual: crudo } = useLocalSearchParams<{ cual: string }>();
   const cual: Cual = (['balance', 'cartera', 'dueno', 'entradas'] as const).find((c) => c === crudo) ?? 'balance';
-  const { negocio, cuentas, tarjetas, movimientos, traslados, parametros } = useNegocio();
+  const { negocio, cuentas, tarjetas, movimientos, traslados, parametros, productos, stock } = useNegocio();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
   const hoy = hoyEn();
   const titulo = t(`negocioApp.informes.${cual}`);
@@ -52,11 +54,12 @@ export default function Informe() {
       porCobrar: r.porCobrar,
       porPagar: r.porPagar,
       equipos: cfg.equipos ?? 0,
-      inventario: 0,
+      inventario: valorInventario(paraReglas(productos), stock).aCosto,
     });
     const tienes: [string, number][] = [
       [t('negocioApp.informes.caja'), b.caja],
       [t('negocioApp.informes.porCobrar'), r.porCobrar],
+      [t('negocioApp.informes.inventario'), valorInventario(paraReglas(productos), stock).aCosto],
       [t('negocioApp.informes.equipos'), cfg.equipos ?? 0],
     ];
     const debes: [string, number][] = [

@@ -70,6 +70,9 @@ function Navegacion() {
               <Stack.Screen name="contactos/index" />
               <Stack.Screen name="contactos/[id]" />
               <Stack.Screen name="recurrentes" />
+              <Stack.Screen name="inventario/index" />
+              <Stack.Screen name="inventario/[id]" />
+              <Stack.Screen name="inventario/bodegas" />
             </Stack.Protected>
             <Stack.Protected guard={!sesion}>
               <Stack.Screen name="(auth)" />

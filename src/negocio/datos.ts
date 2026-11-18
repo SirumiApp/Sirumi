@@ -6,10 +6,13 @@ import type { Json } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
 import type { Recurrente } from '@/lib/contactos';
 import { iconoDeCuenta, type MovNegocio, type TipoNegocio, type Transferencia } from '@/lib/negocio';
-import { CONTACTOS_EJEMPLO, CUENTAS_EJEMPLO, esTextoEjemplo, RECURRENTES_EJEMPLO, movimientosNegocioEjemplo, NEGOCIO_EJEMPLO, TARJETAS_EJEMPLO, trasladosEjemplo } from '@/ejemplo/datosEjemplo';
+import { BODEGAS_EJEMPLO, CONTACTOS_EJEMPLO, CUENTAS_EJEMPLO, esTextoEjemplo, PRODUCTOS_EJEMPLO, RECURRENTES_EJEMPLO, STOCK_EJEMPLO, movimientosNegocioEjemplo, NEGOCIO_EJEMPLO, TARJETAS_EJEMPLO, trasladosEjemplo } from '@/ejemplo/datosEjemplo';
 import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
 import { hoyEn } from '@/lib/fechas';
+import { nombreVariante } from '@/lib/inventario';
 import { supabase } from '@/lib/supabase';
+
+import { cargarInventario, type DatosInventario } from './inventarioDatos';
 
 export type Regimen = 'simple' | 'ordinario' | 'natural';
 
@@ -46,7 +49,7 @@ export type Contacto = {
   notas: string;
 };
 
-export type DatosNegocio = {
+export type DatosNegocio = DatosInventario & {
   negocio: Negocio | null;
   cuentas: Cuenta[];
   tarjetas: Tarjeta[];
@@ -57,7 +60,7 @@ export type DatosNegocio = {
   cargando: boolean;
 };
 
-const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], contactos: [], recurrentes: [], cargando: true };
+const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], contactos: [], recurrentes: [], bodegas: [], productos: [], stock: [], cargando: true };
 
 /** El negocio de la persona (el primero donde es dueña) con todo lo necesario para las reglas B. */
 export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => void } {
@@ -77,7 +80,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
     const b = miembro?.businesses as { id: string; name: string; tax_regime: string | null; setup: Json } | null | undefined;
     if (!b) return setDatos({ ...VACIO, cargando: false });
 
-    const [cuentas, tarjetas, movimientos, traslados, contactos, recurrentes] = await Promise.all([
+    const [cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, inventario] = await Promise.all([
       supabase.from('accounts').select('id, name, kind, initial_balance, is_main').eq('business_id', b.id).order('created_at'),
       supabase.from('credit_cards').select('id, name, credit_limit, initial_debt').eq('business_id', b.id).order('created_at'),
       supabase
@@ -89,6 +92,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
       supabase.from('transfers').select('id, date, from_account, to_account, to_card, amount, note').eq('business_id', b.id).order('date', { ascending: false }).order('created_at', { ascending: false }),
       supabase.from('contacts').select('id, kind, name, doc_type, doc_number, phone, email, address, city, notes').eq('business_id', b.id).order('name'),
       supabase.from('recurring_payments').select('id, name, kind, amount, day_of_month, account_id, active').eq('business_id', b.id).order('day_of_month'),
+      cargarInventario(b.id),
     ]);
 
     setDatos({
@@ -135,6 +139,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         cuenta: r.account_id,
         activo: r.active,
       })),
+      ...inventario,
       cargando: false,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `version` solo sirve para forzar una nueva lectura
@@ -159,6 +164,14 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
       traslados: trasladosEjemplo(hoy).map((tr) => ({ ...tr, nota: tx(tr.nota) })),
       contactos: CONTACTOS_EJEMPLO.map((c) => ({ ...c, notas: tx(c.notas) ?? '' })),
       recurrentes: RECURRENTES_EJEMPLO.map((r) => ({ ...r, nombre: tx(r.nombre) ?? '' })),
+      bodegas: BODEGAS_EJEMPLO.map((b) => ({ ...b, nombre: tx(b.nombre) ?? '' })),
+      productos: PRODUCTOS_EJEMPLO.map((p) => ({
+        ...p,
+        nombre: tx(p.nombre) ?? '',
+        coleccion: tx(p.coleccion),
+        variantes: p.variantes.map((v) => ({ ...v, color: tx(v.color), nombre: nombreVariante({ color: tx(v.color), talla: v.talla }) })),
+      })),
+      stock: STOCK_EJEMPLO,
       cargando: false,
     };
   }, [ejemplo, t]);

@@ -427,6 +427,73 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_movements: {
+        Row: {
+          business_id: string
+          created_at: string
+          created_by: string | null
+          group_id: string | null
+          id: string
+          kind: string
+          note: string | null
+          quantity: number
+          reason: string | null
+          undone: boolean
+          variant_id: string
+          warehouse_id: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          created_by?: string | null
+          group_id?: string | null
+          id?: string
+          kind: string
+          note?: string | null
+          quantity: number
+          reason?: string | null
+          undone?: boolean
+          variant_id: string
+          warehouse_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          created_by?: string | null
+          group_id?: string | null
+          id?: string
+          kind?: string
+          note?: string | null
+          quantity?: number
+          reason?: string | null
+          undone?: boolean
+          variant_id?: string
+          warehouse_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movements: {
         Row: {
           account_id: string | null
@@ -560,6 +627,107 @@ export type Database = {
         }
         Relationships: []
       }
+      product_variants: {
+        Row: {
+          barcode: string | null
+          business_id: string
+          color: string | null
+          created_at: string
+          id: string
+          position: number
+          product_id: string
+          size: string | null
+        }
+        Insert: {
+          barcode?: string | null
+          business_id: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          position?: number
+          product_id: string
+          size?: string | null
+        }
+        Update: {
+          barcode?: string | null
+          business_id?: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          position?: number
+          product_id?: string
+          size?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          business_id: string
+          collection: string | null
+          cost: number
+          cost_breakdown: Json | null
+          created_at: string
+          emoji: string
+          id: string
+          min_stock: number
+          name: string
+          photo_path: string | null
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          collection?: string | null
+          cost?: number
+          cost_breakdown?: Json | null
+          created_at?: string
+          emoji?: string
+          id?: string
+          min_stock?: number
+          name: string
+          photo_path?: string | null
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          collection?: string | null
+          cost?: number
+          cost_breakdown?: Json | null
+          created_at?: string
+          emoji?: string
+          id?: string
+          min_stock?: number
+          name?: string
+          photo_path?: string | null
+          price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           country: string
@@ -655,6 +823,49 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock: {
+        Row: {
+          business_id: string
+          quantity: number
+          variant_id: string
+          warehouse_id: string
+        }
+        Insert: {
+          business_id: string
+          quantity?: number
+          variant_id: string
+          warehouse_id: string
+        }
+        Update: {
+          business_id?: string
+          quantity?: number
+          variant_id?: string
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
             referencedColumns: ["id"]
           },
         ]
@@ -782,6 +993,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _cambiar_stock: {
+        Args: {
+          bodega: string
+          delta: number
+          negocio: string
+          variante: string
+        }
+        Returns: number
+      }
+      _negocio_de_variante: {
+        Args: { bodega: string; variante: string }
+        Returns: string
+      }
       abonar_deuda: { Args: { deuda: string; monto: number }; Returns: number }
       abonar_meta: { Args: { meta: string; monto: number }; Returns: number }
       completar_onboarding: { Args: { datos: Json }; Returns: undefined }
@@ -811,15 +1035,37 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      crear_producto: { Args: { datos: Json }; Returns: string }
       cuenta_del_negocio: {
         Args: { cuenta: string; negocio: string }
         Returns: boolean
+      }
+      deshacer_movimiento_inventario: {
+        Args: { movimiento: string }
+        Returns: undefined
       }
       eliminar_mi_cuenta: { Args: never; Returns: undefined }
       es_dueno: { Args: { negocio: string }; Returns: boolean }
       es_miembro: { Args: { negocio: string }; Returns: boolean }
       guardar_foto_patrimonio: { Args: never; Returns: undefined }
+      hacer_principal: { Args: { bodega: string }; Returns: undefined }
+      mover_inventario: {
+        Args: {
+          bodega: string
+          cantidad: number
+          motivo?: string
+          nota?: string
+          variante: string
+        }
+        Returns: string
+      }
+      producto_del_negocio: {
+        Args: { negocio: string; producto: string }
+        Returns: boolean
+      }
+      quitar_bodega: { Args: { bodega: string }; Returns: undefined }
       quitar_cuenta_negocio: { Args: { cuenta: string }; Returns: number }
+      quitar_variante: { Args: { variante: string }; Returns: undefined }
       recurrente_del_negocio: {
         Args: { negocio: string; recurrente: string }
         Returns: boolean
@@ -827,6 +1073,15 @@ export type Database = {
       tarjeta_del_negocio: {
         Args: { negocio: string; tarjeta: string }
         Returns: boolean
+      }
+      trasladar_inventario: {
+        Args: {
+          cantidad: number
+          desde: string
+          hacia: string
+          variante: string
+        }
+        Returns: string
       }
     }
     Enums: {

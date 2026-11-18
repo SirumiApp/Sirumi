@@ -36,11 +36,11 @@ export function ProveedorNegocio({ children }: { children: ReactNode }) {
     if (modoEjemploActivo()) return avisarEjemplo();
     setHoja({ abierta: true, movimiento, plantilla });
   }, []);
-  const { negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, cargando } = datos;
+  const { negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, bodegas, productos, stock, cargando } = datos;
 
   const valor = useMemo(
-    () => ({ negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, cargando, version, parametros, actualizar, abrirHoja }),
-    [negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, cargando, version, parametros, actualizar, abrirHoja],
+    () => ({ negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, bodegas, productos, stock, cargando, version, parametros, actualizar, abrirHoja }),
+    [negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, bodegas, productos, stock, cargando, version, parametros, actualizar, abrirHoja],
   );
 
   return (

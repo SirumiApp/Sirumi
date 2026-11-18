@@ -6,10 +6,14 @@ import { periodoPredefinido } from '@/lib/fechas';
 import { flujoDelPeriodo } from '@/lib/informes';
 import { cajaTotal, estadoDeResultados, estadoTarjeta, saldoCuenta } from '@/lib/negocio';
 import { totalesDelPeriodo } from '@/lib/personal';
+import { esEan13Valido, porReponer, valorInventario } from '@/lib/inventario';
 import { estadoRecurrente } from '@/lib/contactos';
 
 import {
+  BODEGAS_EJEMPLO,
   CATEGORIAS_EJEMPLO,
+  PRODUCTOS_EJEMPLO,
+  STOCK_EJEMPLO,
   CONTACTOS_EJEMPLO,
   RECURRENTES_EJEMPLO,
   CUENTAS_EJEMPLO,
@@ -74,6 +78,8 @@ describe('datos de ejemplo', () => {
     const plan = planPersonalEjemplo(HOY);
     [...plan.metas, ...plan.deudas, ...plan.activos].forEach((x) => agregar(x.nombre));
     [NEGOCIO_EJEMPLO.nombre, PLAN_EJEMPLO.meta, ...CUENTAS_EJEMPLO.map((c) => c.nombre)].forEach(agregar);
+    BODEGAS_EJEMPLO.forEach((b) => agregar(b.nombre));
+    PRODUCTOS_EJEMPLO.forEach((p) => [p.nombre, p.coleccion, ...p.variantes.map((v) => v.color)].forEach(agregar));
     for (const c of claves) {
       expect(es.ejemplo.textos).toHaveProperty(c);
       expect(en.ejemplo.textos).toHaveProperty(c);
@@ -100,5 +106,21 @@ describe('clientes, proveedores y pagos recurrentes de ejemplo', () => {
     expect(movs.every((m) => !m.recurrente || recurrentes.has(m.recurrente))).toBe(true);
     const estados = RECURRENTES_EJEMPLO.map((r) => estadoRecurrente(r, movs, HOY).estado);
     expect(estados).toEqual(['pagado', 'pagado', 'proximo', 'despues']);
+  });
+});
+
+describe('inventario de ejemplo', () => {
+  const reglas = PRODUCTOS_EJEMPLO.map((p) => ({ ...p, variantes: p.variantes.map((v) => v.id) }));
+  it('el stock solo usa variantes y bodegas que existen, y nunca es negativo', () => {
+    const variantes = new Set(PRODUCTOS_EJEMPLO.flatMap((p) => p.variantes.map((v) => v.id)));
+    const bodegas = new Set(BODEGAS_EJEMPLO.map((b) => b.id));
+    expect(STOCK_EJEMPLO.every((s) => variantes.has(s.variante) && bodegas.has(s.bodega) && s.cantidad >= 0)).toBe(true);
+  });
+  it('códigos válidos y sin repetir; hay algo por reponer y un valor a costo positivo', () => {
+    const codigos = PRODUCTOS_EJEMPLO.flatMap((p) => p.variantes.map((v) => v.codigo));
+    expect(codigos.every((c) => esEan13Valido(c))).toBe(true);
+    expect(new Set(codigos).size).toBe(codigos.length);
+    expect(reglas.some((p) => porReponer(p, STOCK_EJEMPLO))).toBe(true);
+    expect(valorInventario(reglas, STOCK_EJEMPLO).aCosto).toBeGreaterThan(0);
   });
 });

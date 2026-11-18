@@ -4,6 +4,7 @@
 
 import { armarFecha, diasDelMes, partes, type Fecha } from '@/lib/fechas';
 import type { Recurrente } from '@/lib/contactos';
+import { armarVariantes, codigoInterno, type FilaStock } from '@/lib/inventario';
 import type { MovNegocio, TipoNegocio, Transferencia } from '@/lib/negocio';
 import type { Movimiento } from '@/lib/personal';
 
@@ -225,3 +226,58 @@ export function trasladosEjemplo(hoy: Fecha): Transferencia[] {
 export function esTextoEjemplo(texto: string | null | undefined): texto is string {
   return !!texto && texto.startsWith('ejemplo.textos.');
 }
+
+// ───────────── Inventario ─────────────
+
+export const BODEGAS_EJEMPLO = [
+  { id: 'ej-b-principal', nombre: 'ejemplo.textos.bodegaPrincipal', principal: true },
+  { id: 'ej-b-feria', nombre: 'ejemplo.textos.bodegaFeria', principal: false },
+];
+
+/** Un código EAN-13 interno fijo para cada variante de ejemplo (siempre el mismo). */
+let semilla = 0;
+const codigoFijo = () => codigoInterno(() => ((semilla = (semilla * 9301 + 49297) % 233280) / 233280));
+
+function productoEjemplo(id: string, nombre: string, emoji: string, precio: number, costo: number, minimo: number, tallas: string[], colores: string[], coleccion: string | null) {
+  return {
+    id,
+    nombre: `ejemplo.textos.${nombre}`,
+    coleccion: coleccion ? `ejemplo.textos.${coleccion}` : null,
+    emoji,
+    precio,
+    costo,
+    desglose: null,
+    minimo,
+    variantes: armarVariantes(tallas, colores).map((v, i) => ({
+      id: `${id}-v${i}`,
+      color: v.color ? `ejemplo.textos.${v.color}` : null,
+      talla: v.talla,
+      codigo: codigoFijo(),
+      nombre: v.nombre,
+    })),
+  };
+}
+
+export const PRODUCTOS_EJEMPLO = [
+  productoEjemplo('ej-p-cafe', 'cafeEmpacado', 'paquete', 32_000, 14_400, 20, ['250 g', '500 g'], [], 'coleccionCafe'),
+  productoEjemplo('ej-p-taza', 'taza', 'cafe', 28_000, 11_000, 6, [], ['blanco', 'negro'], 'coleccionAccesorios'),
+  productoEjemplo('ej-p-camiseta', 'camiseta', 'camiseta', 45_000, 18_000, 10, ['S', 'M', 'L'], ['negro'], 'coleccionAccesorios'),
+  productoEjemplo('ej-p-bolsa', 'bolsa', 'bolsas-de-compras', 15_000, 5_500, 0, [], [], 'coleccionAccesorios'),
+];
+
+/** [variante, principal, feria] */
+const UNIDADES: [string, number, number][] = [
+  ['ej-p-cafe-v0', 18, 6],
+  ['ej-p-cafe-v1', 24, 10],
+  ['ej-p-taza-v0', 9, 3],
+  ['ej-p-taza-v1', 2, 0],
+  ['ej-p-camiseta-v0', 4, 0],
+  ['ej-p-camiseta-v1', 3, 1],
+  ['ej-p-camiseta-v2', 0, 0],
+  ['ej-p-bolsa-v0', 40, 15],
+];
+
+export const STOCK_EJEMPLO: FilaStock[] = UNIDADES.flatMap(([variante, p, f]) => [
+  { variante, bodega: 'ej-b-principal', cantidad: p },
+  { variante, bodega: 'ej-b-feria', cantidad: f },
+]);

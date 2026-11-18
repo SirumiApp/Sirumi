@@ -13,9 +13,11 @@ import { Emoji } from '@/components/emoji/Emoji';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
+import { valorInventario } from '@/lib/inventario';
 import { iconoDeCuenta, resumenArranque } from '@/lib/negocio';
 import { useNegocio } from '@/negocio/contexto';
 import { guardarArranque, type Configuracion, type Regimen } from '@/negocio/datos';
+import { paraReglas } from '@/negocio/inventarioDatos';
 import { paisPorCodigo } from '@/onboarding/paises';
 import { usePlata } from '@/personal/ganchos';
 import { ESPACIO, FUENTES, useTema } from '@/theme';
@@ -73,10 +75,12 @@ function FormularioArranque({
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'info' | 'error' } | null>(null);
 
+  const { productos, stock } = useNegocio();
+  const inventario = valorInventario(paraReglas(productos), stock).aCosto;
   const resumen = resumenArranque({
     cuentas: cuentasF.map((c) => c.saldo),
     porCobrar: conf.por_cobrar_inicial ?? 0,
-    inventario: 0,
+    inventario,
     equipos: conf.equipos ?? 0,
     deudaProveedores: conf.deuda_proveedores ?? 0,
     prestamos: conf.prestamos ?? 0,
@@ -148,7 +152,7 @@ function FormularioArranque({
       <Boton titulo={t('negocioApp.arranque.agregarCuenta')} variante="secundario" onPress={() => setCuentas((l) => [...l, { clave: nuevaClave(), nombre: '', saldo: 0, efectivo: false }])} />
       <CampoDinero etiqueta={t('negocioApp.arranque.porCobrar')} valor={conf.por_cobrar_inicial ?? 0} separador={separador} onCambio={(v) => cambiarConf({ por_cobrar_inicial: v })} />
       <CampoDinero etiqueta={t('negocioApp.arranque.equipos')} valor={conf.equipos ?? 0} separador={separador} onCambio={(v) => cambiarConf({ equipos: v })} />
-      <Texto variante="pequeno">{t('negocioApp.arranque.inventario', { monto: plata(0) })}</Texto>
+      <Texto variante="pequeno">{t('negocioApp.arranque.inventario', { monto: plata(inventario) })}</Texto>
 
       {/* Lo que debes */}
       <Texto variante="subtitulo">{t('negocioApp.arranque.debes')}</Texto>
