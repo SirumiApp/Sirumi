@@ -67,6 +67,9 @@ function Navegacion() {
               <Stack.Screen name="plan" />
               <Stack.Screen name="arranque" />
               <Stack.Screen name="informe/[cual]" />
+              <Stack.Screen name="contactos/index" />
+              <Stack.Screen name="contactos/[id]" />
+              <Stack.Screen name="recurrentes" />
             </Stack.Protected>
             <Stack.Protected guard={!sesion}>
               <Stack.Screen name="(auth)" />

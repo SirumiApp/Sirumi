@@ -261,6 +261,68 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          address: string | null
+          business_id: string
+          city: string | null
+          consent_at: string
+          created_at: string
+          data_consent: boolean
+          doc_number: string | null
+          doc_type: string | null
+          email: string | null
+          id: string
+          kind: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          business_id: string
+          city?: string | null
+          consent_at?: string
+          created_at?: string
+          data_consent: boolean
+          doc_number?: string | null
+          doc_type?: string | null
+          email?: string | null
+          id?: string
+          kind: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          business_id?: string
+          city?: string | null
+          consent_at?: string
+          created_at?: string
+          data_consent?: boolean
+          doc_number?: string | null
+          doc_type?: string | null
+          email?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_cards: {
         Row: {
           business_id: string
@@ -372,6 +434,7 @@ export type Database = {
           business_id: string | null
           card_id: string | null
           category_id: string | null
+          contact_id: string | null
           created_at: string
           date: string
           description: string | null
@@ -379,6 +442,7 @@ export type Database = {
           kind: string
           owner_type: string
           paid: boolean
+          recurring_id: string | null
           source: string
           updated_at: string
           user_id: string | null
@@ -389,6 +453,7 @@ export type Database = {
           business_id?: string | null
           card_id?: string | null
           category_id?: string | null
+          contact_id?: string | null
           created_at?: string
           date: string
           description?: string | null
@@ -396,6 +461,7 @@ export type Database = {
           kind: string
           owner_type?: string
           paid?: boolean
+          recurring_id?: string | null
           source?: string
           updated_at?: string
           user_id?: string | null
@@ -406,6 +472,7 @@ export type Database = {
           business_id?: string | null
           card_id?: string | null
           category_id?: string | null
+          contact_id?: string | null
           created_at?: string
           date?: string
           description?: string | null
@@ -413,6 +480,7 @@ export type Database = {
           kind?: string
           owner_type?: string
           paid?: boolean
+          recurring_id?: string | null
           source?: string
           updated_at?: string
           user_id?: string | null
@@ -444,6 +512,20 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movements_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movements_recurring_id_fkey"
+            columns: ["recurring_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_payments"
             referencedColumns: ["id"]
           },
         ]
@@ -525,6 +607,57 @@ export type Database = {
           usage?: string | null
         }
         Relationships: []
+      }
+      recurring_payments: {
+        Row: {
+          account_id: string | null
+          active: boolean
+          amount: number
+          business_id: string
+          created_at: string
+          day_of_month: number
+          id: string
+          kind: string
+          name: string
+        }
+        Insert: {
+          account_id?: string | null
+          active?: boolean
+          amount: number
+          business_id: string
+          created_at?: string
+          day_of_month: number
+          id?: string
+          kind?: string
+          name: string
+        }
+        Update: {
+          account_id?: string | null
+          active?: boolean
+          amount?: number
+          business_id?: string
+          created_at?: string
+          day_of_month?: number
+          id?: string
+          kind?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_payments_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_payments_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tax_parameters: {
         Row: {
@@ -652,6 +785,10 @@ export type Database = {
       abonar_deuda: { Args: { deuda: string; monto: number }; Returns: number }
       abonar_meta: { Args: { meta: string; monto: number }; Returns: number }
       completar_onboarding: { Args: { datos: Json }; Returns: undefined }
+      contacto_del_negocio: {
+        Args: { contacto: string; negocio: string }
+        Returns: boolean
+      }
       crear_categorias_iniciales: { Args: never; Returns: undefined }
       crear_negocio: {
         Args: { ciudad?: string; nombre: string; tipo?: string }
@@ -683,6 +820,10 @@ export type Database = {
       es_miembro: { Args: { negocio: string }; Returns: boolean }
       guardar_foto_patrimonio: { Args: never; Returns: undefined }
       quitar_cuenta_negocio: { Args: { cuenta: string }; Returns: number }
+      recurrente_del_negocio: {
+        Args: { negocio: string; recurrente: string }
+        Returns: boolean
+      }
       tarjeta_del_negocio: {
         Args: { negocio: string; tarjeta: string }
         Returns: boolean
@@ -819,3 +960,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

@@ -30,6 +30,10 @@ export type MovNegocio = {
   /** Tarjeta de crédito con la que se pagó (solo salidas). */
   tarjeta: string | null;
   concepto?: string | null;
+  /** Cliente o proveedor (B11), opcional. */
+  contacto?: string | null;
+  /** Pago recurrente desde el que se registró (B10), si aplica. */
+  recurrente?: string | null;
 };
 
 /** Plata movida entre cuentas propias, o pago de una tarjeta desde una cuenta. */

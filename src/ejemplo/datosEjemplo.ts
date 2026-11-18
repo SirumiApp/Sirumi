@@ -3,6 +3,7 @@
 // Los textos (conceptos, nombres) son claves de traducción bajo `ejemplo.textos`; las pantallas los traducen.
 
 import { armarFecha, diasDelMes, partes, type Fecha } from '@/lib/fechas';
+import type { Recurrente } from '@/lib/contactos';
 import type { MovNegocio, TipoNegocio, Transferencia } from '@/lib/negocio';
 import type { Movimiento } from '@/lib/personal';
 
@@ -135,6 +136,31 @@ export const CUENTAS_EJEMPLO = [
 
 export const TARJETAS_EJEMPLO = [{ id: 'ej-visa', nombre: 'Visa', cupo: 5_000_000, deudaInicial: 1_200_000 }];
 
+/** Clientes y proveedores inventados (nombres de negocios ficticios, sin datos de personas reales). */
+export const CONTACTOS_EJEMPLO = [
+  { id: 'ej-c-aurora', tipo: 'cliente' as const, nombre: 'Tienda Aurora', tipoDocumento: 'nit' as const, documento: '900000001', celular: '', correo: '', direccion: '', ciudad: 'Cali', notas: 'ejemplo.textos.notaAurora' },
+  { id: 'ej-c-oficina', tipo: 'cliente' as const, nombre: 'Oficinas El Roble', tipoDocumento: null, documento: '', celular: '', correo: '', direccion: '', ciudad: 'Bogotá', notas: '' },
+  { id: 'ej-c-granos', tipo: 'proveedor' as const, nombre: 'Granos del Huila', tipoDocumento: 'nit' as const, documento: '900000002', celular: '', correo: '', direccion: '', ciudad: 'Pitalito', notas: '' },
+  { id: 'ej-c-empaques', tipo: 'proveedor' as const, nombre: 'Empaques Express', tipoDocumento: null, documento: '', celular: '', correo: '', direccion: '', ciudad: 'Medellín', notas: '' },
+];
+
+/** Pagos que se repiten cada mes (B10). Se enlazan con los gastos del mes típico de abajo. */
+export const RECURRENTES_EJEMPLO: Recurrente[] = [
+  { id: 'ej-r-arriendo', nombre: 'ejemplo.textos.arriendo', tipo: 'fijo', monto: 1_300_000, dia: 2, activo: true, cuenta: 'ej-banco' },
+  { id: 'ej-r-nomina', nombre: 'ejemplo.textos.nomina', tipo: 'fijo', monto: 1_500_000, dia: 12, activo: true, cuenta: 'ej-banco' },
+  { id: 'ej-r-servicios', nombre: 'ejemplo.textos.servicios', tipo: 'fijo', monto: 400_000, dia: 22, activo: true, cuenta: 'ej-banco' },
+  { id: 'ej-r-contador', nombre: 'ejemplo.textos.contador', tipo: 'fijo', monto: 250_000, dia: 30, activo: true, cuenta: 'ej-banco' },
+];
+
+/** Qué contacto o pago recurrente va con cada concepto del mes típico. */
+const ENLACES: Record<string, { contacto?: string; recurrente?: string }> = {
+  arriendo: { recurrente: 'ej-r-arriendo' },
+  nomina: { recurrente: 'ej-r-nomina' },
+  servicios: { recurrente: 'ej-r-servicios' },
+  mayorista: { contacto: 'ej-c-aurora' },
+  materiaPrima: { contacto: 'ej-c-granos' },
+};
+
 /** Un mes típico del negocio: [día, tipo, monto, cuenta o tarjeta, concepto]. Ventas 10.600.000, fijos 3.200.000, variables 1.000.000. */
 const MES_NEGOCIO: [number, TipoNegocio, number, string, string][] = [
   [2, 'fijo', 1_300_000, 'ej-banco', 'arriendo'],
@@ -171,13 +197,15 @@ export function movimientosNegocioEjemplo(hoy: Fecha): MovNegocio[] {
         cuenta: pendiente || conTarjeta ? null : donde,
         tarjeta: !pendiente && conTarjeta ? donde : null,
         concepto: `ejemplo.textos.${concepto}`,
+        contacto: ENLACES[concepto]?.contacto ?? null,
+        recurrente: ENLACES[concepto]?.recurrente ?? null,
       });
     });
   }
   lista.push(
     { id: 'ej-n-aporte', fecha: fechaEn(hoy, -2, 4), tipo: 'aporte', monto: 1_000_000, pagado: true, cuenta: 'ej-banco', tarjeta: null, concepto: 'ejemplo.textos.aporte' },
-    { id: 'ej-n-cliente', fecha: fechaEn(hoy, -2, 18), tipo: 'venta', monto: 700_000, pagado: false, cuenta: null, tarjeta: null, concepto: 'ejemplo.textos.clienteFiado' },
-    { id: 'ej-n-empaques', fecha: fechaEn(hoy, -1, 19), tipo: 'compra', monto: 800_000, pagado: false, cuenta: null, tarjeta: null, concepto: 'ejemplo.textos.empaques' },
+    { id: 'ej-n-cliente', fecha: fechaEn(hoy, -2, 18), tipo: 'venta', monto: 700_000, pagado: false, cuenta: null, tarjeta: null, concepto: 'ejemplo.textos.clienteFiado', contacto: 'ej-c-oficina' },
+    { id: 'ej-n-empaques', fecha: fechaEn(hoy, -1, 19), tipo: 'compra', monto: 800_000, pagado: false, cuenta: null, tarjeta: null, concepto: 'ejemplo.textos.empaques', contacto: 'ej-c-empaques' },
   );
   return hastaHoy(hoy, lista).sort((a, b) => b.fecha.localeCompare(a.fecha));
 }

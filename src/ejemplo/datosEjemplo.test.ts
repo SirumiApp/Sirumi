@@ -6,9 +6,12 @@ import { periodoPredefinido } from '@/lib/fechas';
 import { flujoDelPeriodo } from '@/lib/informes';
 import { cajaTotal, estadoDeResultados, estadoTarjeta, saldoCuenta } from '@/lib/negocio';
 import { totalesDelPeriodo } from '@/lib/personal';
+import { estadoRecurrente } from '@/lib/contactos';
 
 import {
   CATEGORIAS_EJEMPLO,
+  CONTACTOS_EJEMPLO,
+  RECURRENTES_EJEMPLO,
   CUENTAS_EJEMPLO,
   movimientosNegocioEjemplo,
   movimientosPersonalesEjemplo,
@@ -85,5 +88,17 @@ describe('cuentas de ejemplo', () => {
       const tras = trasladosEjemplo(hoy);
       for (const c of cuentas) expect(saldoCuenta(c, movs, tras)).toBeGreaterThanOrEqual(0);
     }
+  });
+});
+
+describe('clientes, proveedores y pagos recurrentes de ejemplo', () => {
+  it('los movimientos solo apuntan a contactos y pagos que existen, y los pagos del mes quedan enlazados', () => {
+    const movs = movimientosNegocioEjemplo(HOY);
+    const contactos = new Set(CONTACTOS_EJEMPLO.map((c) => c.id));
+    const recurrentes = new Set(RECURRENTES_EJEMPLO.map((r) => r.id));
+    expect(movs.every((m) => !m.contacto || contactos.has(m.contacto))).toBe(true);
+    expect(movs.every((m) => !m.recurrente || recurrentes.has(m.recurrente))).toBe(true);
+    const estados = RECURRENTES_EJEMPLO.map((r) => estadoRecurrente(r, movs, HOY).estado);
+    expect(estados).toEqual(['pagado', 'pagado', 'proximo', 'despues']);
   });
 });

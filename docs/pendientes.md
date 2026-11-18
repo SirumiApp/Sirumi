@@ -19,8 +19,9 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] Informes hechos: estado de resultados + de cada $100, impuestos (B7) y equilibrio (Resultados); flujo de caja (Caja); balance, cartera por antigüedad, dueño y capital, entradas y salidas (Más). Todos se comparten como texto.
 - [ ] Informes que esperan otros módulos: ventas por producto/cliente, inventario y márgenes (módulo 04), cierre del día (POS, módulo 05). Exportar a PDF.
 - [x] Impuestos estimados (B7) en la utilidad neta del Resumen (tabla `tax_parameters` por año).
-- [ ] Clientes y proveedores (ficha y estadísticas) y contacto en los movimientos.
-- [ ] Pagos recurrentes con recordatorio.
+- [x] Clientes y proveedores (ficha, autorización Ley 1581, estadísticas) y contacto en los movimientos.
+- [x] Pagos recurrentes con aviso dentro de la app (Resumen) y "Registrar pago".
+- [ ] Notificación en el celular para los pagos recurrentes (requiere la app instalada).
 - [ ] Inventario a costo en el arranque (cuando existan productos).
 - [ ] Sirumi POS (módulo 05) e inventario (módulo 04).
 

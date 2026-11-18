@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useSesion } from '@/auth/sesion';
 import type { Json } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
+import type { Recurrente } from '@/lib/contactos';
 import { iconoDeCuenta, type MovNegocio, type TipoNegocio, type Transferencia } from '@/lib/negocio';
-import { CUENTAS_EJEMPLO, esTextoEjemplo, movimientosNegocioEjemplo, NEGOCIO_EJEMPLO, TARJETAS_EJEMPLO, trasladosEjemplo } from '@/ejemplo/datosEjemplo';
+import { CONTACTOS_EJEMPLO, CUENTAS_EJEMPLO, esTextoEjemplo, RECURRENTES_EJEMPLO, movimientosNegocioEjemplo, NEGOCIO_EJEMPLO, TARJETAS_EJEMPLO, trasladosEjemplo } from '@/ejemplo/datosEjemplo';
 import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
 import { hoyEn } from '@/lib/fechas';
 import { supabase } from '@/lib/supabase';
@@ -30,6 +31,20 @@ export type Configuracion = {
 export type Negocio = { id: string; nombre: string; regimen: Regimen | null; configuracion: Configuracion };
 export type Cuenta = { id: string; nombre: string; tipo: 'banco' | 'billetera' | 'efectivo'; saldoInicial: number; principal: boolean };
 export type Tarjeta = { id: string; nombre: string; cupo: number; deudaInicial: number };
+export type TipoDocumento = 'cedula' | 'nit' | 'ce' | 'pasaporte';
+/** Cliente o proveedor (B11). Es del negocio: nunca se usa para mercadeo de Sirumi. */
+export type Contacto = {
+  id: string;
+  tipo: 'cliente' | 'proveedor';
+  nombre: string;
+  tipoDocumento: TipoDocumento | null;
+  documento: string;
+  celular: string;
+  correo: string;
+  direccion: string;
+  ciudad: string;
+  notas: string;
+};
 
 export type DatosNegocio = {
   negocio: Negocio | null;
@@ -37,10 +52,12 @@ export type DatosNegocio = {
   tarjetas: Tarjeta[];
   movimientos: MovNegocio[];
   traslados: Transferencia[];
+  contactos: Contacto[];
+  recurrentes: Recurrente[];
   cargando: boolean;
 };
 
-const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], cargando: true };
+const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], contactos: [], recurrentes: [], cargando: true };
 
 /** El negocio de la persona (el primero donde es dueña) con todo lo necesario para las reglas B. */
 export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => void } {
@@ -60,16 +77,18 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
     const b = miembro?.businesses as { id: string; name: string; tax_regime: string | null; setup: Json } | null | undefined;
     if (!b) return setDatos({ ...VACIO, cargando: false });
 
-    const [cuentas, tarjetas, movimientos, traslados] = await Promise.all([
+    const [cuentas, tarjetas, movimientos, traslados, contactos, recurrentes] = await Promise.all([
       supabase.from('accounts').select('id, name, kind, initial_balance, is_main').eq('business_id', b.id).order('created_at'),
       supabase.from('credit_cards').select('id, name, credit_limit, initial_debt').eq('business_id', b.id).order('created_at'),
       supabase
         .from('movements')
-        .select('id, date, kind, amount, paid, account_id, card_id, description')
+        .select('id, date, kind, amount, paid, account_id, card_id, description, contact_id, recurring_id')
         .eq('business_id', b.id)
         .order('date', { ascending: false })
         .order('created_at', { ascending: false }),
       supabase.from('transfers').select('id, date, from_account, to_account, to_card, amount, note').eq('business_id', b.id).order('date', { ascending: false }).order('created_at', { ascending: false }),
+      supabase.from('contacts').select('id, kind, name, doc_type, doc_number, phone, email, address, city, notes').eq('business_id', b.id).order('name'),
+      supabase.from('recurring_payments').select('id, name, kind, amount, day_of_month, account_id, active').eq('business_id', b.id).order('day_of_month'),
     ]);
 
     setDatos({
@@ -91,8 +110,31 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         cuenta: m.account_id,
         tarjeta: m.card_id,
         concepto: m.description,
+        contacto: m.contact_id,
+        recurrente: m.recurring_id,
       })),
       traslados: (traslados.data ?? []).map((t) => ({ id: t.id, fecha: t.date, desde: t.from_account, haciaCuenta: t.to_account, haciaTarjeta: t.to_card, monto: t.amount, nota: t.note })),
+      contactos: (contactos.data ?? []).map((c) => ({
+        id: c.id,
+        tipo: c.kind as Contacto['tipo'],
+        nombre: c.name,
+        tipoDocumento: (c.doc_type as TipoDocumento | null) ?? null,
+        documento: c.doc_number ?? '',
+        celular: c.phone ?? '',
+        correo: c.email ?? '',
+        direccion: c.address ?? '',
+        ciudad: c.city ?? '',
+        notas: c.notes ?? '',
+      })),
+      recurrentes: (recurrentes.data ?? []).map((r) => ({
+        id: r.id,
+        nombre: r.name,
+        tipo: r.kind as Recurrente['tipo'],
+        monto: r.amount,
+        dia: r.day_of_month,
+        cuenta: r.account_id,
+        activo: r.active,
+      })),
       cargando: false,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `version` solo sirve para forzar una nueva lectura
@@ -115,6 +157,8 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
       tarjetas: TARJETAS_EJEMPLO,
       movimientos: movimientosNegocioEjemplo(hoy).map((m) => ({ ...m, concepto: tx(m.concepto) })),
       traslados: trasladosEjemplo(hoy).map((tr) => ({ ...tr, nota: tx(tr.nota) })),
+      contactos: CONTACTOS_EJEMPLO.map((c) => ({ ...c, notas: tx(c.notas) ?? '' })),
+      recurrentes: RECURRENTES_EJEMPLO.map((r) => ({ ...r, nombre: tx(r.nombre) ?? '' })),
       cargando: false,
     };
   }, [ejemplo, t]);
@@ -190,6 +234,8 @@ export type DatosMovNegocio = {
   cuenta: string | null;
   tarjeta: string | null;
   concepto: string;
+  contacto?: string | null;
+  recurrente?: string | null;
 };
 
 export function guardarMovNegocio(negocioId: string, d: DatosMovNegocio, id?: string) {
@@ -204,6 +250,8 @@ export function guardarMovNegocio(negocioId: string, d: DatosMovNegocio, id?: st
     account_id: d.pagado ? d.cuenta : null,
     card_id: d.pagado ? d.tarjeta : null,
     description: d.concepto.trim() || null,
+    contact_id: d.contacto ?? null,
+    ...(d.recurrente !== undefined ? { recurring_id: d.recurrente } : {}),
   };
   return id ? supabase.from('movements').update(fila).eq('id', id) : supabase.from('movements').insert(fila);
 }
@@ -236,4 +284,40 @@ export function guardarTraslado(negocioId: string, d: Omit<Transferencia, 'id'>)
 export function borrarTraslado(id: string) {
   if (modoEjemploActivo()) return sinGuardar();
   return supabase.from('transfers').delete().eq('id', id);
+}
+
+/** B11 · Guarda un cliente o proveedor (con la autorización de datos, Ley 1581). */
+export function guardarContacto(negocioId: string, c: Omit<Contacto, 'id'>, id?: string) {
+  if (modoEjemploActivo()) return sinGuardar();
+  const limpio = (v: string) => v.trim() || null;
+  const fila = {
+    kind: c.tipo,
+    name: c.nombre.trim(),
+    doc_type: c.tipoDocumento,
+    doc_number: limpio(c.documento),
+    phone: limpio(c.celular),
+    email: limpio(c.correo),
+    address: limpio(c.direccion),
+    city: limpio(c.ciudad),
+    notes: limpio(c.notas),
+    data_consent: true,
+  };
+  return id ? supabase.from('contacts').update(fila).eq('id', id) : supabase.from('contacts').insert({ ...fila, business_id: negocioId });
+}
+
+export function borrarContacto(id: string) {
+  if (modoEjemploActivo()) return sinGuardar();
+  return supabase.from('contacts').delete().eq('id', id);
+}
+
+/** B10 · Guarda un pago recurrente. */
+export function guardarRecurrente(negocioId: string, r: Omit<Recurrente, 'id'>, id?: string) {
+  if (modoEjemploActivo()) return sinGuardar();
+  const fila = { name: r.nombre.trim(), kind: r.tipo, amount: Math.round(r.monto), day_of_month: r.dia, account_id: r.cuenta ?? null, active: r.activo };
+  return id ? supabase.from('recurring_payments').update(fila).eq('id', id) : supabase.from('recurring_payments').insert({ ...fila, business_id: negocioId });
+}
+
+export function borrarRecurrente(id: string) {
+  if (modoEjemploActivo()) return sinGuardar();
+  return supabase.from('recurring_payments').delete().eq('id', id);
 }

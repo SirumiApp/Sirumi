@@ -151,6 +151,20 @@ Convenciones:
 ### B8d. Ícono de una cuenta
 - 📱 billetera si el nombre contiene Nequi, Daviplata, Movii, Dale, Lulo, Nu, Rappi, Ualá, Mercado Pago o Bold (sin importar mayúsculas ni tildes); "Efectivo" usa 💵; las demás 🏦.
 
+### B10. Pagos recurrentes (arriendo, nómina, servicios…)
+- Cada pago tiene nombre, tipo (gasto fijo o variable), monto y día del mes (1 a 31). Si el mes tiene menos días, vence el último día (día 31 en febrero → 28 o 29).
+- Está **pagado este mes** si hay un movimiento del negocio de este mes registrado desde ese pago (queda enlazado al pago).
+- Si no está pagado: **vencido** si el día ya pasó; **vence hoy**; **próximo** si faltan 1 a 5 días; si no, **más adelante**.
+- Registrar el pago crea un movimiento pagado del tipo del recurrente, con su monto (se puede cambiar) y la cuenta que elija la persona. No crea nada solo: la app recuerda, la persona confirma.
+- Resumen del mes: cuántos faltan y por cuánto; total mensual = suma de todos los recurrentes activos.
+- Ejemplo (hoy 18 nov): arriendo día 5 sin pagar → vencido; nómina día 18 → vence hoy; internet día 20 → próximo (en 2 días); contador día 30 → más adelante. Faltan 4 pagos por la suma de los cuatro.
+
+### B11. Clientes y proveedores
+- Un contacto es cliente o proveedor y es **del negocio** (nunca se cruza entre negocios ni se usa para mercadeo de Sirumi).
+- Guardarlo exige nombre y la casilla "Autorizó guardar sus datos" (Ley 1581). El correo, si se escribe, debe ser válido.
+- Un movimiento puede tener un contacto (opcional). Estadísticas del contacto: número de movimientos, total (suma de sus movimientos) y pendiente (suma de los que no están pagados): "Te ha comprado $ X en N movimientos y te debe $ Y" (cliente) o "Le has comprado $ X … y le debes $ Y" (proveedor).
+- Ejemplo: cliente con ventas de 500.000 (pagada) y 300.000 (pendiente) → 2 movimientos, total 800.000, te debe 300.000.
+
 ### B9. Importar un extracto del banco
 - Cada fila trae fecha, descripción y valor con signo (o columnas de débito y crédito). Positivo = entrada; negativo = salida.
 - Una fila es **duplicada** si ya existe un movimiento con la misma fecha y el mismo valor; viene desmarcada por defecto.

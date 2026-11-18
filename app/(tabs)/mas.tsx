@@ -27,8 +27,8 @@ export default function Mas() {
 
       <GrupoAjustes titulo={t('negocioApp.informes.grupoNegocio')}>
         <FilaAjuste emoji="cohete" titulo={t('negocioApp.informes.arranque')} detalle={t('negocioApp.informes.arranqueDetalle')} onPress={() => router.push('/arranque')} />
-        <FilaAjuste emoji="apreton-de-manos" titulo={t('negocioApp.informes.clientes')} insignia={t('negocioApp.informes.pronto')} />
-        <FilaAjuste emoji="repetir" titulo={t('negocioApp.informes.recurrentes')} insignia={t('negocioApp.informes.pronto')} />
+        <FilaAjuste emoji="apreton-de-manos" titulo={t('negocioApp.informes.clientes')} detalle={t('contactos.detalle')} onPress={() => router.push('/contactos')} />
+        <FilaAjuste emoji="repetir" titulo={t('negocioApp.informes.recurrentes')} detalle={t('recurrentes.detalle')} onPress={() => router.push('/recurrentes')} />
       </GrupoAjustes>
     </PantallaApp>
   );

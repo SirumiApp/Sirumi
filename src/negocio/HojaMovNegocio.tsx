@@ -18,7 +18,14 @@ import { fechaCorta } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { ALTO_TOCABLE, ESPACIO, RADIO, useTema } from '@/theme';
 
-import { borrarMovNegocio, guardarMovNegocio, type Cuenta, type Tarjeta } from './datos';
+import { borrarMovNegocio, guardarMovNegocio, type Contacto, type Cuenta, type DatosMovNegocio, type Tarjeta } from './datos';
+
+/** B11 · Las ventas van con un cliente; compras, gastos e inversiones, con un proveedor; el resto, sin contacto. */
+export function tipoDeContacto(tipo: TipoNegocio): 'cliente' | 'proveedor' | null {
+  if (tipo === 'venta') return 'cliente';
+  if (tipo === 'compra' || tipo === 'fijo' || tipo === 'variable' || tipo === 'inversion') return 'proveedor';
+  return null;
+}
 
 export const EMOJI_TIPO: Record<TipoNegocio, NombreEmoji> = {
   venta: 'bolsas-de-compras',
@@ -35,6 +42,9 @@ export const EMOJI_TIPO: Record<TipoNegocio, NombreEmoji> = {
 type Props = {
   abierta: boolean;
   movimiento: MovNegocio | null;
+  /** Para un registro nuevo ya lleno (p. ej. "Registrar pago" de un recurrente). */
+  plantilla?: Partial<DatosMovNegocio>;
+  contactos: Contacto[];
   negocioId: string | null;
   cuentas: Cuenta[];
   tarjetas: Tarjeta[];
@@ -55,19 +65,20 @@ export function HojaMovNegocio(props: Props) {
   );
 }
 
-function Formulario({ movimiento, negocioId, cuentas, tarjetas, hoy, onCerrar, onGuardado }: Props) {
+function Formulario({ movimiento, plantilla, contactos, negocioId, cuentas, tarjetas, hoy, onCerrar, onGuardado }: Props) {
   const { t } = useTranslation();
   const { colores } = useTema();
   const plata = usePlata();
   const textosFecha = useTextosFecha();
   const principal = cuentas.find((c) => c.principal)?.id ?? cuentas[0]?.id ?? null;
 
-  const [tipo, setTipo] = useState<TipoNegocio>(movimiento?.tipo ?? 'venta');
-  const [monto, setMonto] = useState(movimiento ? String(movimiento.monto) : '');
-  const [concepto, setConcepto] = useState(movimiento?.concepto ?? '');
+  const [tipo, setTipo] = useState<TipoNegocio>(movimiento?.tipo ?? plantilla?.tipo ?? 'venta');
+  const [monto, setMonto] = useState(movimiento ? String(movimiento.monto) : plantilla?.monto ? String(plantilla.monto) : '');
+  const [concepto, setConcepto] = useState(movimiento?.concepto ?? plantilla?.concepto ?? '');
+  const [contacto, setContacto] = useState<string | null>(movimiento?.contacto ?? plantilla?.contacto ?? null);
   const [pagado, setPagado] = useState(movimiento?.pagado ?? true);
   const [destino, setDestino] = useState<{ cuenta: string | null; tarjeta: string | null }>({
-    cuenta: movimiento?.cuenta ?? (movimiento?.tarjeta ? null : principal),
+    cuenta: movimiento?.cuenta ?? (movimiento?.tarjeta ? null : (plantilla?.cuenta ?? principal)),
     tarjeta: movimiento?.tarjeta ?? null,
   });
   const [fecha, setFecha] = useState<Fecha>(movimiento?.fecha ?? hoy);
@@ -77,6 +88,10 @@ function Formulario({ movimiento, negocioId, cuentas, tarjetas, hoy, onCerrar, o
   const [error, setError] = useState<string | null>(null);
 
   const reglas = TIPOS_NEGOCIO[tipo];
+  const tipoContacto = tipoDeContacto(tipo);
+  const delTipo = contactos.filter((c) => c.tipo === tipoContacto);
+  // Si cambia el tipo de movimiento y el contacto ya no aplica, no se guarda.
+  const contactoValido = contacto && delTipo.some((c) => c.id === contacto) ? contacto : null;
   const ayer = sumarDias(hoy, -1);
   const otraFecha = fecha !== hoy && fecha !== ayer;
   const conceptos = t(`negocioApp.tipos.${tipo}.conceptos`).split(',');
@@ -99,7 +114,18 @@ function Formulario({ movimiento, negocioId, cuentas, tarjetas, hoy, onCerrar, o
     setGuardando(true);
     const { error: e } = await guardarMovNegocio(
       negocioId,
-      { fecha, tipo, monto: valor, pagado, cuenta: final.cuenta, tarjeta: final.tarjeta, concepto },
+      {
+        fecha,
+        tipo,
+        monto: valor,
+        pagado,
+        cuenta: final.cuenta,
+        tarjeta: final.tarjeta,
+        concepto,
+        contacto: contactoValido,
+        // Al editar se conserva el enlace con el pago recurrente; al registrar uno, se enlaza.
+        recurrente: movimiento ? undefined : (plantilla?.recurrente ?? null),
+      },
       movimiento?.id,
     );
     setGuardando(false);
@@ -199,6 +225,23 @@ function Formulario({ movimiento, negocioId, cuentas, tarjetas, hoy, onCerrar, o
         <View style={{ flexDirection: 'row', gap: ESPACIO.s }} accessibilityRole="radiogroup" accessibilityLabel={t('negocioApp.movimiento.estado')}>
           <Chip texto={tipo === 'venta' ? t('negocioApp.movimiento.cobrado') : t('negocioApp.movimiento.pagado')} elegido={pagado} onPress={() => setPagado(true)} />
           <Chip texto={tipo === 'venta' ? t('negocioApp.movimiento.porCobrar') : t('negocioApp.movimiento.pendiente')} elegido={!pagado} onPress={() => setPagado(false)} />
+        </View>
+      )}
+
+      {/* Cliente o proveedor (B11, opcional): clientes en las ventas; proveedores en compras y gastos */}
+      {tipoContacto && (
+        <View style={{ gap: ESPACIO.s }}>
+          <Texto variante="fuerte">{tipoContacto === 'cliente' ? t('contactos.enMovimiento.cliente') : t('contactos.enMovimiento.proveedor')}</Texto>
+          {delTipo.length === 0 ? (
+            <Texto variante="pequeno">{t('contactos.enMovimiento.sinContactos')}</Texto>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, marginHorizontal: -ESPACIO.m }} contentContainerStyle={{ gap: ESPACIO.s, paddingHorizontal: ESPACIO.m }}>
+              <Chip texto={t('contactos.enMovimiento.ninguno')} elegido={!contactoValido} onPress={() => setContacto(null)} />
+              {delTipo.map((c) => (
+                <Chip key={c.id} texto={c.nombre} elegido={contactoValido === c.id} onPress={() => setContacto(c.id)} />
+              ))}
+            </ScrollView>
+          )}
         </View>
       )}
 

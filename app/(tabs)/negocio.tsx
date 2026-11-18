@@ -11,6 +11,7 @@ import { PantallaApp } from '@/components/PantallaApp';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { hoyEn, partes, periodoAnterior } from '@/lib/fechas';
+import { estadoRecurrente } from '@/lib/contactos';
 import { TIPOS_NEGOCIO } from '@/lib/negocio';
 import { cambiarModoEjemplo } from '@/ejemplo/modo';
 import { useNegocio } from '@/negocio/contexto';
@@ -28,7 +29,7 @@ export default function ResumenNegocio() {
   const { colores, oscuro } = useTema();
   const plata = usePlata();
   const textosFecha = useTextosFecha();
-  const { negocio, cuentas, tarjetas, movimientos, traslados, cargando, parametros, abrirHoja, actualizar } = useNegocio();
+  const { negocio, cuentas, tarjetas, movimientos, traslados, recurrentes, cargando, parametros, abrirHoja, actualizar } = useNegocio();
   const hoy = hoyEn();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
   const [filtro, setFiltro] = useState<'todos' | 'pendientes'>('todos');
@@ -72,6 +73,8 @@ export default function ResumenNegocio() {
     { parametros, regimen: negocio.regimen },
   );
   const { resultados } = r;
+  // B10 · Pagos recurrentes vencidos, de hoy o de los próximos días.
+  const porPagarYa = recurrentes.filter((x) => x.activo && ['vencido', 'hoy', 'proximo'].includes(estadoRecurrente(x, movimientos, hoy).estado));
   const margen = resultados.ventas > 0 ? Math.round((resultados.neta / resultados.ventas) * 1000) / 10 : 0;
   const colorSalud = r.salud.estado === 'saludable' ? colores.ingresoTexto : r.salud.estado === 'atencion' ? colores.avisoTexto : colores.errorTexto;
   const nombreCuenta = new Map([...cuentas.map((c) => [c.id, c.nombre] as const), ...tarjetas.map((tj) => [tj.id, tj.nombre] as const)]);
@@ -131,7 +134,24 @@ export default function ResumenNegocio() {
         </View>
       )}
 
-      {/* Utilidad del período (B5, sin impuestos todavía) */}
+      {porPagarYa.length > 0 && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/recurrentes')}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.m, padding: ESPACIO.m, borderRadius: 20, backgroundColor: colores.avisoFondo }}>
+          <Emoji name="campana" size={30} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Texto variante="medio" color={colores.avisoTexto}>
+              {t('recurrentes.avisoResumen', { count: porPagarYa.length, nombres: porPagarYa.map((x) => x.nombre).join(', ') })}
+            </Texto>
+            <Texto variante="fuerte" color={colores.enlace}>
+              {t('recurrentes.verPagos')} →
+            </Texto>
+          </View>
+        </Pressable>
+      )}
+
+      {/* Utilidad neta del período (B5 con impuestos B7) */}
       <View style={{ gap: ESPACIO.xs }}>
         <Texto variante="medio" color={colores.textoSuave}>
           {t('negocioApp.resumen.utilidad')}
