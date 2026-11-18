@@ -1,24 +1,29 @@
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { primerNombre, usePerfil } from '@/auth/perfil';
 import { cerrarSesion } from '@/auth/sesion';
 import { Boton } from '@/components/Boton';
 import { PantallaVacia } from '@/components/PantallaVacia';
+import { SelectorIdioma } from '@/components/SelectorIdioma';
+import { ESPACIO } from '@/theme';
 
 export default function PersonalPantalla() {
+  const { t } = useTranslation();
   const perfil = usePerfil();
   const nombre = primerNombre(perfil?.full_name);
 
   return (
     <PantallaVacia
-      saludo={nombre ? `¡Hola, ${nombre}!` : '¡Hola!'}
-      titulo="Tus finanzas personales"
+      saludo={nombre ? t('personal.saludoNombre', { nombre }) : t('personal.saludo')}
+      titulo={t('personal.titulo')}
       emoji="bolsa-de-dinero"
-      mensaje="Aquí vas a ver tu plata"
-      detalle="Pronto podrás anotar tus ingresos y gastos, ponerte topes y crear metas.">
-      {/* Mientras no exista la pantalla de Ajustes, cerrar sesión vive aquí. */}
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        <Boton titulo="Cerrar sesión" variante="texto" onPress={cerrarSesion} />
+      mensaje={t('personal.mensaje')}
+      detalle={t('personal.detalle')}>
+      {/* Mientras no exista la pantalla de Ajustes, el idioma y cerrar sesión viven aquí. */}
+      <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', gap: ESPACIO.s }}>
+        <SelectorIdioma />
+        <Boton titulo={t('comun.cerrarSesion')} variante="texto" onPress={cerrarSesion} />
       </View>
     </PantallaVacia>
   );

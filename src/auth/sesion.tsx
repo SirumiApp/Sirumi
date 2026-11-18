@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Session } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { cambiarIdioma, esIdioma } from '@/i18n';
 import type { Json } from '@/lib/database.types';
 import { supabase } from '@/lib/supabase';
 
@@ -56,10 +57,18 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
     let vigente = true;
     const setOnboardingListo = (listo: boolean) => setEstadoOnboarding({ usuario: idUsuario, listo });
     (async () => {
-      const { data, error } = await supabase.from('profiles').select('onboarded_at').eq('id', idUsuario).maybeSingle();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('onboarded_at, language')
+        .eq('id', idUsuario)
+        .maybeSingle();
       if (!vigente) return;
       if (error) return setOnboardingListo(true); // Sin conexión no bloqueamos la app.
-      if (data?.onboarded_at) return setOnboardingListo(true);
+      if (data?.onboarded_at) {
+        // Con la cuenta ya configurada, el idioma guardado en el perfil manda (sirve al cambiar de celular).
+        if (esIdioma(data.language)) await cambiarIdioma(data.language);
+        return setOnboardingListo(true);
+      }
 
       const pendiente = await leerOnboardingPendiente();
       if (pendiente) {

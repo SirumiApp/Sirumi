@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Aviso } from '@/components/Aviso';
@@ -10,10 +11,11 @@ import { Pantalla } from '@/components/Pantalla';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { supabase } from '@/lib/supabase';
-import { traducirErrorAuth, validarCodigo } from '@/lib/validacion';
+import { LARGO_MINIMO_CONTRASENA, traducirErrorAuth, validarCodigo } from '@/lib/validacion';
 import { ESPACIO } from '@/theme';
 
 export default function ConfirmarCorreoPantalla() {
+  const { t } = useTranslation();
   const { correo = '' } = useLocalSearchParams<{ correo: string }>();
   const [codigo, setCodigo] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -21,17 +23,21 @@ export default function ConfirmarCorreoPantalla() {
 
   async function confirmar() {
     const errorCodigo = validarCodigo(codigo);
-    if (errorCodigo) return setMensaje({ texto: errorCodigo, tipo: 'error' });
+    if (errorCodigo) return setMensaje({ texto: t(`errores.${errorCodigo}`), tipo: 'error' });
     setCargando(true);
     const { error } = await supabase.auth.verifyOtp({ email: correo, token: codigo.trim(), type: 'email' });
     setCargando(false);
-    if (error) setMensaje({ texto: traducirErrorAuth(error), tipo: 'error' });
+    if (error) setMensaje({ texto: t(`errores.${traducirErrorAuth(error)}`, { min: LARGO_MINIMO_CONTRASENA }), tipo: 'error' });
     // Si el código es correcto, queda la sesión abierta y la navegación lleva a la app.
   }
 
   async function reenviar() {
     const { error } = await supabase.auth.resend({ type: 'signup', email: correo });
-    setMensaje(error ? { texto: traducirErrorAuth(error), tipo: 'error' } : { texto: 'Te enviamos otro correo.', tipo: 'info' });
+    setMensaje(
+      error
+        ? { texto: t(`errores.${traducirErrorAuth(error)}`, { min: LARGO_MINIMO_CONTRASENA }), tipo: 'error' }
+        : { texto: t('confirmar.reenviado'), tipo: 'info' },
+    );
   }
 
   return (
@@ -39,16 +45,15 @@ export default function ConfirmarCorreoPantalla() {
       <Tarjeta style={{ alignItems: 'center' }}>
         <Emoji name="sobre" size={64} />
         <Texto variante="subtitulo" style={{ textAlign: 'center' }}>
-          Revisa tu correo
+          {t('confirmar.titulo')}
         </Texto>
         <Texto variante="suave" style={{ textAlign: 'center' }}>
-          Te enviamos un mensaje a {correo || 'tu correo'} para confirmar que es tuyo. Ábrelo y toca el enlace, o
-          escribe aquí el código si te llegó uno.
+          {t('confirmar.detalle', { correo: correo || t('confirmar.tuCorreo') })}
         </Texto>
       </Tarjeta>
 
       <CampoTexto
-        etiqueta="Código de 6 números"
+        etiqueta={t('confirmar.codigo')}
         value={codigo}
         onChangeText={(t) => setCodigo(t.replace(/\D/g, '').slice(0, 6))}
         keyboardType="number-pad"
@@ -61,9 +66,9 @@ export default function ConfirmarCorreoPantalla() {
       {mensaje && <Aviso mensaje={mensaje.texto} tipo={mensaje.tipo} />}
 
       <View style={{ gap: ESPACIO.s }}>
-        <Boton titulo="Confirmar" onPress={confirmar} cargando={cargando} />
-        <Boton titulo="Ya toqué el enlace, quiero entrar" variante="secundario" onPress={() => router.replace('/entrar')} />
-        <Boton titulo="Reenviar el correo" variante="texto" onPress={reenviar} />
+        <Boton titulo={t('confirmar.confirmar')} onPress={confirmar} cargando={cargando} />
+        <Boton titulo={t('confirmar.yaToque')} variante="secundario" onPress={() => router.replace('/entrar')} />
+        <Boton titulo={t('confirmar.reenviar')} variante="texto" onPress={reenviar} />
       </View>
     </Pantalla>
   );

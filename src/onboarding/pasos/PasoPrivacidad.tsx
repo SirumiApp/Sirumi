@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Aviso } from '@/components/Aviso';
@@ -11,16 +12,11 @@ import type { Consentimientos } from '../datos';
 import { EncabezadoPaso, type PropsPaso } from './comun';
 import { ModalPolitica, type TipoPolitica } from './ModalPolitica';
 
-const CASILLAS: { clave: keyof Consentimientos; titulo: string; detalle: string; obligatoria: boolean }[] = [
-  { clave: 'terminos', titulo: 'Acepto los Términos y la Política de privacidad', detalle: 'Obligatorio para crear tu cuenta.', obligatoria: true },
-  { clave: 'datos', titulo: 'Autorizo el tratamiento de mis datos personales', detalle: 'Para que la app funcione y proteja tu cuenta.', obligatoria: true },
-  {
-    clave: 'ia',
-    titulo: 'Permito que la IA lea los archivos que yo suba',
-    detalle: 'Opcional. Se usa para leer tus Excel y responder tus preguntas. Siempre confirmas antes de guardar.',
-    obligatoria: false,
-  },
-  { clave: 'novedades', titulo: 'Quiero recibir consejos y novedades', detalle: 'Opcional. Puedes cancelarlo cuando quieras.', obligatoria: false },
+const CASILLAS: { clave: keyof Consentimientos; obligatoria: boolean }[] = [
+  { clave: 'terminos', obligatoria: true },
+  { clave: 'datos', obligatoria: true },
+  { clave: 'ia', obligatoria: false },
+  { clave: 'novedades', obligatoria: false },
 ];
 
 export function faltanObligatorias(c: Consentimientos): boolean {
@@ -28,22 +24,19 @@ export function faltanObligatorias(c: Consentimientos): boolean {
 }
 
 export function PasoPrivacidad({ d, cambiar, intentado }: PropsPaso) {
+  const { t } = useTranslation();
   const [politica, setPolitica] = useState<TipoPolitica | null>(null);
   const c = d.consentimientos;
 
   return (
     <>
-      <EncabezadoPaso
-        emoji="candado"
-        titulo="Tus datos, tu control"
-        detalle="Antes de crear tu cuenta necesitamos tu autorización. Puedes consultar, corregir o eliminar tus datos cuando quieras."
-      />
+      <EncabezadoPaso emoji="candado" titulo={t('onboarding.privacidad.titulo')} detalle={t('onboarding.privacidad.detalle')} />
 
       <View style={{ gap: ESPACIO.xs }}>
-        <Boton titulo="Leer la política de tratamiento de datos (Colombia)" variante="texto" onPress={() => setPolitica('co')} />
-        <Boton titulo="Leer la política de privacidad (internacional)" variante="texto" onPress={() => setPolitica('int')} />
+        <Boton titulo={t('onboarding.privacidad.leerColombia')} variante="texto" onPress={() => setPolitica('co')} />
+        <Boton titulo={t('onboarding.privacidad.leerInternacional')} variante="texto" onPress={() => setPolitica('int')} />
         <Texto variante="pequeno" style={{ textAlign: 'center' }}>
-          Borrador pendiente de revisión legal. Los datos entre corchetes se completan antes de publicar.
+          {t('onboarding.privacidad.borrador')}
         </Texto>
       </View>
 
@@ -51,8 +44,8 @@ export function PasoPrivacidad({ d, cambiar, intentado }: PropsPaso) {
         {CASILLAS.map((casilla) => (
           <Casilla
             key={casilla.clave}
-            titulo={casilla.titulo}
-            detalle={casilla.detalle}
+            titulo={t(`onboarding.privacidad.casillas.${casilla.clave}.titulo`)}
+            detalle={t(`onboarding.privacidad.casillas.${casilla.clave}.detalle`)}
             marcada={c[casilla.clave]}
             conError={intentado && casilla.obligatoria && !c[casilla.clave]}
             onPress={() => cambiar({ consentimientos: { ...c, [casilla.clave]: !c[casilla.clave] } })}
@@ -60,7 +53,7 @@ export function PasoPrivacidad({ d, cambiar, intentado }: PropsPaso) {
         ))}
       </View>
 
-      {intentado && faltanObligatorias(c) && <Aviso mensaje="Acepta los dos primeros puntos para continuar." />}
+      {intentado && faltanObligatorias(c) && <Aviso mensaje={t('errores.faltanAutorizaciones')} />}
 
       <ModalPolitica abierta={politica} onCerrar={() => setPolitica(null)} />
     </>

@@ -2,20 +2,26 @@ import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ProveedorSesion, useSesion } from '@/auth/sesion';
+import { cargarIdiomaGuardado } from '@/i18n';
 import { FUENTES_A_CARGAR, ProveedorTema, useTema } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RaizLayout() {
   const [fuentesListas, errorFuentes] = useFonts(FUENTES_A_CARGAR);
+  const [idiomaListo, setIdiomaListo] = useState(false);
+
+  useEffect(() => {
+    cargarIdiomaGuardado().finally(() => setIdiomaListo(true));
+  }, []);
 
   return (
     <ProveedorTema>
       <ProveedorSesion>
-        {fuentesListas || errorFuentes ? <Navegacion /> : null}
+        {(fuentesListas || errorFuentes) && idiomaListo ? <Navegacion /> : null}
       </ProveedorSesion>
     </ProveedorTema>
   );

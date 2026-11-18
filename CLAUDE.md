@@ -6,6 +6,7 @@ Empresa: Texlia Platform S.A.S. (marca comercial Sirumi). Contacto de privacidad
 
 ## Cómo trabajar
 - Todo el texto que ve el usuario va en **español de Colombia**, tuteando, frases cortas y concretas. Nada de jerga contable si hay una palabra simple ("lo que te deben" en vez de "cuentas por cobrar").
+- **Idiomas**: la app está en español e inglés y la persona elige (por defecto, el idioma del celular). Ningún texto va escrito directo en una pantalla: todo va en `src/i18n/es.ts` (idioma base) y su traducción en `src/i18n/en.ts`, y se muestra con `t('clave')`. Las funciones de cálculo y validación devuelven códigos (por ejemplo `'planSinIngreso'`), no frases. La prueba `src/i18n/traducciones.test.ts` falla si a un idioma le falta un texto. Para agregar otro idioma: copiar `es.ts`, traducirlo y sumarlo en `src/i18n/index.ts`.
 - Dinero en pesos colombianos: `$ 1.250.000` (punto de miles, sin decimales). Fechas: `15 nov 2026`.
 - El dueño del producto (Nicolás) no es programador: explica los cambios en español sencillo, sin tecnicismos, y dile cómo probarlos en su celular con Expo Go.
 - Trabaja por módulos pequeños, cada uno probado antes de pasar al siguiente (ver `docs/plan.md`).

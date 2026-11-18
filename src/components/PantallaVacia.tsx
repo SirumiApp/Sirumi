@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { ESPACIO } from '@/theme';
@@ -21,6 +22,7 @@ type Props = {
 
 /** Pantalla de una sección que aún no tiene contenido, con la marca de Sirumi. */
 export function PantallaVacia({ saludo, titulo, emoji, mensaje, detalle, children }: Props) {
+  const { t } = useTranslation();
   return (
     <Pantalla>
       <Logo />
@@ -39,7 +41,7 @@ export function PantallaVacia({ saludo, titulo, emoji, mensaje, detalle, childre
       </Tarjeta>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: ESPACIO.s }}>
         <Emoji name="grafica-que-sube" size={20} />
-        <Texto variante="pequeno">Tu plata, hacia arriba.</Texto>
+        <Texto variante="pequeno">{t('comun.lema')}</Texto>
       </View>
       {children}
     </Pantalla>

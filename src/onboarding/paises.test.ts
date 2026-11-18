@@ -1,5 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { es } from '@/i18n/es';
+
 import { formatearMontoPais, PAISES, paisPorCodigo, validarCelular } from './paises';
 
 describe('países', () => {
@@ -9,7 +11,7 @@ describe('países', () => {
     ]);
   });
   it('Colombia tiene cédula de ciudadanía, cédula de extranjería, pasaporte y PPT', () => {
-    expect(paisPorCodigo('CO').documentos).toEqual(['Cédula de ciudadanía', 'Cédula de extranjería', 'Pasaporte', 'PPT']);
+    expect(paisPorCodigo('CO').documentos.map((d) => es.documentos[d])).toEqual(['Cédula de ciudadanía', 'Cédula de extranjería', 'Pasaporte', 'PPT']);
   });
   it('muestra los montos con el separador de cada país', () => {
     expect(formatearMontoPais(1_250_000, paisPorCodigo('CO'))).toBe('$ 1.250.000');
@@ -21,7 +23,8 @@ describe('países', () => {
 describe('validarCelular', () => {
   it('pide mínimo 7 dígitos', () => {
     expect(validarCelular('300 123 4567')).toBeNull();
-    expect(validarCelular('123456')).toBe('Escribe un número de celular válido.');
-    expect(validarCelular('')).toBe('Escribe un número de celular válido.');
+    expect(validarCelular('123456')).toBe('celular');
+    expect(validarCelular('')).toBe('celular');
+    expect(es.errores.celular).toBe('Escribe un número de celular válido.');
   });
 });

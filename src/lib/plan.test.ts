@@ -2,6 +2,8 @@
 // Cada ejemplo del documento es una prueba. Si cambia la regla, se cambia primero el documento.
 import { describe, expect, it } from '@jest/globals';
 
+import { es } from '@/i18n/es';
+
 import {
   abonarAMeta,
   cuotaMensualMeta,
@@ -35,15 +37,17 @@ describe('A4 · Plan del mes', () => {
   });
 
   describe('estado del plan', () => {
+    // El estado es un código; el texto ("Vas bien", "Cuidado", "Te pasaste") está en los textos de la app.
+    const texto = (gastado: number) => es.plan.estado[estadoDelPlan(4_000_000, gastado)];
     it('"Vas bien" si gastó menos del 80% del disponible', () => {
-      expect(estadoDelPlan(4_000_000, 1_800_000)).toBe('Vas bien');
+      expect(texto(1_800_000)).toBe('Vas bien');
     });
     it('"Cuidado" desde el 80% del disponible', () => {
-      expect(estadoDelPlan(4_000_000, 3_200_000)).toBe('Cuidado');
-      expect(estadoDelPlan(4_000_000, 4_000_000)).toBe('Cuidado');
+      expect(texto(3_200_000)).toBe('Cuidado');
+      expect(texto(4_000_000)).toBe('Cuidado');
     });
     it('"Te pasaste" si le queda menos de 0', () => {
-      expect(estadoDelPlan(4_000_000, 4_000_001)).toBe('Te pasaste');
+      expect(texto(4_000_001)).toBe('Te pasaste');
     });
   });
 });
@@ -85,11 +89,15 @@ describe('Plan del onboarding (paso 5): monto a separar y validación', () => {
   });
 
   it('el plan es válido solo si 0 < monto < ingreso', () => {
-    expect(validarPlan(6_000_000, 2_000_000)).toBeNull();
-    expect(validarPlan(0, 2_000_000)).toBe('Escribe cuánto ganas al mes.');
-    expect(validarPlan(6_000_000, 0)).toBe('Escribe el monto para calcular tu plan.');
-    expect(validarPlan(6_000_000, 6_000_000)).toBe('Ese monto es igual o mayor a lo que ganas. Prueba con uno menor.');
-    expect(validarPlan(6_000_000, 7_000_000)).toBe('Ese monto es igual o mayor a lo que ganas. Prueba con uno menor.');
+    const mensaje = (ingreso: number, monto: number) => {
+      const codigo = validarPlan(ingreso, monto);
+      return codigo ? es.errores[codigo] : null;
+    };
+    expect(mensaje(6_000_000, 2_000_000)).toBeNull();
+    expect(mensaje(0, 2_000_000)).toBe('Escribe cuánto ganas al mes.');
+    expect(mensaje(6_000_000, 0)).toBe('Escribe el monto para calcular tu plan.');
+    expect(mensaje(6_000_000, 6_000_000)).toBe('Ese monto es igual o mayor a lo que ganas. Prueba con uno menor.');
+    expect(mensaje(6_000_000, 7_000_000)).toBe('Ese monto es igual o mayor a lo que ganas. Prueba con uno menor.');
   });
 
   it('con la meta del documento: gana 6.000.000 y la meta pide 500.000 → puede gastar 5.500.000', () => {

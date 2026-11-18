@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { CampoTexto } from '@/components/CampoTexto';
 import { Chip } from '@/components/Chip';
 import { Texto } from '@/components/Texto';
+import { LARGO_MINIMO_CONTRASENA, type CodigoError } from '@/lib/validacion';
 import { ESPACIO } from '@/theme';
 
 import { erroresDatosPersonales } from '../datos';
@@ -10,23 +12,25 @@ import { paisPorCodigo } from '../paises';
 import { EncabezadoPaso, type PropsPaso } from './comun';
 
 export function PasoDatos({ d, cambiar, intentado, conSesion }: PropsPaso & { conSesion: boolean }) {
+  const { t } = useTranslation();
   const pais = paisPorCodigo(d.pais);
   const errores = intentado ? erroresDatosPersonales(d, { pideContrasena: !conSesion }) : {};
+  const mensaje = (codigo?: CodigoError) => (codigo ? t(`errores.${codigo}`, { min: LARGO_MINIMO_CONTRASENA }) : null);
 
   return (
     <>
-      <EncabezadoPaso emoji="persona" titulo="Cuéntanos de ti" detalle="Usamos estos datos para crear y proteger tu cuenta." />
+      <EncabezadoPaso emoji="persona" titulo={t('onboarding.datos.titulo')} detalle={t('onboarding.datos.detalle')} />
       <CampoTexto
-        etiqueta="Nombre completo"
+        etiqueta={t('onboarding.datos.nombre')}
         value={d.nombre}
         onChangeText={(nombre) => cambiar({ nombre })}
         autoCapitalize="words"
         autoComplete="name"
         textContentType="name"
-        error={errores.nombre}
+        error={mensaje(errores.nombre)}
       />
       <CampoTexto
-        etiqueta="Correo electrónico"
+        etiqueta={t('onboarding.datos.correo')}
         value={d.correo}
         onChangeText={(correo) => cambiar({ correo })}
         editable={!conSesion}
@@ -35,47 +39,47 @@ export function PasoDatos({ d, cambiar, intentado, conSesion }: PropsPaso & { co
         autoCorrect={false}
         autoComplete="email"
         textContentType="emailAddress"
-        ayuda={conSesion ? 'Es el correo de tu cuenta.' : undefined}
-        error={errores.correo}
+        ayuda={conSesion ? t('onboarding.datos.correoAyuda') : undefined}
+        error={mensaje(errores.correo)}
       />
       {!conSesion && (
         <CampoTexto
-          etiqueta="Crea una contraseña"
+          etiqueta={t('onboarding.datos.contrasena')}
           value={d.contrasena}
           onChangeText={(contrasena) => cambiar({ contrasena })}
           contrasena
           autoComplete="new-password"
           textContentType="newPassword"
-          ayuda="Mínimo 8 caracteres."
-          error={errores.contrasena}
+          ayuda={t('onboarding.datos.contrasenaAyuda')}
+          error={mensaje(errores.contrasena)}
         />
       )}
       <CampoTexto
-        etiqueta={`Celular (${pais.prefijo})`}
+        etiqueta={t('onboarding.datos.celular', { prefijo: pais.prefijo })}
         value={d.celular}
         onChangeText={(celular) => cambiar({ celular: celular.replace(/[^\d ]/g, '') })}
         keyboardType="phone-pad"
         autoComplete="tel"
         textContentType="telephoneNumber"
         placeholder="300 000 0000"
-        error={errores.celular}
+        error={mensaje(errores.celular)}
       />
 
       <View style={{ gap: ESPACIO.s }}>
         <Texto variante="fuerte">
-          Documento de identidad <Texto variante="suave">(opcional)</Texto>
+          {t('onboarding.datos.documento')} <Texto variante="suave">{t('comun.opcional')}</Texto>
         </Texto>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: ESPACIO.s }} accessibilityRole="radiogroup">
-          {pais.documentos.map((nombre, i) => (
-            <Chip key={nombre} texto={nombre} elegido={d.tipoDocumento === i} onPress={() => cambiar({ tipoDocumento: i })} />
+          {pais.documentos.map((codigo, i) => (
+            <Chip key={codigo} texto={t(`documentos.${codigo}`)} elegido={d.tipoDocumento === i} onPress={() => cambiar({ tipoDocumento: i })} />
           ))}
         </View>
         <CampoTexto
-          etiqueta="Número de documento"
+          etiqueta={t('onboarding.datos.numero')}
           value={d.numeroDocumento}
           onChangeText={(numeroDocumento) => cambiar({ numeroDocumento })}
           autoCapitalize="characters"
-          ayuda="Solo lo pedimos para facturar desde el módulo de negocios. Puedes dejarlo vacío por ahora."
+          ayuda={t('onboarding.datos.numeroAyuda')}
         />
       </View>
     </>

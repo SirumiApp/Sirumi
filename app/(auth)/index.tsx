@@ -1,26 +1,32 @@
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Boton } from '@/components/Boton';
 import { Emoji } from '@/components/emoji/Emoji';
 import { Pantalla } from '@/components/Pantalla';
+import { SelectorIdioma } from '@/components/SelectorIdioma';
 import { Texto } from '@/components/Texto';
 import { ESPACIO, FUENTES } from '@/theme';
 
 export default function BienvenidaPantalla() {
+  const { t } = useTranslation();
   return (
     <Pantalla>
+      <View style={{ alignItems: 'flex-end' }}>
+        <SelectorIdioma />
+      </View>
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: ESPACIO.m, paddingVertical: ESPACIO.xl }}>
         <Emoji name="cohete" size={140} />
         <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 44, lineHeight: 52 }}>sirumi</Texto>
-        <Texto variante="subtitulo">Tu plata, hacia arriba.</Texto>
+        <Texto variante="subtitulo">{t('comun.lema')}</Texto>
         <Texto variante="suave" style={{ textAlign: 'center', maxWidth: 300 }}>
-          Tu plata personal y la de tu negocio, en un solo lugar.
+          {t('bienvenida.descripcion')}
         </Texto>
       </View>
       <View style={{ gap: ESPACIO.s }}>
-        <Boton titulo="Crear mi cuenta" onPress={() => router.push('/onboarding')} />
-        <Boton titulo="Ya tengo cuenta" variante="secundario" onPress={() => router.push('/entrar')} />
+        <Boton titulo={t('bienvenida.crearCuenta')} onPress={() => router.push('/onboarding')} />
+        <Boton titulo={t('bienvenida.yaTengoCuenta')} variante="secundario" onPress={() => router.push('/entrar')} />
       </View>
     </Pantalla>
   );

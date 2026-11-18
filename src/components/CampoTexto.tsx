@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
 
 import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, TAMANOS, useTema } from '@/theme';
@@ -15,6 +16,7 @@ type Props = TextInputProps & {
 
 export function CampoTexto({ etiqueta, error, ayuda, contrasena = false, style, ...resto }: Props) {
   const { colores } = useTema();
+  const { t } = useTranslation();
   const [enfocado, setEnfocado] = useState(false);
   const [visible, setVisible] = useState(false);
   const colorBorde = error ? colores.error : enfocado ? colores.accion : colores.borde;
@@ -52,7 +54,7 @@ export function CampoTexto({ etiqueta, error, ayuda, contrasena = false, style, 
             hitSlop={8}
             style={{ minHeight: ALTO_TOCABLE, justifyContent: 'center', paddingLeft: ESPACIO.s }}>
             <Texto variante="pequeno" style={{ fontFamily: FUENTES.textoFuerte }}>
-              {visible ? 'Ocultar' : 'Ver'}
+              {visible ? t('comun.ocultar') : t('comun.ver')}
             </Texto>
           </Pressable>
         )}

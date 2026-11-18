@@ -3,7 +3,8 @@
 begin;
 insert into auth.users (id, email, raw_user_meta_data, aud, role) values
  ('00000000-0000-0000-0000-00000000000a','a@prueba.co','{"full_name":"Ana"}','authenticated','authenticated'),
- ('00000000-0000-0000-0000-00000000000b','b@prueba.co','{}','authenticated','authenticated');
+ ('00000000-0000-0000-0000-00000000000b','b@prueba.co','{}','authenticated','authenticated'),
+ ('00000000-0000-0000-0000-00000000000c','c@prueba.co','{}','authenticated','authenticated');
 create temp table r(prueba text, ok boolean);
 grant all on r to authenticated, anon;
 
@@ -37,6 +38,11 @@ do $$ begin
 end $$;
 select public.completar_onboarding('{"full_name":"Beto","usage":"personal","policy_version":"v1","consents":{"terminos":true,"datos":true}}');
 insert into r select 'Solo personal: no crea negocio', (select count(*)=0 from public.businesses);
+
+set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
+select public.completar_onboarding('{"full_name":"Carol","usage":"negocio","language":"en","business_name":"My business","warehouse_name":"Main warehouse","cash_account_name":"Cash","policy_version":"v1","consents":{"terminos":true,"datos":true}}');
+insert into r select 'En inglés: idioma guardado', (select language='en' from public.profiles);
+insert into r select 'En inglés: bodega y efectivo con nombres en inglés', (select (select name from public.warehouses)='Main warehouse' and (select name from public.accounts)='Cash');
 reset role;
 select * from r;
 rollback;

@@ -163,6 +163,7 @@ export type Database = {
           document_type: string | null
           full_name: string | null
           id: string
+          language: string
           onboarded_at: string | null
           phone: string | null
           preferences: Json
@@ -177,6 +178,7 @@ export type Database = {
           document_type?: string | null
           full_name?: string | null
           id: string
+          language?: string
           onboarded_at?: string | null
           phone?: string | null
           preferences?: Json
@@ -191,6 +193,7 @@ export type Database = {
           document_type?: string | null
           full_name?: string | null
           id?: string
+          language?: string
           onboarded_at?: string | null
           phone?: string | null
           preferences?: Json

@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { Aviso } from '@/components/Aviso';
@@ -8,18 +9,20 @@ import { CampoTexto } from '@/components/CampoTexto';
 import { Pantalla } from '@/components/Pantalla';
 import { Texto } from '@/components/Texto';
 import { supabase } from '@/lib/supabase';
-import { traducirErrorAuth, validarCorreo } from '@/lib/validacion';
+import { LARGO_MINIMO_CONTRASENA, traducirErrorAuth, validarCorreo, type CodigoError } from '@/lib/validacion';
 import { ESPACIO } from '@/theme';
 
 export default function EntrarPantalla() {
+  const { t } = useTranslation();
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [intentado, setIntentado] = useState(false);
   const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<CodigoError | null>(null);
+  const mensaje = (codigo: CodigoError | null) => (codigo ? t(`errores.${codigo}`, { min: LARGO_MINIMO_CONTRASENA }) : null);
 
   const errorCorreo = validarCorreo(correo);
-  const errorContrasena = contrasena ? null : 'Escribe tu contraseña.';
+  const errorContrasena: CodigoError | null = contrasena ? null : 'contrasenaVacia';
 
   async function entrar() {
     setIntentado(true);
@@ -41,12 +44,12 @@ export default function EntrarPantalla() {
   return (
     <Pantalla conEncabezado>
       <View style={{ gap: ESPACIO.xs }}>
-        <Texto variante="titulo">¡Hola de nuevo!</Texto>
-        <Texto variante="suave">Entra con tu correo y tu contraseña.</Texto>
+        <Texto variante="titulo">{t('entrar.titulo')}</Texto>
+        <Texto variante="suave">{t('entrar.detalle')}</Texto>
       </View>
 
       <CampoTexto
-        etiqueta="Correo electrónico"
+        etiqueta={t('entrar.correo')}
         value={correo}
         onChangeText={setCorreo}
         keyboardType="email-address"
@@ -54,24 +57,24 @@ export default function EntrarPantalla() {
         autoCorrect={false}
         autoComplete="email"
         textContentType="emailAddress"
-        error={intentado ? errorCorreo : null}
+        error={intentado ? mensaje(errorCorreo) : null}
       />
       <CampoTexto
-        etiqueta="Contraseña"
+        etiqueta={t('entrar.contrasena')}
         value={contrasena}
         onChangeText={setContrasena}
         contrasena
         autoComplete="current-password"
         textContentType="password"
-        error={intentado ? errorContrasena : null}
+        error={intentado ? mensaje(errorContrasena) : null}
         returnKeyType="go"
         onSubmitEditing={entrar}
       />
 
-      {error && <Aviso mensaje={error} />}
+      {error && <Aviso mensaje={mensaje(error) ?? ''} />}
 
-      <Boton titulo="Entrar" onPress={entrar} cargando={cargando} />
-      <Boton titulo="Crear una cuenta nueva" variante="texto" onPress={() => router.push('/onboarding')} />
+      <Boton titulo={t('entrar.entrar')} onPress={entrar} cargando={cargando} />
+      <Boton titulo={t('entrar.crearNueva')} variante="texto" onPress={() => router.push('/onboarding')} />
     </Pantalla>
   );
 }

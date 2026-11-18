@@ -1,5 +1,8 @@
+import { en } from '@/i18n/en';
+import { es } from '@/i18n/es';
+import type { Idioma } from '@/i18n';
 import { disponibleParaGastar, montoASeparar, validarPlan, type Objetivo } from '@/lib/plan';
-import { validarContrasena, validarCorreo, validarNombre } from '@/lib/validacion';
+import { validarContrasena, validarCorreo, validarNombre, type CodigoError } from '@/lib/validacion';
 
 import type { Uso } from './camino';
 import { paisPorCodigo, validarCelular } from './paises';
@@ -49,7 +52,8 @@ export const DATOS_INICIALES: DatosOnboarding = {
 
 export const MESES_META = [3, 6, 12, 18, 24];
 
-export type ErroresDatos = Partial<Record<'nombre' | 'correo' | 'celular' | 'contrasena', string>>;
+/** Código del error de cada campo; la pantalla lo muestra con t(`errores.${codigo}`). */
+export type ErroresDatos = Partial<Record<'nombre' | 'correo' | 'celular' | 'contrasena', CodigoError>>;
 
 export function erroresDatosPersonales(d: DatosOnboarding, opciones: { pideContrasena: boolean }): ErroresDatos {
   const errores: ErroresDatos = {};
@@ -73,7 +77,7 @@ export function incluyeNegocio(d: DatosOnboarding): boolean {
 }
 
 /** Paso 5: cuánto separa, cuánto le queda para gastar (A4/A5) y si el plan es válido. */
-export function planDelOnboarding(d: DatosOnboarding): { separar: number; disponible: number; error: string | null } {
+export function planDelOnboarding(d: DatosOnboarding): { separar: number; disponible: number; error: CodigoError | null } {
   const separar = montoASeparar({
     objetivo: d.objetivo,
     ahorro: d.ahorro,
@@ -84,9 +88,12 @@ export function planDelOnboarding(d: DatosOnboarding): { separar: number; dispon
   return { separar, disponible: disponibleParaGastar(d.ingreso, separar), error: validarPlan(d.ingreso, separar) };
 }
 
+const TEXTOS = { es, en };
+
 /** Lo que recibe la función completar_onboarding de la base de datos. */
-export function paraGuardar(d: DatosOnboarding, versionPolitica: string) {
+export function paraGuardar(d: DatosOnboarding, versionPolitica: string, idioma: Idioma) {
   const pais = paisPorCodigo(d.pais);
+  const porDefecto = TEXTOS[idioma].onboarding.porDefecto;
   const numeroDocumento = d.numeroDocumento.trim();
   const conPlan = incluyePersonal(d);
   const tienePlan = conPlan && d.objetivo !== 'ver';
@@ -99,8 +106,11 @@ export function paraGuardar(d: DatosOnboarding, versionPolitica: string) {
     currency: pais.moneda,
     document_type: numeroDocumento ? (pais.documentos[d.tipoDocumento] ?? null) : null,
     document_number: numeroDocumento || null,
+    language: idioma,
     usage: d.uso,
-    business_name: incluyeNegocio(d) ? d.negocio.trim() || null : null,
+    business_name: incluyeNegocio(d) ? d.negocio.trim() || porDefecto.negocio : null,
+    warehouse_name: porDefecto.bodega,
+    cash_account_name: porDefecto.efectivo,
     policy_version: versionPolitica,
     consents: { ...d.consentimientos },
     plan: !conPlan

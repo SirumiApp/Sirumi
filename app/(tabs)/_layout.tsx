@@ -1,4 +1,5 @@
 import { Tabs } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import { Emoji, type NombreEmoji } from '@/components/emoji/Emoji';
 import { ALTO_TOCABLE, FUENTES, useTema } from '@/theme';
@@ -10,6 +11,7 @@ function IconoPestana({ name, activo }: { name: NombreEmoji; activo: boolean }) 
 /** Pestañas principales: Personal y Negocio (como en el prototipo). */
 export default function PestanasLayout() {
   const { colores } = useTema();
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -26,14 +28,14 @@ export default function PestanasLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Personal',
+          title: t('pestanas.personal'),
           tabBarIcon: ({ focused }) => <IconoPestana name="persona" activo={focused} />,
         }}
       />
       <Tabs.Screen
         name="negocio"
         options={{
-          title: 'Negocio',
+          title: t('pestanas.negocio'),
           tabBarIcon: ({ focused }) => <IconoPestana name="tienda" activo={focused} />,
         }}
       />

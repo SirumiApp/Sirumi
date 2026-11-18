@@ -1,8 +1,11 @@
 // Reglas A4 (plan del mes) y A5 (meta con fecha) de docs/reglas-de-calculo.md.
 // Funciones puras: no redondean en pasos intermedios; se redondea solo al mostrar o guardar.
 
+import type { CodigoError } from './validacion';
+
 export type Objetivo = 'ver' | 'ahorro' | 'meta' | 'deudas';
-export type EstadoPlan = 'Vas bien' | 'Cuidado' | 'Te pasaste';
+/** Código del estado: se muestra con t(`plan.estado.${estado}`) → "Vas bien", "Cuidado" o "Te pasaste". */
+export type EstadoPlan = 'bien' | 'cuidado' | 'tePasaste';
 
 /** Por encima de este porcentaje del disponible se muestra "Cuidado". */
 export const UMBRAL_CUIDADO = 0.8;
@@ -24,9 +27,9 @@ export function porDia(queda: number, hoy: { diasDelMes: number; diaDeHoy: numbe
 
 /** A4 · "Te pasaste" si le queda < 0; "Cuidado" si gastado ≥ 80% del disponible; si no, "Vas bien". */
 export function estadoDelPlan(disponible: number, gastado: number): EstadoPlan {
-  if (leQueda(disponible, gastado) < 0) return 'Te pasaste';
-  if (gastado >= disponible * UMBRAL_CUIDADO) return 'Cuidado';
-  return 'Vas bien';
+  if (leQueda(disponible, gastado) < 0) return 'tePasaste';
+  if (gastado >= disponible * UMBRAL_CUIDADO) return 'cuidado';
+  return 'bien';
 }
 
 /** A5 · Cuota mensual = techo(monto de la meta / meses). */
@@ -68,10 +71,10 @@ export function montoASeparar(datos: DatosPlan): number {
   }
 }
 
-/** El plan es válido solo si 0 < monto < ingreso. Devuelve el mensaje de error o null. */
-export function validarPlan(ingresoMensual: number, montoSeparar: number): string | null {
-  if (ingresoMensual <= 0) return 'Escribe cuánto ganas al mes.';
-  if (montoSeparar <= 0) return 'Escribe el monto para calcular tu plan.';
-  if (montoSeparar >= ingresoMensual) return 'Ese monto es igual o mayor a lo que ganas. Prueba con uno menor.';
+/** El plan es válido solo si 0 < monto < ingreso. Devuelve el código del mensaje de error o null. */
+export function validarPlan(ingresoMensual: number, montoSeparar: number): CodigoError | null {
+  if (ingresoMensual <= 0) return 'planSinIngreso';
+  if (montoSeparar <= 0) return 'planSinMonto';
+  if (montoSeparar >= ingresoMensual) return 'planMontoMayor';
   return null;
 }

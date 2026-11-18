@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { CampoDinero } from '@/components/CampoDinero';
@@ -12,47 +13,37 @@ import { MESES_META, planDelOnboarding } from '../datos';
 import { formatearMontoPais, paisPorCodigo } from '../paises';
 import { EncabezadoPaso, type PropsPaso } from './comun';
 
+const EMOJIS: Record<'ahorro' | 'deudas' | 'meta', NombreEmoji> = { ahorro: 'alcancia', deudas: 'tarjeta', meta: 'diana' };
+
 export function PasoPlan({ d, cambiar, intentado }: PropsPaso) {
+  const { t } = useTranslation();
   const { colores } = useTema();
   const pais = paisPorCodigo(d.pais);
   const plata = (n: number) => formatearMontoPais(n, pais);
   const plan = planDelOnboarding(d);
+  const mensajeError = plan.error ? t(`errores.${plan.error}`) : null;
 
-  const errorIngreso = intentado && d.ingreso <= 0 ? plan.error : null;
-  const errorMonto = intentado && d.ingreso > 0 ? plan.error : null;
+  const errorIngreso = intentado && d.ingreso <= 0 ? mensajeError : null;
+  const errorMonto = intentado && d.ingreso > 0 ? mensajeError : null;
 
-  const info: Record<'ahorro' | 'deudas' | 'meta', { emoji: NombreEmoji; titulo: string; detalle: string; linea1: string; linea2: string }> = {
-    ahorro: {
-      emoji: 'alcancia',
-      titulo: 'Tu plan de ahorro',
-      detalle: 'Con lo que ganas y lo que quieres ahorrar, calculamos cuánto puedes gastar al mes.',
-      linea1: `Si ganas ${plata(d.ingreso)} y ahorras ${plata(d.ahorro)}, lo máximo que puedes gastar al mes es:`,
-      linea2: 'Registra tus gastos y te avisamos cuando te acerques al límite.',
-    },
-    deudas: {
-      emoji: 'tarjeta',
-      titulo: 'Tu plan para salir de deudas',
-      detalle: 'Separamos primero lo que abonas a tus deudas y vemos cuánto te queda para vivir.',
-      linea1: `Si ganas ${plata(d.ingreso)} y abonas ${plata(d.abono)} a tus deudas, te quedan para gastar:`,
-      linea2: 'Luego registras tus deudas y te decimos a cuál pagarle primero.',
-    },
-    meta: {
-      emoji: 'diana',
-      titulo: 'Tu meta de ahorro',
-      detalle: 'Cuéntanos la meta y calculamos cuánto separar cada mes.',
-      linea1: `Para juntar ${plata(d.metaValor)} en ${d.metaMeses} meses necesitas separar ${plata(plan.separar)} al mes. Te quedan para gastar:`,
-      linea2: 'Cada mes que cumplas, tu meta avanza.',
-    },
-  };
   const objetivo = d.objetivo === 'ver' ? 'ahorro' : d.objetivo;
-  const textos = info[objetivo];
+  const linea1 =
+    objetivo === 'ahorro'
+      ? t('onboarding.plan.ahorro.linea1', { ingreso: plata(d.ingreso), monto: plata(d.ahorro) })
+      : objetivo === 'deudas'
+        ? t('onboarding.plan.deudas.linea1', { ingreso: plata(d.ingreso), monto: plata(d.abono) })
+        : t('onboarding.plan.meta.linea1', { valor: plata(d.metaValor), meses: d.metaMeses, monto: plata(plan.separar) });
 
   return (
     <>
-      <EncabezadoPaso emoji={textos.emoji} titulo={textos.titulo} detalle={textos.detalle} />
+      <EncabezadoPaso
+        emoji={EMOJIS[objetivo]}
+        titulo={t(`onboarding.plan.${objetivo}.titulo`)}
+        detalle={t(`onboarding.plan.${objetivo}.detalle`)}
+      />
 
       <CampoDinero
-        etiqueta="¿Cuánto ganas al mes? (en promedio)"
+        etiqueta={t('onboarding.plan.ingreso')}
         valor={d.ingreso}
         onCambio={(ingreso) => cambiar({ ingreso })}
         separador={pais.separador}
@@ -61,7 +52,7 @@ export function PasoPlan({ d, cambiar, intentado }: PropsPaso) {
 
       {objetivo === 'ahorro' && (
         <CampoDinero
-          etiqueta="¿Cuánto quieres ahorrar al mes?"
+          etiqueta={t('onboarding.plan.ahorro.campo')}
           valor={d.ahorro}
           onCambio={(ahorro) => cambiar({ ahorro })}
           separador={pais.separador}
@@ -70,7 +61,7 @@ export function PasoPlan({ d, cambiar, intentado }: PropsPaso) {
       )}
       {objetivo === 'deudas' && (
         <CampoDinero
-          etiqueta="¿Cuánto puedes abonar a tus deudas al mes?"
+          etiqueta={t('onboarding.plan.deudas.campo')}
           valor={d.abono}
           onCambio={(abono) => cambiar({ abono })}
           separador={pais.separador}
@@ -80,24 +71,24 @@ export function PasoPlan({ d, cambiar, intentado }: PropsPaso) {
       {objetivo === 'meta' && (
         <>
           <CampoTexto
-            etiqueta="¿Para qué es?"
+            etiqueta={t('onboarding.plan.meta.campoNombre')}
             value={d.metaNombre}
             onChangeText={(metaNombre) => cambiar({ metaNombre })}
-            placeholder="Viaje, moto, fondo de emergencia…"
+            placeholder={t('onboarding.plan.meta.ejemploNombre')}
             autoCapitalize="sentences"
           />
           <CampoDinero
-            etiqueta="¿Cuánto necesitas juntar?"
+            etiqueta={t('onboarding.plan.meta.campoValor')}
             valor={d.metaValor}
             onCambio={(metaValor) => cambiar({ metaValor })}
             separador={pais.separador}
             error={errorMonto}
           />
           <View style={{ gap: ESPACIO.s }}>
-            <Texto variante="fuerte">¿En cuántos meses?</Texto>
+            <Texto variante="fuerte">{t('onboarding.plan.meta.campoMeses')}</Texto>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: ESPACIO.s }} accessibilityRole="radiogroup">
               {MESES_META.map((m) => (
-                <Chip key={m} texto={`${m} meses`} elegido={d.metaMeses === m} onPress={() => cambiar({ metaMeses: m })} />
+                <Chip key={m} texto={t('onboarding.plan.meses', { n: m })} elegido={d.metaMeses === m} onPress={() => cambiar({ metaMeses: m })} />
               ))}
             </View>
           </View>
@@ -107,13 +98,11 @@ export function PasoPlan({ d, cambiar, intentado }: PropsPaso) {
       {!plan.error && (
         <Tarjeta style={{ borderColor: colores.marca, borderWidth: 2 }}>
           <Texto variante="pequeno" style={{ letterSpacing: 1 }}>
-            TU PLAN
+            {t('onboarding.plan.tuPlan')}
           </Texto>
-          <Texto>{textos.linea1}</Texto>
-          <Texto variante="cifra">
-            {plata(plan.disponible)}
-          </Texto>
-          <Texto variante="suave">{textos.linea2}</Texto>
+          <Texto>{linea1}</Texto>
+          <Texto variante="cifra">{plata(plan.disponible)}</Texto>
+          <Texto variante="suave">{t(`onboarding.plan.${objetivo}.linea2`)}</Texto>
         </Tarjeta>
       )}
     </>

@@ -1,13 +1,16 @@
+import { useTranslation } from 'react-i18next';
+
 import { PantallaVacia } from '@/components/PantallaVacia';
 
 export default function NegocioPantalla() {
+  const { t } = useTranslation();
   return (
     <PantallaVacia
-      saludo="Tu negocio"
-      titulo="¿Estás ganando plata?"
+      saludo={t('negocio.saludo')}
+      titulo={t('negocio.titulo')}
       emoji="tienda"
-      mensaje="Aquí vas a ver cómo va tu negocio"
-      detalle="Pronto podrás registrar ventas y gastos, manejar tu inventario y cobrar con Sirumi POS."
+      mensaje={t('negocio.mensaje')}
+      detalle={t('negocio.detalle')}
     />
   );
 }
