@@ -16,3 +16,16 @@ export function formatearPesos(valor: number): string {
 export function formatearFecha(fecha: Date): string {
   return `${fecha.getDate()} ${MESES[fecha.getMonth()]} ${fecha.getFullYear()}`;
 }
+
+/**
+ * Monto corto para tarjetas pequeñas: 1.758.341 → "1,76M", 338.000 → "338K".
+ * `separadorMiles` es el del país: con "." el decimal es ","; con "," el decimal es ".".
+ */
+export function formatearCorto(valor: number, separadorMiles: '.' | ',' = '.'): string {
+  const signo = valor < 0 ? '-' : '';
+  const abs = Math.abs(valor);
+  const decimal = separadorMiles === '.' ? ',' : '.';
+  if (abs >= 1_000_000) return `${signo}${(abs / 1_000_000).toFixed(2).replace('.', decimal)}M`;
+  if (abs >= 1_000) return `${signo}${Math.round(abs / 1_000)}K`;
+  return `${signo}${Math.round(abs)}`;
+}

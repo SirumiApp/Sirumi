@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { ALTO_TOCABLE, ESPACIO, RADIO, sombraSuave, useTema } from '@/theme';
+import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, sombraSuave, useTema } from '@/theme';
 
 import { Emoji, type NombreEmoji } from './emoji/Emoji';
 import { Texto } from './Texto';
@@ -42,7 +42,13 @@ export function Opcion({ titulo, detalle, emoji, izquierda, derecha, elegida, on
         <Texto variante="fuerte">{titulo}</Texto>
         {detalle ? <Texto variante="pequeno">{detalle}</Texto> : null}
       </View>
-      {derecha ? <Texto variante="pequeno">{derecha}</Texto> : null}
+      {derecha ? (
+        <View style={{ paddingHorizontal: ESPACIO.s + 2, paddingVertical: 3, borderRadius: 999, backgroundColor: colores.seleccionado }}>
+          <Texto style={{ fontFamily: FUENTES.textoFuerte, fontSize: 13, lineHeight: 17 }} color={colores.enlace}>
+            {derecha}
+          </Texto>
+        </View>
+      ) : null}
     </Pressable>
   );
 }

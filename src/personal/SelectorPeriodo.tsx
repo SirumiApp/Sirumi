@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, ScrollView, View } from 'react-native';
+import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Boton } from '@/components/Boton';
 import { Calendario } from '@/components/Calendario';
-import { Chip } from '@/components/Chip';
+import { Emoji } from '@/components/emoji/Emoji';
+import { Icono } from '@/components/Icono';
+import { Opcion } from '@/components/Opcion';
 import { Texto } from '@/components/Texto';
-import { periodoPredefinido, type Fecha, type Periodo, type PeriodoPredefinido } from '@/lib/fechas';
-import { ESPACIO, useTema } from '@/theme';
+import { partes, periodoPredefinido, type Fecha, type Periodo, type PeriodoPredefinido } from '@/lib/fechas';
+import { ALTO_TOCABLE, ESPACIO, FUENTES, sombraSuave, useTema } from '@/theme';
 
 import { rangoCorto } from './etiquetas';
 import { useTextosFecha } from './ganchos';
@@ -20,14 +22,22 @@ export function periodoDe(eleccion: EleccionPeriodo, hoy: Fecha): Periodo {
 }
 
 const PREDEFINIDOS: PeriodoPredefinido[] = ['mes', 'mesPasado', 'tresMeses', 'anio'];
+const mayuscula = (s: string) => s.replace(/^./, (l) => l.toUpperCase());
 
-/** Chips de período arriba de Inicio y calendario para un rango libre (sin días futuros). */
+/** Píldora de período arriba de Inicio ("Noviembre 2026 ▾", como el prototipo). Al tocarla, opciones y calendario. */
 export function SelectorPeriodo({ eleccion, hoy, onCambio }: { eleccion: EleccionPeriodo; hoy: Fecha; onCambio: (e: EleccionPeriodo) => void }) {
   const { t } = useTranslation();
-  const { colores } = useTema();
+  const { colores, oscuro } = useTema();
   const textos = useTextosFecha();
   const [abierto, setAbierto] = useState(false);
   const [borrador, setBorrador] = useState<{ desde: Fecha | null; hasta: Fecha | null }>({ desde: null, hasta: null });
+
+  const nombreMesDe = (fecha: Fecha) => `${mayuscula(textos.mesesLargos[partes(fecha).mes - 1])} ${partes(fecha).anio}`;
+  const etiqueta = (e: EleccionPeriodo) => {
+    if (e.tipo === 'rango') return rangoCorto(e.periodo, textos);
+    if (e.tipo === 'mes' || e.tipo === 'mesPasado') return nombreMesDe(periodoPredefinido(e.tipo, hoy).desde);
+    return t(`periodo.${e.tipo}`);
+  };
 
   function abrir() {
     setBorrador(eleccion.tipo === 'rango' ? eleccion.periodo : { desde: null, hasta: null });
@@ -36,28 +46,52 @@ export function SelectorPeriodo({ eleccion, hoy, onCambio }: { eleccion: Eleccio
 
   return (
     <>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ flexGrow: 0 }}
-        contentContainerStyle={{ gap: ESPACIO.s, alignItems: 'center' }}>
-        {PREDEFINIDOS.map((p) => (
-          <Chip key={p} texto={t(`periodo.${p}`)} elegido={eleccion.tipo === p} onPress={() => onCambio({ tipo: p })} />
-        ))}
-        <Chip
-          texto={eleccion.tipo === 'rango' ? rangoCorto(eleccion.periodo, textos) : t('periodo.elegir')}
-          elegido={eleccion.tipo === 'rango'}
-          onPress={abrir}
-        />
-      </ScrollView>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${etiqueta(eleccion)}. ${t('periodo.titulo')}`}
+        onPress={abrir}
+        style={({ pressed }) => [
+          {
+            alignSelf: 'flex-start',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: ESPACIO.s,
+            minHeight: ALTO_TOCABLE + 4,
+            paddingHorizontal: ESPACIO.m,
+            borderRadius: 999,
+            backgroundColor: colores.tarjeta,
+            transform: [{ scale: pressed ? 0.97 : 1 }],
+          },
+          sombraSuave(oscuro),
+        ]}>
+        <Emoji name="calendario" size={18} />
+        <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 15 }}>{etiqueta(eleccion)}</Texto>
+        <Icono nombre="abajo" tamano={16} color={colores.textoSuave} />
+      </Pressable>
 
       <Modal visible={abierto} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setAbierto(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: colores.fondo }} edges={['top', 'bottom']}>
-          <View style={{ padding: ESPACIO.m, gap: ESPACIO.m, flex: 1 }}>
+          <ScrollView contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.m }}>
             <Texto variante="titulo">{t('periodo.titulo')}</Texto>
+            <View style={{ gap: ESPACIO.s }}>
+              {PREDEFINIDOS.map((p) => (
+                <Opcion
+                  key={p}
+                  titulo={t(`periodo.${p}`)}
+                  derecha={p === 'mes' || p === 'mesPasado' ? etiqueta({ tipo: p }) : undefined}
+                  elegida={eleccion.tipo === p}
+                  onPress={() => {
+                    onCambio({ tipo: p });
+                    setAbierto(false);
+                  }}
+                />
+              ))}
+            </View>
+            <Texto variante="subtitulo">{t('periodo.elegir')}</Texto>
             <Texto variante="suave">{t('periodo.ayuda')}</Texto>
-            <Calendario hoy={hoy} modo="rango" valor={borrador} onCambio={setBorrador} />
-            <View style={{ flex: 1 }} />
+            <View style={[{ backgroundColor: colores.tarjeta, borderRadius: 20, padding: ESPACIO.s }, sombraSuave(oscuro)]}>
+              <Calendario hoy={hoy} modo="rango" valor={borrador} onCambio={setBorrador} />
+            </View>
             <Boton
               titulo={t('periodo.aplicar')}
               disabled={!borrador.desde}
@@ -68,7 +102,7 @@ export function SelectorPeriodo({ eleccion, hoy, onCambio }: { eleccion: Eleccio
               }}
             />
             <Boton titulo={t('movimiento.cancelar')} variante="texto" onPress={() => setAbierto(false)} />
-          </View>
+          </ScrollView>
         </SafeAreaView>
       </Modal>
     </>

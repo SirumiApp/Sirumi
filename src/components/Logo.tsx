@@ -13,7 +13,7 @@ export function Logo({ tamano = 28 }: { tamano?: number }) {
       accessibilityRole="header"
       accessibilityLabel="sirumi">
       <Emoji name="cohete" size={tamano} />
-      <Texto style={{ fontFamily: FUENTES.titulo, fontSize: tamano * 0.85, lineHeight: tamano * 1.1 }}>
+      <Texto style={{ fontFamily: FUENTES.marca, fontSize: tamano * 0.85, lineHeight: tamano * 1.1 }}>
         sirumi
       </Texto>
     </View>

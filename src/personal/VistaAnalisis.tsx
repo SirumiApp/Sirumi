@@ -7,8 +7,11 @@ import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { comparacionPorCategoria, consejosDelMes, estadosDeTopes, serieMensual, type Consejo } from '@/lib/analisis';
 import { armarFecha, diasDelMes, hoyEn, partes, periodoAnterior, periodoPredefinido } from '@/lib/fechas';
-import { gastosHormiga, proyeccionCierre, totalesDelPeriodo } from '@/lib/personal';
-import { ESPACIO, FUENTES, useTema } from '@/theme';
+import { formatearCorto } from '@/lib/formato';
+import { gastosHormiga, proyeccionCierre, tasaAhorro, totalesDelPeriodo } from '@/lib/personal';
+import { paisPorCodigo } from '@/onboarding/paises';
+import { usePerfil } from '@/auth/perfil';
+import { COLORES_CATEGORIA, ESPACIO, FUENTES, sombraSuave, useTema } from '@/theme';
 
 import { useMovimientos, type AlertaTopes, type Categoria } from './datos';
 import { useNombreCategoria, usePlata, useTextosFecha } from './ganchos';
@@ -30,7 +33,8 @@ type Props = { categorias: Categoria[]; topes: Record<string, number>; alerta: A
 /** Análisis del mes (docs/specs/02-personal.md, pantalla 4; regla A8). */
 export function VistaAnalisis({ categorias, topes, alerta, version }: Props) {
   const { t } = useTranslation();
-  const { colores } = useTema();
+  const { colores, oscuro } = useTema();
+  const perfil = usePerfil();
   const plata = usePlata();
   const textosFecha = useTextosFecha();
   const nombreCategoria = useNombreCategoria();
@@ -70,41 +74,73 @@ export function VistaAnalisis({ categorias, topes, alerta, version }: Props) {
     ingreso: m.ingreso,
   }));
 
+  const tasa = tasaAhorro(actual.ingreso, actual.gasto);
+  const separador = paisPorCodigo(perfil?.country ?? 'CO').separador;
+  const ALERTAS: Consejo['tipo'][] = ['ritmoAlto', 'shoppingAlto', 'gustosAltos', 'ahorroBajo', 'hormiga', 'topesSuperados'];
+  const tonoConsejo = (tipo: Consejo['tipo']) =>
+    ALERTAS.includes(tipo)
+      ? { fondo: colores.errorFondo, titulo: colores.errorTexto }
+      : { fondo: oscuro ? COLORES_CATEGORIA.menta.oscuro : COLORES_CATEGORIA.menta.claro, titulo: colores.ingresoTexto };
+
   return (
     <>
-      <Texto variante="subtitulo">{t('analisis.titulo', { mes: mayuscula(nombreMesActual) })}</Texto>
+      <View style={{ gap: ESPACIO.xs, marginTop: ESPACIO.s }}>
+        <Texto variante="titulo">{t('analisis.tituloPantalla')}</Texto>
+        <Texto variante="suave">{t('analisis.subtitulo', { mes: mayuscula(nombreMesActual) })}</Texto>
+      </View>
 
       <Tarjeta>
-        <Texto variante="fuerte">{t('analisis.grafica')}</Texto>
+        <Texto variante="subtitulo">{t('analisis.gastosPorMes')}</Texto>
         <GraficaMeses
           meses={serie}
-          textos={{ gastos: t('analisis.gastos'), ingresos: t('analisis.ingresos') }}
+          textos={{ gastos: t('analisis.gastos'), ingresos: t('analisis.tusIngresos') }}
+          corto={(v) => formatearCorto(v, separador)}
           detalle={(m) => t('analisis.detalleMes', { mes: m.etiqueta, gasto: plata(m.gasto), ingreso: plata(m.ingreso) })}
         />
-        <Texto variante="pequeno">{t('analisis.tocaMes')}</Texto>
       </Tarjeta>
 
-      {actual.gasto > 0 && (
-        <Tarjeta>
-          <Texto variante="fuerte">{t('analisis.cierre')}</Texto>
-          <Texto variante="suave">{t('analisis.cierreDetalle', { mes: nombreMesActual })}</Texto>
-          <Texto variante="cifra">{plata(Math.round(proyeccionCierre(actual.gasto, hoyMes)))}</Texto>
-        </Tarjeta>
+      {(tasa !== null || actual.gasto > 0) && (
+        <View style={{ flexDirection: 'row', gap: ESPACIO.s + 4 }}>
+          {tasa !== null && (
+            <Tarjeta style={{ flex: 1, padding: ESPACIO.m, gap: 2 }}>
+              <Texto variante="etiqueta">{t('analisis.ahorroMes')}</Texto>
+              <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 24, lineHeight: 30 }} color={tasa >= 20 ? colores.ingresoTexto : colores.errorTexto}>
+                {tasa}%
+              </Texto>
+            </Tarjeta>
+          )}
+          {actual.gasto > 0 && (
+            <Tarjeta style={{ flex: 1, padding: ESPACIO.m, gap: 2 }}>
+              <Texto variante="etiqueta">{t('analisis.cierre')}</Texto>
+              <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 20, lineHeight: 30 }} numberOfLines={1} adjustsFontSizeToFit>
+                {plata(Math.round(proyeccionCierre(actual.gasto, hoyMes)))}
+              </Texto>
+            </Tarjeta>
+          )}
+        </View>
       )}
 
-      <View style={{ gap: ESPACIO.s }}>
+      <View style={{ gap: ESPACIO.s + 4 }}>
         <Texto variante="subtitulo">{t('analisis.consejosTitulo')}</Texto>
         {consejos.length === 0 && <Texto variante="suave">{t('analisis.sinConsejos')}</Texto>}
-        {consejos.map((c) => (
-          <Tarjeta key={c.tipo} style={{ flexDirection: 'row', gap: ESPACIO.m, alignItems: 'flex-start' }}>
-            <Emoji name={EMOJI_CONSEJO[c.tipo]} size={28} />
-            <Texto style={{ flex: 1 }}>{textoConsejo(c)}</Texto>
-          </Tarjeta>
-        ))}
+        {consejos.map((c) => {
+          const tono = tonoConsejo(c.tipo);
+          return (
+            <View key={c.tipo} style={{ flexDirection: 'row', gap: ESPACIO.m, alignItems: 'flex-start', padding: ESPACIO.m + 2, borderRadius: 20, backgroundColor: tono.fondo }}>
+              <Emoji name={EMOJI_CONSEJO[c.tipo]} size={28} />
+              <View style={{ flex: 1, gap: 4 }}>
+                <Texto variante="fuerte" color={tono.titulo}>
+                  {t(`analisis.titulos.${c.tipo}`)}
+                </Texto>
+                <Texto>{textoConsejo(c)}</Texto>
+              </View>
+            </View>
+          );
+        })}
       </View>
 
       {comparacion.length > 0 && (
-        <View style={{ gap: ESPACIO.s }}>
+        <View style={{ gap: ESPACIO.s + 4 }}>
           <Texto variante="subtitulo">{t('analisis.porCategoria', { mes: nombreMesAnterior })}</Texto>
           {comparacion.map((fila) => {
             const c = porId.get(fila.categoria);
@@ -112,17 +148,27 @@ export function VistaAnalisis({ categorias, topes, alerta, version }: Props) {
             return (
               <View
                 key={fila.categoria}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s, padding: ESPACIO.s, borderRadius: 12, backgroundColor: colores.tarjeta }}>
-                <Emoji name={(c?.emoji ?? 'pagina') as NombreEmoji} size={24} />
+                style={[{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s + 4, padding: ESPACIO.m, borderRadius: 20, backgroundColor: colores.tarjeta }, sombraSuave(oscuro)]}>
+                <Emoji name={(c?.emoji ?? 'pagina') as NombreEmoji} size={28} />
                 <View style={{ flex: 1 }}>
                   <Texto variante="fuerte">{nombreCategoria(c)}</Texto>
                   <Texto variante="pequeno">
                     {plata(fila.actual)} · {nombreMesAnterior}: {plata(fila.anterior)}
                   </Texto>
                 </View>
-                <Texto style={{ fontFamily: FUENTES.textoFuerte }} color={fila.variacion === null ? colores.textoSuave : sube ? colores.error : colores.ingreso}>
-                  {fila.variacion === null ? t('analisis.sinAnterior') : `${sube ? '+' : '−'}${Math.abs(fila.variacion)}%`}
-                </Texto>
+                <View
+                  style={{
+                    paddingHorizontal: ESPACIO.s + 2,
+                    paddingVertical: 4,
+                    borderRadius: 999,
+                    backgroundColor: fila.variacion === null ? colores.relleno : sube ? colores.errorFondo : oscuro ? COLORES_CATEGORIA.menta.oscuro : COLORES_CATEGORIA.menta.claro,
+                  }}>
+                  <Texto
+                    style={{ fontFamily: FUENTES.textoFuerte, fontSize: 13, lineHeight: 17 }}
+                    color={fila.variacion === null ? colores.textoSuave : sube ? colores.errorTexto : colores.ingresoTexto}>
+                    {fila.variacion === null ? t('analisis.sinAnterior') : `${sube ? '+' : '−'}${Math.abs(fila.variacion)}%`}
+                  </Texto>
+                </View>
               </View>
             );
           })}

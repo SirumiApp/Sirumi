@@ -1,48 +1,24 @@
 import { Tabs } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 
-import { Emoji, type NombreEmoji } from '@/components/emoji/Emoji';
-import { ALTO_TOCABLE, FUENTES, sombraSuave, useTema } from '@/theme';
+import { BarraFlotante } from '@/components/BarraFlotante';
+import { ProveedorPersonal } from '@/personal/contexto';
 
-function IconoPestana({ name, activo }: { name: NombreEmoji; activo: boolean }) {
-  return <Emoji name={name} size={26} style={{ opacity: activo ? 1 : 0.45 }} />;
-}
-
-/** Pestañas principales: Personal y Negocio (como en el prototipo). */
+/**
+ * Navegación principal (como el prototipo): arriba, Personal / Negocio; abajo, una barra flotante
+ * con el + en el centro. Personal: Inicio · Análisis · + · Topes. Negocio: Resumen · Caja · + · Resultados · Más.
+ */
 export default function PestanasLayout() {
-  const { colores, oscuro } = useTema();
-  const { t } = useTranslation();
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colores.enlace,
-        tabBarInactiveTintColor: colores.textoSuave,
-        tabBarStyle: {
-          backgroundColor: colores.tarjeta,
-          borderTopWidth: 0,
-          minHeight: ALTO_TOCABLE + 24,
-          paddingTop: 6,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-          ...sombraSuave(oscuro),
-        },
-        tabBarLabelStyle: { fontFamily: FUENTES.textoFuerte, fontSize: 12 },
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: t('pestanas.personal'),
-          tabBarIcon: ({ focused }) => <IconoPestana name="persona" activo={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="negocio"
-        options={{
-          title: t('pestanas.negocio'),
-          tabBarIcon: ({ focused }) => <IconoPestana name="tienda" activo={focused} />,
-        }}
-      />
-    </Tabs>
+    <ProveedorPersonal>
+      <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <BarraFlotante {...props} />}>
+        <Tabs.Screen name="index" />
+        <Tabs.Screen name="analisis" />
+        <Tabs.Screen name="topes" />
+        <Tabs.Screen name="negocio" />
+        <Tabs.Screen name="caja" />
+        <Tabs.Screen name="resultados" />
+        <Tabs.Screen name="mas" />
+      </Tabs>
+    </ProveedorPersonal>
   );
 }

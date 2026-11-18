@@ -20,12 +20,13 @@ Empresa: Texlia Platform S.A.S. (marca comercial Sirumi). Contacto de privacidad
 - Builds para las tiendas con EAS (en la nube; no hace falta Mac).
 
 ## Marca (ver `docs/marca.md`)
-- Colores principales: Noche `#1B2B5E`, Cielo `#5FA9E0`, Acción `#2F6DB5` (botones con texto blanco), Nube `#F5F7FA` (fondo claro).
-- Tipografías: **Sora** 600 para títulos, cifras y la palabra "sirumi" (siempre en minúscula); **Inter** 400/600 para el resto.
+- Diseño del prototipo aprobado (nov 2026) mezclado con la marca Sirumi: fondo claro `#F4F8FF`, tarjetas blancas con sombra azul suave, Acción `#1F6FEB` (botones con texto blanco), Noche `#1B2B5E` para textos y fondo del modo oscuro.
+- Tipografías: **Plus Jakarta Sans** (800 para títulos y cifras; 400/600/700 para el resto); **Sora** 600 solo para la palabra "sirumi" (siempre en minúscula).
+- Navegación: Personal / Negocio arriba y barra flotante abajo con el + en el centro. Íconos de línea para controles; emojis 3D para el contenido.
 - Emojis: usa siempre los PNG 3D de `assets/emojis/`, no los emojis del sistema. Las banderas de países sí van como emoji normal.
 - Logo: `assets/marca/cohete.png`. Lema: "Tu plata, hacia arriba."
 - Contraste: no pongas texto blanco sobre Cielo; usa Noche sobre Cielo y blanco sobre Acción o Noche.
-- Modo oscuro desde el principio: fondo Noche, tarjetas `#24376F`, texto suave `#BCC8E6`.
+- Modo oscuro desde el principio: fondo Noche, tarjetas `#24376F`, texto suave `#BCC8E6`. Los colores van en `src/theme/`, nunca escritos en una pantalla.
 
 ## Reglas de datos (Ley 1581 de Colombia)
 - Pedir autorización expresa en el onboarding y guardar prueba: fecha, versión de la política y medio.

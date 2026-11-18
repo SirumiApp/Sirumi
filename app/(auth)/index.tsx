@@ -15,7 +15,7 @@ export default function BienvenidaPantalla() {
     <Pantalla>
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: ESPACIO.m, paddingVertical: ESPACIO.xl }}>
         <Emoji name="cohete" size={140} />
-        <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 44, lineHeight: 52 }}>sirumi</Texto>
+        <Texto style={{ fontFamily: FUENTES.marca, fontSize: 44, lineHeight: 52 }}>sirumi</Texto>
         <Texto variante="subtitulo">{t('comun.lema')}</Texto>
         <Texto variante="suave" style={{ textAlign: 'center', maxWidth: 300 }}>
           {t('bienvenida.descripcion')}

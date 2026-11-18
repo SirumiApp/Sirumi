@@ -5,9 +5,7 @@ import { View } from 'react-native';
 import { ESPACIO } from '@/theme';
 
 import { Emoji, type NombreEmoji } from './emoji/Emoji';
-import { Logo } from './Logo';
-import { Pantalla } from './Pantalla';
-import { Preferencias } from './Preferencias';
+import { PantallaApp } from './PantallaApp';
 import { Tarjeta } from './Tarjeta';
 import { Texto } from './Texto';
 
@@ -25,10 +23,7 @@ type Props = {
 export function PantallaVacia({ saludo, titulo, emoji, mensaje, detalle, children }: Props) {
   const { t } = useTranslation();
   return (
-    <Pantalla>
-      <Logo />
-      {/* El idioma siempre a la vista (a la izquierda: arriba a la derecha lo tapa el botón de Expo Go). */}
-      <Preferencias />
+    <PantallaApp>
       <View style={{ gap: ESPACIO.xs, marginTop: ESPACIO.s }}>
         <Texto variante="suave">{saludo}</Texto>
         <Texto variante="titulo">{titulo}</Texto>
@@ -47,6 +42,6 @@ export function PantallaVacia({ saludo, titulo, emoji, mensaje, detalle, childre
         <Texto variante="pequeno">{t('comun.lema')}</Texto>
       </View>
       {children}
-    </Pantalla>
+    </PantallaApp>
   );
 }
