@@ -25,6 +25,8 @@ export type Colores = {
   textoSobreAccion: string;
   /** Texto o ícono sobre Cielo: nunca blanco, siempre Noche. */
   textoSobreMarca: string;
+  /** Texto que se toca (enlaces): Acción en claro, Cielo en oscuro para que se lea sobre las tarjetas. */
+  enlace: string;
   seleccionado: string;
   ingreso: string;
   error: string;
@@ -42,6 +44,7 @@ export const COLORES_CLARO: Colores = {
   accion: PALETA.accion,
   textoSobreAccion: PALETA.blanco,
   textoSobreMarca: PALETA.noche,
+  enlace: PALETA.accion,
   seleccionado: PALETA.hielo,
   ingreso: PALETA.verde,
   error: PALETA.brasa,
@@ -59,6 +62,7 @@ export const COLORES_OSCURO: Colores = {
   accion: PALETA.accion,
   textoSobreAccion: PALETA.blanco,
   textoSobreMarca: PALETA.noche,
+  enlace: PALETA.cielo,
   seleccionado: '#2E4686',
   ingreso: PALETA.verde,
   error: PALETA.brasa,
@@ -80,3 +84,9 @@ export const COLORES_CATEGORIA = {
 } as const;
 
 export type ColorCategoria = keyof typeof COLORES_CATEGORIA;
+
+/** Colores de las gráficas, validados para daltonismo y contraste (claro sobre tarjeta clara, oscuro sobre #24376F). */
+export const COLORES_GRAFICA = {
+  claro: { gasto: '#2F6DB5', ingreso: '#2E9E63' },
+  oscuro: { gasto: '#4F9AD6', ingreso: '#45AB75' },
+} as const;

@@ -29,8 +29,8 @@ export function useCategorias() {
   return { categorias, recargar: cargar };
 }
 
-/** Movimientos personales entre dos fechas (incluidas). */
-export function useMovimientos(desde: Fecha, hasta: Fecha) {
+/** Movimientos personales entre dos fechas (incluidas). Cambiar `version` los vuelve a leer. */
+export function useMovimientos(desde: Fecha, hasta: Fecha, version = 0) {
   const { sesion } = useSesion();
   const [movimientos, setMovimientos] = useState<Movimiento[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -57,7 +57,8 @@ export function useMovimientos(desde: Fecha, hasta: Fecha) {
       })),
     );
     setCargando(false);
-  }, [idUsuario, desde, hasta]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `version` solo sirve para forzar una nueva lectura
+  }, [idUsuario, desde, hasta, version]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga desde el servidor al cambiar las fechas
@@ -88,4 +89,51 @@ export async function guardarMovimiento(datos: DatosMovimiento, id?: string) {
 
 export async function borrarMovimiento(id: string) {
   return supabase.from('movements').delete().eq('id', id);
+}
+
+/** Topes mensuales por categoría (id de categoría → tope). Cambiar `version` los vuelve a leer. */
+export function useTopes(version = 0) {
+  const { sesion } = useSesion();
+  const [topes, setTopes] = useState<Record<string, number>>({});
+  const idUsuario = sesion?.user.id;
+
+  const cargar = useCallback(async () => {
+    if (!idUsuario) return;
+    const { data } = await supabase.from('budgets').select('category_id, monthly_limit');
+    setTopes(Object.fromEntries((data ?? []).map((b) => [b.category_id, b.monthly_limit])));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `version` solo sirve para forzar una nueva lectura
+  }, [idUsuario, version]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- carga desde el servidor
+    cargar();
+  }, [cargar]);
+
+  return { topes, recargar: cargar };
+}
+
+/** Guarda el tope de una categoría; con 0 lo quita. */
+export async function guardarTope(categoriaId: string, monto: number) {
+  if (monto <= 0) return supabase.from('budgets').delete().eq('category_id', categoriaId);
+  return supabase.from('budgets').upsert({ category_id: categoriaId, monthly_limit: Math.round(monto) }, { onConflict: 'user_id,category_id' });
+}
+
+export type AlertaTopes = { alertaActiva: boolean; umbral: number };
+export const ALERTA_POR_DEFECTO: AlertaTopes = { alertaActiva: true, umbral: 80 };
+
+/** La alerta de topes guardada en profiles.preferences.topes. */
+export function leerAlerta(preferencias: unknown): AlertaTopes {
+  const t = (preferencias as { topes?: { alerta?: boolean; umbral?: number } } | null)?.topes;
+  return {
+    alertaActiva: typeof t?.alerta === 'boolean' ? t.alerta : ALERTA_POR_DEFECTO.alertaActiva,
+    umbral: typeof t?.umbral === 'number' ? t.umbral : ALERTA_POR_DEFECTO.umbral,
+  };
+}
+
+export async function guardarAlerta(idUsuario: string, preferencias: unknown, alerta: AlertaTopes) {
+  const actuales = (preferencias ?? {}) as Record<string, unknown>;
+  return supabase
+    .from('profiles')
+    .update({ preferences: { ...actuales, topes: { alerta: alerta.alertaActiva, umbral: alerta.umbral } } })
+    .eq('id', idUsuario);
 }

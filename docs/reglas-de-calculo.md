@@ -53,6 +53,12 @@ Convenciones:
 - Tasa de ahorro = redondear((ingresos − gastos) / ingresos × 100). Meta sugerida: ≥ 20%.
 - Gustos (shopping + comida fuera + salidas) / ingresos: la regla 50/30/20 sugiere ≤ 30%.
 - Gastos hormiga: gastos menores de 25.000 en el período; se avisa si hay 3 o más.
+- Ritmo del mes: si la proyección de cierre supera el gasto total del mes anterior, se avisa ("A este ritmo cerrarías en …"); si no, "Vas a buen ritmo". Sin gastos el mes anterior no se compara.
+- Shopping: se avisa si el gasto en Shopping del mes supera el 10% de los ingresos del mes.
+- Topes superados: se avisa cuántas categorías tienen estado "Superado" (A3) en el mes.
+- Comparación por categoría: gasto del mes contra el del mes anterior completo, con la variación de A2 (sin porcentaje si el mes anterior fue 0).
+- Gráfica: gastos e ingresos de cada uno de los últimos 6 meses (el actual hasta hoy).
+- Los consejos que dependen de ingresos (tasa de ahorro, 50/30/20, shopping) no se muestran si el mes no tiene ingresos.
 
 ---
 
