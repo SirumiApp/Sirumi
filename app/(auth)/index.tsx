@@ -13,9 +13,6 @@ export default function BienvenidaPantalla() {
   const { t } = useTranslation();
   return (
     <Pantalla>
-      <View style={{ alignItems: 'flex-end' }}>
-        <SelectorIdioma />
-      </View>
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: ESPACIO.m, paddingVertical: ESPACIO.xl }}>
         <Emoji name="cohete" size={140} />
         <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 44, lineHeight: 52 }}>sirumi</Texto>
@@ -25,6 +22,9 @@ export default function BienvenidaPantalla() {
         </Texto>
       </View>
       <View style={{ gap: ESPACIO.s }}>
+        <View style={{ alignItems: 'center', marginBottom: ESPACIO.s }}>
+          <SelectorIdioma />
+        </View>
         <Boton titulo={t('bienvenida.crearCuenta')} onPress={() => router.push('/onboarding')} />
         <Boton titulo={t('bienvenida.yaTengoCuenta')} variante="secundario" onPress={() => router.push('/entrar')} />
       </View>

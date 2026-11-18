@@ -5,7 +5,6 @@ import { primerNombre, usePerfil } from '@/auth/perfil';
 import { cerrarSesion } from '@/auth/sesion';
 import { Boton } from '@/components/Boton';
 import { PantallaVacia } from '@/components/PantallaVacia';
-import { SelectorIdioma } from '@/components/SelectorIdioma';
 import { ESPACIO } from '@/theme';
 
 export default function PersonalPantalla() {
@@ -20,9 +19,8 @@ export default function PersonalPantalla() {
       emoji="bolsa-de-dinero"
       mensaje={t('personal.mensaje')}
       detalle={t('personal.detalle')}>
-      {/* Mientras no exista la pantalla de Ajustes, el idioma y cerrar sesión viven aquí. */}
+      {/* Mientras no exista la pantalla de Ajustes, cerrar sesión vive aquí. */}
       <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', gap: ESPACIO.s }}>
-        <SelectorIdioma />
         <Boton titulo={t('comun.cerrarSesion')} variante="texto" onPress={cerrarSesion} />
       </View>
     </PantallaVacia>

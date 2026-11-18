@@ -7,6 +7,7 @@ import { ESPACIO } from '@/theme';
 import { Emoji, type NombreEmoji } from './emoji/Emoji';
 import { Logo } from './Logo';
 import { Pantalla } from './Pantalla';
+import { SelectorIdioma } from './SelectorIdioma';
 import { Tarjeta } from './Tarjeta';
 import { Texto } from './Texto';
 
@@ -26,6 +27,8 @@ export function PantallaVacia({ saludo, titulo, emoji, mensaje, detalle, childre
   return (
     <Pantalla>
       <Logo />
+      {/* El idioma siempre a la vista (a la izquierda: arriba a la derecha lo tapa el botón de Expo Go). */}
+      <SelectorIdioma />
       <View style={{ gap: ESPACIO.xs, marginTop: ESPACIO.s }}>
         <Texto variante="suave">{saludo}</Texto>
         <Texto variante="titulo">{titulo}</Texto>
