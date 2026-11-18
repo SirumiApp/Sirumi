@@ -1,9 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useSesion } from '@/auth/sesion';
 import type { Json } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
 import { iconoDeCuenta, type MovNegocio, type TipoNegocio, type Transferencia } from '@/lib/negocio';
+import { CUENTAS_EJEMPLO, esTextoEjemplo, movimientosNegocioEjemplo, NEGOCIO_EJEMPLO, TARJETAS_EJEMPLO, trasladosEjemplo } from '@/ejemplo/datosEjemplo';
+import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
+import { hoyEn } from '@/lib/fechas';
 import { supabase } from '@/lib/supabase';
 
 export type Regimen = 'simple' | 'ordinario' | 'natural';
@@ -99,11 +103,27 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
     cargar();
   }, [cargar]);
 
-  return { ...datos, recargar: cargar };
+  const ejemplo = useModoEjemplo();
+  const { t } = useTranslation();
+  const deEjemplo = useMemo<DatosNegocio | null>(() => {
+    if (!ejemplo) return null;
+    const hoy = hoyEn();
+    const tx = (s: string | null | undefined) => (esTextoEjemplo(s) ? (t(s as never) as string) : (s ?? null));
+    return {
+      negocio: { ...NEGOCIO_EJEMPLO, nombre: tx(NEGOCIO_EJEMPLO.nombre) ?? '' },
+      cuentas: CUENTAS_EJEMPLO.map((c) => ({ ...c, nombre: tx(c.nombre) ?? '' })),
+      tarjetas: TARJETAS_EJEMPLO,
+      movimientos: movimientosNegocioEjemplo(hoy).map((m) => ({ ...m, concepto: tx(m.concepto) })),
+      traslados: trasladosEjemplo(hoy).map((tr) => ({ ...tr, nota: tx(tr.nota) })),
+      cargando: false,
+    };
+  }, [ejemplo, t]);
+  return { ...(deEjemplo ?? datos), recargar: cargar };
 }
 
 /** Para quien eligió solo finanzas personales: crea su negocio con Efectivo y Bodega principal. */
 export async function crearMiNegocio(nombre: string, nombres: { efectivo: string; bodega: string }) {
+  if (modoEjemploActivo()) return sinGuardar();
   const { data, error } = await supabase.rpc('crear_negocio', { nombre });
   if (error || !data) return { error: error ?? new Error('sin negocio') };
   const id = (data as { id: string }).id;
@@ -127,6 +147,7 @@ export type DatosArranque = {
 
 /** Guarda el arranque. Devuelve cuántos movimientos pasaron a la cuenta principal por quitar cuentas. */
 export async function guardarArranque(negocio: Negocio, d: DatosArranque): Promise<{ error: unknown; movidos: number; errorTarjeta: boolean }> {
+  if (modoEjemploActivo()) return sinGuardar({ movidos: 0, errorTarjeta: false });
   const r1 = await supabase
     .from('businesses')
     .update({ name: d.nombre.trim() || negocio.nombre, tax_regime: d.regimen, setup: { ...negocio.configuracion, ...d.configuracion, arranque_listo: true } as Json })
@@ -172,6 +193,7 @@ export type DatosMovNegocio = {
 };
 
 export function guardarMovNegocio(negocioId: string, d: DatosMovNegocio, id?: string) {
+  if (modoEjemploActivo()) return sinGuardar();
   const fila = {
     owner_type: 'negocio',
     business_id: negocioId,
@@ -187,6 +209,7 @@ export function guardarMovNegocio(negocioId: string, d: DatosMovNegocio, id?: st
 }
 
 export function borrarMovNegocio(id: string) {
+  if (modoEjemploActivo()) return sinGuardar();
   return supabase.from('movements').delete().eq('id', id);
 }
 
@@ -198,6 +221,7 @@ export async function cargarParametrosImpuestos(anio: number) {
 
 /** Mover plata entre cuentas o pagar una tarjeta (regla B2/B3). */
 export function guardarTraslado(negocioId: string, d: Omit<Transferencia, 'id'>) {
+  if (modoEjemploActivo()) return sinGuardar();
   return supabase.from('transfers').insert({
     business_id: negocioId,
     date: d.fecha,
@@ -210,5 +234,6 @@ export function guardarTraslado(negocioId: string, d: Omit<Transferencia, 'id'>)
 }
 
 export function borrarTraslado(id: string) {
+  if (modoEjemploActivo()) return sinGuardar();
   return supabase.from('transfers').delete().eq('id', id);
 }

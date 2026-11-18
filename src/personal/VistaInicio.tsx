@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { usePerfil } from '@/auth/perfil';
+import { PLAN_EJEMPLO } from '@/ejemplo/datosEjemplo';
+import { cambiarModoEjemplo, useModoEjemplo } from '@/ejemplo/modo';
 import { Barra } from '@/components/Barra';
 import { Boton } from '@/components/Boton';
 import { CampoTexto } from '@/components/CampoTexto';
@@ -76,7 +78,8 @@ export function VistaInicio({ categorias, topes, alerta, version, onEditar }: Pr
   const consejo = consejoDelPeriodo(actual.gastoPorCategoria, topes, mesesDelPeriodo(periodo, hoy));
   const estadosTopes = estadosDeTopes(actual.gastoPorCategoria, topes, periodo, hoy, alerta);
 
-  const plan = leerPlan(perfil?.preferences);
+  const ejemplo = useModoEjemplo();
+  const plan = ejemplo ? { ...PLAN_EJEMPLO, meta: t(PLAN_EJEMPLO.meta as never) as string } : leerPlan(perfil?.preferences);
   // Ajustes → "Mostrar ingresos" (por defecto, sí).
   const mostrarIngresos = (perfil?.preferences as { mostrarIngresos?: boolean } | null)?.mostrarIngresos !== false;
   const tarjetasCategoria = Object.entries(actual.gastoPorCategoria).sort((a, b) => b[1] - a[1]);
@@ -169,6 +172,7 @@ export function VistaInicio({ categorias, topes, alerta, version, onEditar }: Pr
           <Texto variante="suave" style={{ textAlign: 'center' }}>
             {t('inicio.vacio.detalle')}
           </Texto>
+          <Boton titulo={t('ejemplo.verCorto')} variante="secundario" onPress={() => cambiarModoEjemplo(true)} />
         </Tarjeta>
       ) : sinNada ? (
         <Texto variante="suave" style={{ textAlign: 'center' }}>

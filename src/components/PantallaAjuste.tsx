@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
+import { BandaEjemplo } from '@/ejemplo/BandaEjemplo';
 import { ALTO_TOCABLE, ESPACIO, sombraSuave, useTema } from '@/theme';
 
 import { Icono } from './Icono';
@@ -38,6 +39,7 @@ export function PantallaAjuste({ titulo, detalle, children }: { titulo: string; 
           {titulo}
         </Texto>
       </View>
+      <BandaEjemplo />
       {detalle ? <Texto variante="suave">{detalle}</Texto> : null}
       {children}
       <View style={{ height: ESPACIO.xl }} />

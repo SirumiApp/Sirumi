@@ -7,6 +7,7 @@ import { Linking, View } from 'react-native';
 import { actualizarPreferencias, usePerfil } from '@/auth/perfil';
 import { useSesion } from '@/auth/sesion';
 import { compartirArchivo, todosMisMovimientos } from '@/ajustes/archivos';
+import { cambiarModoEjemplo, useModoEjemplo } from '@/ejemplo/modo';
 import { Aviso } from '@/components/Aviso';
 import { BotonApariencia } from '@/components/BotonApariencia';
 import { FilaAjuste } from '@/components/FilaAjuste';
@@ -34,6 +35,7 @@ export default function Ajustes() {
   const [aviso, setAviso] = useState<{ texto: string; tipo: 'info' | 'error' } | null>(null);
   const version = Constants.expoConfig?.version ?? '1.0.0';
   const pais = paisPorCodigo(perfil?.country ?? 'CO');
+  const ejemplo = useModoEjemplo();
   const mostrarIngresos = (perfil?.preferences as { mostrarIngresos?: boolean } | null)?.mostrarIngresos !== false;
 
   async function exportarCsv() {
@@ -70,6 +72,13 @@ export default function Ajustes() {
       {aviso && <Aviso mensaje={aviso.texto} tipo={aviso.tipo} />}
 
       <GrupoAjustes titulo={t('ajustes.secciones.contenido')}>
+        <FilaAjuste
+          emoji="ojos"
+          titulo={t('ejemplo.ver')}
+          detalle={t('ejemplo.verDetalle')}
+          onPress={() => cambiarModoEjemplo(!ejemplo)}
+          derecha={<Interruptor etiqueta={t('ejemplo.ver')} encendido={ejemplo} onCambio={cambiarModoEjemplo} />}
+        />
         <FilaAjuste emoji="aguacate" titulo={t('ajustes.categorias.titulo')} detalle={t('ajustes.categorias.detalle')} onPress={() => router.push('/ajustes/categorias')} />
         <FilaAjuste emoji="bolsa-de-dinero" titulo={t('ajustes.topes.titulo')} detalle={t('ajustes.topes.detalle')} onPress={() => router.navigate('/topes')} />
         <FilaAjuste

@@ -1,6 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useSesion } from '@/auth/sesion';
+import { planPersonalEjemplo } from '@/ejemplo/datosEjemplo';
+import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
+import { hoyEn } from '@/lib/fechas';
 import { supabase } from '@/lib/supabase';
 
 export type Meta = { id: string; nombre: string; emoji: string; objetivo: number; ahorrado: number };
@@ -50,7 +54,15 @@ export function usePlanPersonal(version = 0) {
     cargar();
   }, [cargar]);
 
-  return datos;
+  const ejemplo = useModoEjemplo();
+  const { t } = useTranslation();
+  const deEjemplo = useMemo(() => {
+    if (!ejemplo) return null;
+    const d = planPersonalEjemplo(hoyEn());
+    const tx = <T extends { nombre: string }>(l: T[]) => l.map((x) => ({ ...x, nombre: t(x.nombre as never) as string }));
+    return { ...d, metas: tx(d.metas), deudas: tx(d.deudas), activos: tx(d.activos) };
+  }, [ejemplo, t]);
+  return deEjemplo ?? datos;
 }
 
 /** Después de cualquier cambio: guarda la foto del patrimonio de este mes (A7). */
@@ -61,30 +73,36 @@ async function conFoto<T extends { error: unknown }>(promesa: PromiseLike<T>): P
 }
 
 export function guardarMeta(d: { nombre: string; emoji: string; objetivo: number; ahorrado: number }, id?: string) {
+  if (modoEjemploActivo()) return sinGuardar();
   const fila = { name: d.nombre.trim(), emoji: d.emoji, target: Math.round(d.objetivo), saved: Math.min(Math.round(d.ahorrado), Math.round(d.objetivo)) };
   return conFoto(id ? supabase.from('goals').update(fila).eq('id', id) : supabase.from('goals').insert(fila));
 }
 
 export function guardarDeuda(d: { nombre: string; emoji: string; saldo: number; tasaEA: number; cuota: number }, id?: string) {
+  if (modoEjemploActivo()) return sinGuardar();
   const fila = { name: d.nombre.trim(), emoji: d.emoji, balance: Math.round(d.saldo), rate_ea: d.tasaEA, min_payment: Math.round(d.cuota) };
   return conFoto(id ? supabase.from('debts').update(fila).eq('id', id) : supabase.from('debts').insert(fila));
 }
 
 export function guardarActivo(d: { nombre: string; emoji: string; valor: number }, id?: string) {
+  if (modoEjemploActivo()) return sinGuardar();
   const fila = { name: d.nombre.trim(), emoji: d.emoji, value: Math.round(d.valor) };
   return conFoto(id ? supabase.from('assets').update(fila).eq('id', id) : supabase.from('assets').insert(fila));
 }
 
 export function borrarDelPlan(tabla: 'goals' | 'debts' | 'assets', id: string) {
+  if (modoEjemploActivo()) return sinGuardar();
   return conFoto(supabase.from(tabla).delete().eq('id', id));
 }
 
 /** A5 · El servidor aplica la regla: nunca supera el objetivo. */
 export function abonarMeta(id: string, monto: number) {
+  if (modoEjemploActivo()) return sinGuardar();
   return conFoto(supabase.rpc('abonar_meta', { meta: id, monto: Math.round(monto) }));
 }
 
 /** A6 · El servidor aplica la regla: el saldo nunca queda negativo. */
 export function abonarDeuda(id: string, monto: number) {
+  if (modoEjemploActivo()) return sinGuardar();
   return conFoto(supabase.rpc('abonar_deuda', { deuda: id, monto: Math.round(monto) }));
 }

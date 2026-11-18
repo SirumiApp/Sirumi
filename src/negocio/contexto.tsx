@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { avisarEjemplo, modoEjemploActivo } from '@/ejemplo/modo';
 import { hoyEn, partes } from '@/lib/fechas';
 import type { ParametrosImpuestos } from '@/lib/impuestos';
 import type { MovNegocio } from '@/lib/negocio';
@@ -30,7 +31,11 @@ export function ProveedorNegocio({ children }: { children: ReactNode }) {
     if (conNegocio) cargarParametrosImpuestos(partes(hoyEn()).anio).then(setParametros);
   }, [conNegocio]);
   const actualizar = useCallback(() => setVersion((v) => v + 1), []);
-  const abrirHoja = useCallback((movimiento: MovNegocio | null) => setHoja({ abierta: true, movimiento }), []);
+  const abrirHoja = useCallback((movimiento: MovNegocio | null) => {
+    // En el modo ejemplo no se registra nada: se avisa y se ofrece salir.
+    if (modoEjemploActivo()) return avisarEjemplo();
+    setHoja({ abierta: true, movimiento });
+  }, []);
   const { negocio, cuentas, tarjetas, movimientos, traslados, cargando } = datos;
 
   const valor = useMemo(

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 
 import { usePerfil } from '@/auth/perfil';
 import { useSesion } from '@/auth/sesion';
+import { avisarEjemplo, modoEjemploActivo } from '@/ejemplo/modo';
 import { hoyEn } from '@/lib/fechas';
 import type { Movimiento } from '@/lib/personal';
 
@@ -43,7 +44,11 @@ export function ProveedorPersonal({ children }: { children: ReactNode }) {
     },
     [sesion, perfil?.preferences],
   );
-  const abrirHoja = useCallback((movimiento: Movimiento | null) => setHoja({ abierta: true, movimiento }), []);
+  const abrirHoja = useCallback((movimiento: Movimiento | null) => {
+    // En el modo ejemplo no se registra nada: se avisa y se ofrece salir.
+    if (modoEjemploActivo()) return avisarEjemplo();
+    setHoja({ abierta: true, movimiento });
+  }, []);
 
   const valor = useMemo(
     () => ({ categorias, topes, alerta, version, actualizar, recargarCategorias, cambiarAlerta, abrirHoja }),

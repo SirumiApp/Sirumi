@@ -2,6 +2,7 @@ import { router, usePathname } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
+import { BandaEjemplo } from '@/ejemplo/BandaEjemplo';
 import { ALTO_TOCABLE, ESPACIO, FUENTES, sombraSuave, useTema } from '@/theme';
 
 import { Icono, type NombreIcono } from './Icono';
@@ -63,6 +64,7 @@ export function Encabezado() {
   );
 
   return (
+    <View style={{ gap: ESPACIO.s + 4 }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
       <View
         accessibilityRole="tablist"
@@ -73,7 +75,8 @@ export function Encabezado() {
       <View style={{ flex: 1 }} />
       <BotonRedondo icono="ajustes" etiqueta={t('navegacion.ajustes')} onPress={() => router.push('/ajustes')} />
       <BotonRedondo icono={oscuro ? 'sol' : 'luna'} etiqueta={t('navegacion.cambiarModo')} onPress={() => cambiarApariencia(oscuro ? 'claro' : 'oscuro')} />
-
+    </View>
+    <BandaEjemplo />
     </View>
   );
 }

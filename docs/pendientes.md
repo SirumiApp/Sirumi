@@ -24,6 +24,10 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [ ] Inventario a costo en el arranque (cuando existan productos).
 - [ ] Sirumi POS (módulo 05) e inventario (módulo 04).
 
+## Modo ejemplo
+- [x] Ajustes → "Ver la app con un ejemplo" y botón "Ver un ejemplo primero" cuando la cuenta está vacía. Datos inventados en `src/ejemplo/` (no tocan la base de datos; guardar está bloqueado con aviso).
+- [ ] Cuando existan productos, inventario y POS: sumarles datos de ejemplo.
+
 ## Producción
 - [ ] Proyecto de Supabase de producción en us-east-1 (el actual `sirumi-dev` está en us-east-2).
 - [ ] Servicio de correo propio (SMTP) y volver a activar la confirmación de correo con código.

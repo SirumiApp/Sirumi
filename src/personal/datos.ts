@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { actualizarPreferencias } from '@/auth/perfil';
 import { useSesion } from '@/auth/sesion';
@@ -6,6 +7,9 @@ import type { Tables } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
 import type { Movimiento, TipoMovimiento } from '@/lib/personal';
 import { supabase } from '@/lib/supabase';
+import { CATEGORIAS_EJEMPLO, esTextoEjemplo, movimientosPersonalesEjemplo, TOPES_EJEMPLO } from '@/ejemplo/datosEjemplo';
+import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
+import { hoyEn } from '@/lib/fechas';
 
 export type Categoria = Tables<'categories'>;
 
@@ -27,7 +31,8 @@ export function useCategorias() {
     cargar();
   }, [cargar]);
 
-  return { categorias, recargar: cargar };
+  const ejemplo = useModoEjemplo();
+  return { categorias: ejemplo ? CATEGORIAS_EJEMPLO : categorias, recargar: cargar };
 }
 
 /** Movimientos personales entre dos fechas (incluidas). Cambiar `version` los vuelve a leer. */
@@ -66,6 +71,18 @@ export function useMovimientos(desde: Fecha, hasta: Fecha, version = 0) {
     cargar();
   }, [cargar]);
 
+  const ejemplo = useModoEjemplo();
+  const { t } = useTranslation();
+  const deEjemplo = useMemo(
+    () =>
+      ejemplo
+        ? movimientosPersonalesEjemplo(hoyEn())
+            .filter((m) => m.fecha >= desde && m.fecha <= hasta)
+            .map((m) => ({ ...m, descripcion: esTextoEjemplo(m.descripcion) ? (t(m.descripcion as never) as string) : m.descripcion }))
+        : null,
+    [ejemplo, desde, hasta, t],
+  );
+  if (deEjemplo) return { movimientos: deEjemplo, cargando: false, recargar: cargar };
   return { movimientos, cargando, recargar: cargar };
 }
 
@@ -78,6 +95,7 @@ export type DatosMovimiento = {
 };
 
 export async function guardarMovimiento(datos: DatosMovimiento, id?: string) {
+  if (modoEjemploActivo()) return sinGuardar();
   const fila = {
     date: datos.fecha,
     kind: datos.tipo,
@@ -89,6 +107,7 @@ export async function guardarMovimiento(datos: DatosMovimiento, id?: string) {
 }
 
 export async function borrarMovimiento(id: string) {
+  if (modoEjemploActivo()) return sinGuardar();
   return supabase.from('movements').delete().eq('id', id);
 }
 
@@ -110,11 +129,13 @@ export function useTopes(version = 0) {
     cargar();
   }, [cargar]);
 
-  return { topes, recargar: cargar };
+  const ejemplo = useModoEjemplo();
+  return { topes: ejemplo ? TOPES_EJEMPLO : topes, recargar: cargar };
 }
 
 /** Guarda el tope de una categoría; con 0 lo quita. */
 export async function guardarTope(categoriaId: string, monto: number) {
+  if (modoEjemploActivo()) return sinGuardar();
   if (monto <= 0) return supabase.from('budgets').delete().eq('category_id', categoriaId);
   return supabase.from('budgets').upsert({ category_id: categoriaId, monthly_limit: Math.round(monto) }, { onConflict: 'user_id,category_id' });
 }
@@ -132,6 +153,7 @@ export function leerAlerta(preferencias: unknown): AlertaTopes {
 }
 
 export async function guardarAlerta(idUsuario: string, preferencias: unknown, alerta: AlertaTopes) {
+  if (modoEjemploActivo()) return sinGuardar();
   return actualizarPreferencias(idUsuario, preferencias, { topes: { alerta: alerta.alertaActiva, umbral: alerta.umbral } });
 }
 
@@ -139,6 +161,7 @@ export type DatosCategoria = { nombre: string; emoji: string; color: string; tip
 
 /** Crea una categoría (id vacío) o cambia una existente. */
 export async function guardarCategoria(datos: DatosCategoria, existente?: Categoria) {
+  if (modoEjemploActivo()) return sinGuardar();
   if (existente) {
     return supabase
       .from('categories')

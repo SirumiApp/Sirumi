@@ -12,6 +12,7 @@ import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { hoyEn, partes, periodoAnterior } from '@/lib/fechas';
 import { TIPOS_NEGOCIO } from '@/lib/negocio';
+import { cambiarModoEjemplo } from '@/ejemplo/modo';
 import { useNegocio } from '@/negocio/contexto';
 import { crearMiNegocio } from '@/negocio/datos';
 import { EMOJI_TIPO } from '@/negocio/HojaMovNegocio';
@@ -45,6 +46,7 @@ export default function ResumenNegocio() {
           <Texto variante="suave" style={{ textAlign: 'center' }}>
             {t('negocioApp.resumen.armaDetalle')}
           </Texto>
+          <Boton titulo={t('ejemplo.verCorto')} variante="secundario" onPress={() => cambiarModoEjemplo(true)} />
           <Boton
             titulo={t('negocioApp.resumen.armaBoton')}
             cargando={creando}
@@ -125,6 +127,7 @@ export default function ResumenNegocio() {
             </View>
           </View>
           <Boton titulo={t('negocioApp.resumen.armaBoton')} onPress={() => router.push('/arranque')} />
+          <Boton titulo={t('ejemplo.verCorto')} variante="texto" onPress={() => cambiarModoEjemplo(true)} />
         </View>
       )}
 
