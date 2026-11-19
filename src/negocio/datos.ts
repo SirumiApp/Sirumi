@@ -12,7 +12,7 @@ import { hoyEn } from '@/lib/fechas';
 import { nombreVariante } from '@/lib/inventario';
 import { supabase } from '@/lib/supabase';
 
-import { cargarPos, type FormaPagoPropia, type Venta } from '@/pos/datos';
+import { cargarPos, type CodigoDescuento, type FormaPagoPropia, type Venta } from '@/pos/datos';
 
 import { cargarInventario, type DatosInventario } from './inventarioDatos';
 
@@ -72,10 +72,11 @@ export type DatosNegocio = DatosInventario & {
   recurrentes: Recurrente[];
   ventas: Venta[];
   formasPago: FormaPagoPropia[];
+  codigos: CodigoDescuento[];
   cargando: boolean;
 };
 
-const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], contactos: [], recurrentes: [], bodegas: [], productos: [], stock: [], ventas: [], formasPago: [], cargando: true };
+const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], contactos: [], recurrentes: [], bodegas: [], productos: [], stock: [], ventas: [], formasPago: [], codigos: [], cargando: true };
 
 type FilaContacto = { id: string; kind: string; name: string; doc_type: string | null; doc_number: string | null; phone: string | null; email: string | null; address: string | null; city: string | null; notes: string | null };
 const aContacto = (c: FilaContacto): Contacto => ({
@@ -227,6 +228,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         variantes: p.variantes.map((v) => ({ ...v, color: tx(v.color), nombre: nombreVariante({ color: tx(v.color), talla: v.talla }) })),
       })),
       stock: STOCK_EJEMPLO,
+      codigos: [{ id: 'ej-cod-1', codigo: 'FERIA10', tipo: 'porcentaje', valor: 10, activo: true, vence: null }],
       ventas: pos.ventas.map((v) => ({
         ...v,
         pagos: v.pagos.map((p) => ({ ...p, nombre: tx(p.nombre) ?? '' })),

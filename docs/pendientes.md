@@ -27,14 +27,14 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] Sirumi POS (módulo 05): catálogo por bodega, venta libre, escáner, carrito, descuento (% o monto), cliente con registro y autorización, formas de pago (efectivo, cuentas, datáfono, propias, fiado), pago dividido, vuelto, cobro en una sola transacción, comprobante por WhatsApp, recibo de regalo, historial, devoluciones, sonido y vibración, costo real en Resultados y cierre del día.
 
 ## POS (lo que falta)
-- [ ] Códigos de descuento (crear y usar).
+- [x] Códigos de descuento (crear y usar).
 - [ ] Carritos guardados (atender a otro cliente y volver).
 - [x] Código de barras en todas partes (Shopify POS): escribir, generar, escanear con la cámara o con pistola lectora; en el POS la cámara queda abierta y suma un producto tras otro.
 - [x] IVA en el POS (D6): incluido en el precio por defecto, con opción de sumarlo; las ventas cuentan sin IVA y el IVA cobrado se muestra aparte.
 - [ ] IVA por producto (exentos o con otra tarifa, como 5%) y "IVA por pagar" en el balance.
 - [ ] Imprimir etiquetas de código de barras (PDF para impresora de etiquetas) e impresora de recibos Bluetooth.
 - [x] Vendedores con código (adelantado de la v2): el dueño crea códigos; el vendedor entra desde el onboarding o Ajustes y solo ve el POS de su bodega y sus ventas.
-- [ ] Informe de ventas por producto, por cuenta y por cliente.
+- [x] Informe de ventas por producto, vendedor, forma de pago y cliente.
 
 ## Inventario (módulo 04)
 - [x] 4a: reglas C1–C7 con pruebas; tablas y funciones de stock (nunca negativo, todo queda registrado); bodegas; lista de inventario; nuevo producto con tallas, colores, cantidades y códigos; detalle con stock por bodega, ajuste de conteo, variantes, editar y deshacer.
@@ -51,7 +51,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [ ] Cuando existan productos, inventario y POS: sumarles datos de ejemplo.
 
 ## Lo que sigue (pedido de Nicolás, nov 2026)
-- [ ] Códigos de descuento e informe de ventas (una por una, por producto, por vendedor).
+- [x] Códigos de descuento (D7) e informe de ventas (D8): más vendidos con ganancia, vendedores, formas de pago, clientes.
 - [ ] Importar extractos (CSV/Excel) por cuenta y mes, en negocio y personal (B9).
 - [ ] Calendario de impuestos y retenciones con avisos, y aviso mensual "sube tus extractos".
 - [ ] Pagos recurrentes personales con avisos.

@@ -257,3 +257,13 @@ Convenciones:
 - La plata que entra a la cuenta es el **total** (así la caja cuadra). En el estado de resultados las ventas del POS cuentan **sin el IVA** (por su base), y el IVA cobrado se muestra aparte como plata de la DIAN que hay que apartar.
 - La tarifa sale de la tabla de parámetros del año (19% en 2026). Si el negocio no es responsable de IVA, no se calcula nada de esto.
 
+### D7. Códigos de descuento
+- Cada código es del negocio: letras y números (3 a 20), sin importar mayúsculas al escribirlo. Da un **porcentaje** o un **monto fijo** (D1) y puede tener fecha de vencimiento.
+- Solo sirve si está activo y no ha vencido (vence al terminar el día indicado). Si no, se avisa "Ese código no existe o ya venció".
+- Ejemplo: NAVIDAD10 = 10% → bolso de 85.000 con NAVIDAD10 → descuento 8.500, total 76.500. La venta guarda qué código se usó.
+
+### D8. Informe de ventas (como Shopify POS)
+- Del período, sin contar las devueltas: ventas (total cobrado), número de ventas, ticket promedio (ventas / número de ventas), descuentos dados y unidades vendidas. Aparte, cuántas se devolvieron y por cuánto.
+- Por producto: unidades, ventas (suma de las líneas) y ganancia (ventas − costo × unidades; sin costo conocido no se calcula). Ordenado de más a menos vendido.
+- Por vendedor, por forma de pago (cada parte del pago cuenta en su forma) y por cliente.
+- Ejemplo: dos ventas de 100.000 y 50.000 y una devuelta de 30.000 → ventas 150.000, 2 ventas, ticket promedio 75.000, devoluciones 1 por 30.000.

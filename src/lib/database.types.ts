@@ -461,6 +461,47 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_codes: {
+        Row: {
+          active: boolean
+          business_id: string
+          code: string
+          created_at: string
+          expires_on: string | null
+          id: string
+          kind: string
+          value: number
+        }
+        Insert: {
+          active?: boolean
+          business_id: string
+          code: string
+          created_at?: string
+          expires_on?: string | null
+          id?: string
+          kind: string
+          value: number
+        }
+        Update: {
+          active?: boolean
+          business_id?: string
+          code?: string
+          created_at?: string
+          expires_on?: string | null
+          id?: string
+          kind?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_codes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           created_at: string
@@ -1030,6 +1071,7 @@ export type Database = {
           created_at: string
           date: string
           discount: number
+          discount_code: string | null
           id: string
           number: number
           payments: Json
@@ -1051,6 +1093,7 @@ export type Database = {
           created_at?: string
           date: string
           discount?: number
+          discount_code?: string | null
           id?: string
           number: number
           payments?: Json
@@ -1072,6 +1115,7 @@ export type Database = {
           created_at?: string
           date?: string
           discount?: number
+          discount_code?: string | null
           id?: string
           number?: number
           payments?: Json

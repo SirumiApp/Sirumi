@@ -320,6 +320,7 @@ export function ventasPosEjemplo(hoy: Fecha, movimientos: MovNegocio[]) {
       estado: 'pagada' as const,
       creada: `${m.fecha}T15:00:00.000Z`,
       vendedor: null,
+      codigo: null,
       lineas,
     };
   });

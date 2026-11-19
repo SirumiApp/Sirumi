@@ -20,6 +20,8 @@ function MasContenido() {
       </View>
 
       <GrupoAjustes>
+        <FilaAjuste emoji="grafico-de-barras" titulo={t('informeVentas.titulo')} detalle={t('informeVentas.detalle')} onPress={() => router.push('/informe-ventas')} />
+        <FilaAjuste emoji="etiqueta" titulo={t('codigos.titulo')} detalle={t('codigos.detalle')} onPress={() => router.push('/codigos')} />
         <FilaAjuste emoji="persona" titulo={t('vendedores.titulo')} detalle={t('vendedores.detalle')} onPress={() => router.push('/vendedores')} />
         <FilaAjuste emoji="tienda" titulo={t('pos.historial.titulo')} detalle={t('pos.historial.detalle')} onPress={() => router.push('/pos/ventas')} />
         <FilaAjuste emoji="paquete" titulo={t('inventario.titulo')} detalle={t('inventario.detalle')} onPress={() => router.push('/inventario')} />

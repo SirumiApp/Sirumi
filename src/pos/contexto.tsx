@@ -24,6 +24,8 @@ type EstadoPos = {
   recibido: number | null;
   /** D6 · Lo normal: el precio ya incluye el IVA. */
   ivaIncluido: boolean;
+  /** D7 · Código de descuento aplicado (el descuento queda en `descuento`). */
+  codigo: string | null;
   comprobante: Comprobante | null;
 };
 
@@ -46,6 +48,7 @@ const INICIAL: EstadoPos = {
   porcentaje: 50,
   recibido: null,
   ivaIncluido: true,
+  codigo: null,
   comprobante: null,
 };
 

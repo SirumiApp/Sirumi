@@ -17,6 +17,7 @@ import { CampoCantidad } from '@/inventario/Piezas';
 import { hoyEn } from '@/lib/fechas';
 import { formasDePago, type FormaPago } from '@/lib/formasPago';
 import { stockDeVariante } from '@/lib/inventario';
+import { aplicarCodigo } from '@/lib/ventas';
 import { dividirPago, sugerenciasEfectivo, totalesVenta, validarCobro, vuelto, type IvaVenta } from '@/lib/pos';
 import { useNegocio } from '@/negocio/contexto';
 import { leerErrorInventario } from '@/negocio/inventarioDatos';
@@ -37,7 +38,7 @@ export default function Cobrar() {
   const { colores } = useTema();
   const plata = usePlata();
   const perfil = usePerfil();
-  const { negocio, cuentas, contactos, stock, bodegas, formasPago, parametros, actualizar } = useNegocio();
+  const { negocio, cuentas, contactos, stock, bodegas, formasPago, codigos, parametros, actualizar } = useNegocio();
   const pos = usePos();
   const vendedor = negocio?.rol === 'seller';
   const bodega = (vendedor ? negocio?.bodegaAsignada : null) ?? pos.bodega ?? bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null;
@@ -47,6 +48,16 @@ export default function Cobrar() {
   const [error, setError] = useState<string | null>(null);
   const [cobrando, setCobrando] = useState(false);
   const [otroRecibido, setOtroRecibido] = useState(false);
+  const [escribiendoCodigo, setEscribiendoCodigo] = useState(!!pos.codigo);
+  const [textoCodigo, setTextoCodigo] = useState('');
+  const [errorCodigo, setErrorCodigo] = useState(false);
+
+  /** D7 · Aplica el código si está activo y vigente. */
+  function aplicar() {
+    const r = aplicarCodigo(textoCodigo, codigos, hoyEn());
+    if (!r) return setErrorCodigo(true);
+    pos.cambiar({ descuento: r.descuento, codigo: r.codigo });
+  }
 
   const formas = formasDePago(cuentas, formasPago);
   const nombreForma = (f: FormaPago) => (f.tipo === 'datafono' ? t('pos.datafono') : f.tipo === 'fiado' ? t('pos.fiado') : f.nombre);
@@ -113,6 +124,7 @@ export default function Cobrar() {
       descuento,
       recibido,
       iva,
+      codigo: pos.codigo,
       lineas: pos.lineas.map((l) => ({ variante: l.variante, nombre: l.nombre, precio: l.precio, cantidad: l.cantidad })),
       pagos,
     });
@@ -179,20 +191,22 @@ export default function Cobrar() {
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: ESPACIO.s }} accessibilityRole="radiogroup">
         <Chip
           texto={t('pos.sinDescuento')}
-          elegido={!pos.descuento && !montoDescuento}
+          elegido={!pos.descuento && !montoDescuento && !escribiendoCodigo}
           onPress={() => {
             setMontoDescuento(false);
-            pos.cambiar({ descuento: null });
+            setEscribiendoCodigo(false);
+            pos.cambiar({ descuento: null, codigo: null });
           }}
         />
         {DESCUENTOS.map((d) => (
           <Chip
             key={d}
             texto={`${d}%`}
-            elegido={pos.descuento?.tipo === 'porcentaje' && pos.descuento.valor === d}
+            elegido={!pos.codigo && pos.descuento?.tipo === 'porcentaje' && pos.descuento.valor === d}
             onPress={() => {
               setMontoDescuento(false);
-              pos.cambiar({ descuento: { tipo: 'porcentaje', valor: d } });
+              setEscribiendoCodigo(false);
+              pos.cambiar({ descuento: { tipo: 'porcentaje', valor: d }, codigo: null });
             }}
           />
         ))}
@@ -201,10 +215,58 @@ export default function Cobrar() {
           elegido={montoDescuento}
           onPress={() => {
             setMontoDescuento(true);
-            pos.cambiar({ descuento: { tipo: 'monto', valor: 0 } });
+            setEscribiendoCodigo(false);
+            pos.cambiar({ descuento: { tipo: 'monto', valor: 0 }, codigo: null });
           }}
         />
+        {codigos.length > 0 && (
+          <Chip
+            texto={pos.codigo ? pos.codigo : t('pos.codigo.chip')}
+            elegido={!!pos.codigo || escribiendoCodigo}
+            onPress={() => {
+              setMontoDescuento(false);
+              setEscribiendoCodigo(true);
+            }}
+          />
+        )}
       </View>
+      {escribiendoCodigo && !pos.codigo && (
+        <View style={{ flexDirection: 'row', gap: ESPACIO.s, alignItems: 'flex-end' }}>
+          <View style={{ flex: 1 }}>
+            <CampoTexto
+              etiqueta=""
+              accessibilityLabel={t('pos.codigo.escribir')}
+              placeholder={t('pos.codigo.escribir')}
+              value={textoCodigo}
+              onChangeText={(v) => {
+                setTextoCodigo(v);
+                setErrorCodigo(false);
+              }}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              onSubmitEditing={aplicar}
+              error={errorCodigo ? t('pos.codigo.invalido') : null}
+            />
+          </View>
+          <Boton titulo={t('pos.codigo.aplicar')} variante="secundario" onPress={aplicar} />
+        </View>
+      )}
+      {pos.codigo && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
+          <Texto variante="fuerte" color={colores.ingresoTexto} style={{ flex: 1 }}>
+            {t('pos.codigo.aplicado', { codigo: pos.codigo, descuento: plata(descuento) })}
+          </Texto>
+          <Boton
+            titulo={t('pos.codigo.quitar')}
+            variante="texto"
+            onPress={() => {
+              setEscribiendoCodigo(false);
+              setTextoCodigo('');
+              pos.cambiar({ descuento: null, codigo: null });
+            }}
+          />
+        </View>
+      )}
       {montoDescuento && <CampoDinero etiqueta={t('pos.montoDescuento')} valor={pos.descuento?.valor ?? 0} onCambio={(v) => pos.cambiar({ descuento: { tipo: 'monto', valor: v } })} />}
 
       {/* IVA (D6): solo para responsables de IVA */}
