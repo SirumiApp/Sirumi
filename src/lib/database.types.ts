@@ -892,6 +892,27 @@ export type Database = {
         }
         Relationships: []
       }
+      push_tokens: {
+        Row: {
+          platform: string | null
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          platform?: string | null
+          token: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          platform?: string | null
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       recurring_payments: {
         Row: {
           account_id: string | null
@@ -1325,6 +1346,7 @@ export type Database = {
       eliminar_mi_cuenta: { Args: never; Returns: undefined }
       es_dueno: { Args: { negocio: string }; Returns: boolean }
       es_miembro: { Args: { negocio: string }; Returns: boolean }
+      formato_pesos: { Args: { valor: number }; Returns: string }
       guardar_foto_patrimonio: { Args: never; Returns: undefined }
       hacer_principal: { Args: { bodega: string }; Returns: undefined }
       mover_inventario: {
@@ -1352,6 +1374,10 @@ export type Database = {
       recurrente_del_negocio: {
         Args: { negocio: string; recurrente: string }
         Returns: boolean
+      }
+      registrar_celular: {
+        Args: { plataforma: string; token_celular: string }
+        Returns: undefined
       }
       revisar_codigo: { Args: { codigo: string }; Returns: string }
       tarjeta_del_negocio: {

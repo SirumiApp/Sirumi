@@ -20,6 +20,7 @@ function MasContenido() {
       </View>
 
       <GrupoAjustes>
+        <FilaAjuste emoji="persona" titulo={t('vendedores.titulo')} detalle={t('vendedores.detalle')} onPress={() => router.push('/vendedores')} />
         <FilaAjuste emoji="tienda" titulo={t('pos.historial.titulo')} detalle={t('pos.historial.detalle')} onPress={() => router.push('/pos/ventas')} />
         <FilaAjuste emoji="paquete" titulo={t('inventario.titulo')} detalle={t('inventario.detalle')} onPress={() => router.push('/inventario')} />
       </GrupoAjustes>
@@ -43,7 +44,7 @@ function MasContenido() {
 
 export default function Mas() {
   return (
-    <SoloSi parte="negocio">
+    <SoloSi parte="negocio" soloDueno>
       <MasContenido />
     </SoloSi>
   );

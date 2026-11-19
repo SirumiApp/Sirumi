@@ -1,4 +1,4 @@
-import type { Tabs } from 'expo-router';
+import { router, type Tabs } from 'expo-router';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
@@ -39,7 +39,9 @@ export function BarraFlotante({ state, navigateToTab }: PropsBarra) {
   const abajo = useSafeAreaInsets().bottom;
   const actual = state.routes[state.index]?.name;
   const enNegocio = NEGOCIO.some((i) => i !== '+' && i.ruta === actual);
-  const items = enNegocio ? NEGOCIO : PERSONAL;
+  const vendedor = negocio.negocio?.rol === 'seller';
+  // El vendedor solo tiene su resumen de ventas y el + abre el POS.
+  const items = enNegocio ? (vendedor ? NEGOCIO.filter((i) => i === '+' || i.ruta === 'negocio') : NEGOCIO) : PERSONAL;
 
   return (
     <View
@@ -64,7 +66,7 @@ export function BarraFlotante({ state, navigateToTab }: PropsBarra) {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={t('navegacion.agregar')}
-                  onPress={() => (enNegocio ? negocio.abrirHoja(null) : abrirHoja(null))}
+                  onPress={() => (enNegocio ? (vendedor ? router.push('/pos') : negocio.abrirHoja(null)) : abrirHoja(null))}
                   style={({ pressed }) => [
                     {
                       width: 56,

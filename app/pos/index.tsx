@@ -31,7 +31,9 @@ export default function Catalogo() {
   const plata = usePlata();
   const { negocio, bodegas, productos, stock, parametros } = useNegocio();
   const pos = usePos();
-  const bodega = pos.bodega ?? bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null;
+  // El vendedor vende desde su bodega asignada (no la puede cambiar).
+  const bodegaFija = negocio?.rol === 'seller' ? negocio.bodegaAsignada : null;
+  const bodega = bodegaFija ?? pos.bodega ?? bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null;
   const [busqueda, setBusqueda] = useState('');
   const [coleccion, setColeccion] = useState<string | null>(null);
   const [elegirDe, setElegirDe] = useState<Producto | null>(null);
@@ -135,7 +137,7 @@ export default function Catalogo() {
           <Boton titulo={`${t('pos.irACobrar')} →`} disabled={!pos.lineas.length} onPress={() => router.push('/pos/cobrar')} style={{ paddingHorizontal: ESPACIO.l }} />
         </View>
       }>
-      {bodegas.length > 1 && (
+      {bodegas.length > 1 && !bodegaFija && (
         <View style={{ gap: ESPACIO.s }}>
           <Texto variante="fuerte">{t('pos.bodega')}</Texto>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, marginHorizontal: -ESPACIO.m }} contentContainerStyle={{ gap: ESPACIO.s, paddingHorizontal: ESPACIO.m }}>

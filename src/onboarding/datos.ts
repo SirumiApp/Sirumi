@@ -20,6 +20,9 @@ export type DatosOnboarding = {
   numeroDocumento: string;
   uso: Uso;
   negocio: string;
+  /** Código de invitación (vendedor) y el negocio al que pertenece, cuando ya se revisó. */
+  codigo: string;
+  negocioDelCodigo: string | null;
   objetivo: Objetivo;
   ingreso: number;
   ahorro: number;
@@ -40,6 +43,8 @@ export const DATOS_INICIALES: DatosOnboarding = {
   numeroDocumento: '',
   uso: 'ambos',
   negocio: '',
+  codigo: '',
+  negocioDelCodigo: null,
   objetivo: 'ahorro',
   ingreso: 0,
   ahorro: 0,
@@ -73,7 +78,7 @@ export function incluyePersonal(d: DatosOnboarding): boolean {
 }
 
 export function incluyeNegocio(d: DatosOnboarding): boolean {
-  return d.uso !== 'personal';
+  return d.uso === 'negocio' || d.uso === 'ambos';
 }
 
 /** Paso 5: cuánto separa, cuánto le queda para gastar (A4/A5) y si el plan es válido. */
@@ -108,6 +113,7 @@ export function paraGuardar(d: DatosOnboarding, versionPolitica: string, idioma:
     document_number: numeroDocumento || null,
     language: idioma,
     usage: d.uso,
+    invite_code: d.uso === 'vendedor' ? d.codigo.trim().toUpperCase() : undefined,
     business_name: incluyeNegocio(d) ? d.negocio.trim() || porDefecto.negocio : null,
     warehouse_name: porDefecto.bodega,
     cash_account_name: porDefecto.efectivo,

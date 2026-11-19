@@ -5,7 +5,8 @@ Lista viva de lo que falta o hay que volver a revisar. Se actualiza al terminar 
 ## Ajustes (volver a revisar con Nicolás)
 Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html` y el prototipo nuevo de nov 2026):
 - [x] **Período por defecto**: decidido con Nicolás (nov 2026): el mes va siempre del 1 al último día, en personal y en negocio. No se agrega el ajuste.
-- [ ] **Notificaciones** (permitir, alertas de topes, resumen semanal/mensual, alerta de ritmo): requieren la app instalada (no funcionan en Expo Go).
+- [x] **Notificaciones**: aviso de cada venta al dueño (servidor → Expo) y recordatorios de pagos recurrentes (en el celular). En Expo Go para iPhone llegan; en Android hace falta la app instalada.
+- [ ] Más avisos: topes, resumen semanal, calendario de impuestos, "sube tus extractos".
 - [ ] **Términos de servicio**: falta el texto (Fase 3, paso 11).
 - [ ] **Importar CSV** (desde un CSV exportado de la app).
 - [ ] **¿Te gusta la app? Déjanos una reseña**: cuando esté en las tiendas.
@@ -21,7 +22,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] Impuestos estimados (B7) en la utilidad neta del Resumen (tabla `tax_parameters` por año).
 - [x] Clientes y proveedores (ficha, autorización Ley 1581, estadísticas) y contacto en los movimientos.
 - [x] Pagos recurrentes con aviso dentro de la app (Resumen) y "Registrar pago".
-- [ ] Notificación en el celular para los pagos recurrentes (requiere la app instalada).
+- [x] Notificación en el celular para los pagos recurrentes.
 - [x] Inventario a costo en el arranque y en el balance (sale de los productos).
 - [x] Sirumi POS (módulo 05): catálogo por bodega, venta libre, escáner, carrito, descuento (% o monto), cliente con registro y autorización, formas de pago (efectivo, cuentas, datáfono, propias, fiado), pago dividido, vuelto, cobro en una sola transacción, comprobante por WhatsApp, recibo de regalo, historial, devoluciones, sonido y vibración, costo real en Resultados y cierre del día.
 
@@ -32,7 +33,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] IVA en el POS (D6): incluido en el precio por defecto, con opción de sumarlo; las ventas cuentan sin IVA y el IVA cobrado se muestra aparte.
 - [ ] IVA por producto (exentos o con otra tarifa, como 5%) y "IVA por pagar" en el balance.
 - [ ] Imprimir etiquetas de código de barras (PDF para impresora de etiquetas) e impresora de recibos Bluetooth.
-- [ ] Vendedores con código (v2).
+- [x] Vendedores con código (adelantado de la v2): el dueño crea códigos; el vendedor entra desde el onboarding o Ajustes y solo ve el POS de su bodega y sus ventas.
 - [ ] Informe de ventas por producto, por cuenta y por cliente.
 
 ## Inventario (módulo 04)
@@ -48,6 +49,13 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 ## Modo ejemplo
 - [x] Ajustes → "Ver la app con un ejemplo" y botón "Ver un ejemplo primero" cuando la cuenta está vacía. Datos inventados en `src/ejemplo/` (no tocan la base de datos; guardar está bloqueado con aviso).
 - [ ] Cuando existan productos, inventario y POS: sumarles datos de ejemplo.
+
+## Lo que sigue (pedido de Nicolás, nov 2026)
+- [ ] Códigos de descuento e informe de ventas (una por una, por producto, por vendedor).
+- [ ] Importar extractos (CSV/Excel) por cuenta y mes, en negocio y personal (B9).
+- [ ] Calendario de impuestos y retenciones con avisos, y aviso mensual "sube tus extractos".
+- [ ] Pagos recurrentes personales con avisos.
+- [ ] Factura electrónica DIAN (después): conectar con un proveedor tecnológico autorizado.
 
 ## Producción
 - [ ] Proyecto de Supabase de producción en us-east-1 (el actual `sirumi-dev` está en us-east-2).

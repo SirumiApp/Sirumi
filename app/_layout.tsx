@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 
 import { ProveedorSesion, useSesion } from '@/auth/sesion';
+import { escucharToques, refrescarRegistro } from '@/notificaciones';
 import { cargarIdiomaGuardado } from '@/i18n';
 import { ProveedorNegocio } from '@/negocio/contexto';
 import { ProveedorPersonal } from '@/personal/contexto';
@@ -37,6 +38,13 @@ function Navegacion() {
   useEffect(() => {
     if (!esperando) SplashScreen.hideAsync();
   }, [esperando]);
+
+  // Notificaciones: tocar un aviso abre lo que avisa; con sesión, el celular queda registrado para recibir avisos de venta.
+  useEffect(() => escucharToques(), []);
+  const idUsuario = sesion?.user.id;
+  useEffect(() => {
+    if (idUsuario && onboardingListo) refrescarRegistro();
+  }, [idUsuario, onboardingListo]);
 
   if (esperando) return null;
 
@@ -76,6 +84,7 @@ function Navegacion() {
               <Stack.Screen name="inventario/mercancia" />
               <Stack.Screen name="inventario/importar" />
               <Stack.Screen name="pos" />
+              <Stack.Screen name="vendedores" />
             </Stack.Protected>
             <Stack.Protected guard={!sesion}>
               <Stack.Screen name="(auth)" />

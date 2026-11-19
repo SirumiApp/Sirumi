@@ -23,6 +23,8 @@ import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from '@/personal/SelectorPeriodo';
 import { ALTO_TOCABLE, COLORES_CATEGORIA, ESPACIO, FUENTES, PALETA, sombraSuave, useTema } from '@/theme';
 import { SoloSi } from '@/components/SoloSi';
+import { TarjetaAvisos } from '@/notificaciones/TarjetaAvisos';
+import { VistaVendedor } from '@/pos/VistaVendedor';
 
 /** Negocio · Resumen (docs/specs/03-negocio.md, §2): ¿estoy ganando plata? */
 function ResumenNegocioContenido() {
@@ -122,6 +124,7 @@ function ResumenNegocioContenido() {
       </Pressable>
 
       <Boton titulo={`${t('pos.vender')}  →`} onPress={() => router.push('/pos')} />
+      <TarjetaAvisos />
 
       {!negocio.configuracion.arranque_listo && (
         <View style={{ gap: ESPACIO.s, padding: ESPACIO.l, borderRadius: 20, backgroundColor: colores.seleccionado }}>
@@ -310,9 +313,8 @@ function ResumenNegocioContenido() {
 }
 
 export default function ResumenNegocio() {
+  const { negocio } = useNegocio();
   return (
-    <SoloSi parte="negocio">
-      <ResumenNegocioContenido />
-    </SoloSi>
+    <SoloSi parte="negocio">{negocio?.rol === 'seller' ? <VistaVendedor /> : <ResumenNegocioContenido />}</SoloSi>
   );
 }

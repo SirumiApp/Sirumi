@@ -8,6 +8,9 @@ describe('qué parte de la app se ve según el onboarding', () => {
     expect([vePersonal(usoDeApp('negocio')), veNegocio(usoDeApp('negocio'))]).toEqual([false, true]);
     expect([vePersonal(usoDeApp('ambos')), veNegocio(usoDeApp('ambos'))]).toEqual([true, true]);
   });
+  it('quien vende con un código solo ve el negocio (su POS)', () => {
+    expect([vePersonal(usoDeApp('vendedor')), veNegocio(usoDeApp('vendedor'))]).toEqual([false, true]);
+  });
   it('si no hay nada guardado se muestran las dos', () => {
     expect(usoDeApp(null)).toBe('ambos');
     expect(usoDeApp('otra cosa')).toBe('ambos');

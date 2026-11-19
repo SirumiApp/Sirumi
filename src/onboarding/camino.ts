@@ -1,11 +1,12 @@
 import type { Objetivo } from '@/lib/plan';
 
-export type Uso = 'personal' | 'negocio' | 'ambos';
+/** 'vendedor': le dieron un código para vender en el negocio de alguien (solo ve ese POS). */
+export type Uso = 'personal' | 'negocio' | 'ambos' | 'vendedor';
 export type Paso = 'pais' | 'datos' | 'uso' | 'objetivo' | 'plan' | 'privacidad' | 'listo';
 
 /** Los pasos que ve la persona según lo que eligió (docs/specs/01-onboarding.md). */
 export function caminoDePasos(uso: Uso, objetivo: Objetivo): Paso[] {
-  const incluyePersonal = uso !== 'negocio';
+  const incluyePersonal = uso === 'personal' || uso === 'ambos';
   return [
     'pais',
     'datos',

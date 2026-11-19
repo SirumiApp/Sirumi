@@ -245,7 +245,7 @@ function ResultadosContenido() {
 
 export default function Resultados() {
   return (
-    <SoloSi parte="negocio">
+    <SoloSi parte="negocio" soloDueno>
       <ResultadosContenido />
     </SoloSi>
   );

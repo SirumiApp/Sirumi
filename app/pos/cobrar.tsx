@@ -39,7 +39,8 @@ export default function Cobrar() {
   const perfil = usePerfil();
   const { negocio, cuentas, contactos, stock, bodegas, formasPago, parametros, actualizar } = useNegocio();
   const pos = usePos();
-  const bodega = pos.bodega ?? bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null;
+  const vendedor = negocio?.rol === 'seller';
+  const bodega = (vendedor ? negocio?.bodegaAsignada : null) ?? pos.bodega ?? bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null;
   const [hojaCliente, setHojaCliente] = useState(false);
   const [montoDescuento, setMontoDescuento] = useState(pos.descuento?.tipo === 'monto');
   const [otra, setOtra] = useState<{ nombre: string; cuenta: string | null } | null>(null);
@@ -235,7 +236,7 @@ export default function Cobrar() {
             accessibilityRole="radio"
             accessibilityState={{ selected: pos.forma === f.clave }}
             onPress={() => elegirForma(f)}
-            onLongPress={() => quitarForma(f)}
+            onLongPress={() => !vendedor && quitarForma(f)}
             style={({ pressed }) => ({
               minHeight: ALTO_TOCABLE,
               paddingHorizontal: ESPACIO.m,
@@ -249,7 +250,7 @@ export default function Cobrar() {
             </Texto>
           </Pressable>
         ))}
-        <Chip texto={t('pos.otro')} elegido={!!otra} onPress={() => setOtra({ nombre: '', cuenta: cuentas.find((c) => c.principal)?.id ?? null })} />
+        {!vendedor && <Chip texto={t('pos.otro')} elegido={!!otra} onPress={() => setOtra({ nombre: '', cuenta: cuentas.find((c) => c.principal)?.id ?? null })} />}
       </View>
       {otra && (
         <Tarjeta style={{ gap: ESPACIO.s }}>

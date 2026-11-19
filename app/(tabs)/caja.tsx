@@ -187,7 +187,7 @@ function CajaContenido() {
 
 export default function Caja() {
   return (
-    <SoloSi parte="negocio">
+    <SoloSi parte="negocio" soloDueno>
       <CajaContenido />
     </SoloSi>
   );

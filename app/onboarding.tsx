@@ -69,6 +69,7 @@ export default function OnboardingPantalla() {
   }
 
   function puedeSeguir(): boolean {
+    if (paso === 'uso' && d.uso === 'vendedor') return !!d.negocioDelCodigo;
     if (paso === 'datos') return Object.keys(erroresDatosPersonales(d, { pideContrasena: !conSesion })).length === 0;
     if (paso === 'plan') return planDelOnboarding(d).error === null;
     if (paso === 'privacidad') return !faltanObligatorias(d.consentimientos);

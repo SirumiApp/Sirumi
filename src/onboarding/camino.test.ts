@@ -14,6 +14,9 @@ describe('camino de pasos', () => {
   it('solo negocio se salta objetivo y plan', () => {
     expect(caminoDePasos('negocio', 'ahorro')).toEqual(['pais', 'datos', 'uso', 'privacidad', 'listo']);
   });
+  it('quien viene a vender con un código se salta objetivo y plan', () => {
+    expect(caminoDePasos('vendedor', 'ahorro')).toEqual(['pais', 'datos', 'uso', 'privacidad', 'listo']);
+  });
   it('avanza y retrocede según el camino', () => {
     expect(pasoSiguiente('uso', 'negocio', 'ahorro')).toBe('privacidad');
     expect(pasoAnterior('privacidad', 'negocio', 'ahorro')).toBe('uso');

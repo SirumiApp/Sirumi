@@ -73,7 +73,7 @@ export default function DetalleVenta() {
       )}
       <VistaComprobante c={c} />
       <Boton titulo={t('pos.historial.reenviar')} variante="secundario" onPress={() => Share.share({ message: textoRecibo(c, negocio?.nombre ?? 'Sirumi', t, plata) })} />
-      {v.estado !== 'devuelta' && <Boton titulo={t('pos.historial.devolver')} variante="texto" cargando={devolviendo} onPress={preguntarDevolver} />}
+      {v.estado !== 'devuelta' && negocio?.rol !== 'seller' && <Boton titulo={t('pos.historial.devolver')} variante="texto" cargando={devolviendo} onPress={preguntarDevolver} />}
       {error && <Aviso mensaje={error} />}
     </PantallaPos>
   );

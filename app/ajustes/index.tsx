@@ -9,6 +9,7 @@ import { actualizarPerfil, actualizarPreferencias, usePerfil } from '@/auth/perf
 import { useSesion } from '@/auth/sesion';
 import { compartirArchivo, todosMisMovimientos } from '@/ajustes/archivos';
 import { cambiarModoEjemplo, useModoEjemplo } from '@/ejemplo/modo';
+import { TarjetaAvisos } from '@/notificaciones/TarjetaAvisos';
 import { sonidoActivo } from '@/pos/aviso';
 import { Aviso } from '@/components/Aviso';
 import { BotonApariencia } from '@/components/BotonApariencia';
@@ -40,6 +41,7 @@ export default function Ajustes() {
   const pais = paisPorCodigo(perfil?.country ?? 'CO');
   const ejemplo = useModoEjemplo();
   const uso = usoDeApp(perfil?.usage);
+  const avisos = ((perfil?.preferences as { notificaciones?: { ventas?: boolean; recordatorios?: boolean } } | null)?.notificaciones ?? {});
   const mostrarIngresos = (perfil?.preferences as { mostrarIngresos?: boolean } | null)?.mostrarIngresos !== false;
 
   async function exportarCsv() {
@@ -87,6 +89,39 @@ export default function Ajustes() {
         </View>
       </GrupoAjustes>
 
+      {/* Notificaciones del celular */}
+      <GrupoAjustes titulo={t('notificaciones.titulo')}>
+        <View style={{ paddingVertical: ESPACIO.s }}>
+          <TarjetaAvisos siempre />
+        </View>
+        {veNegocio(uso) && (
+          <FilaAjuste
+            emoji="bolsa-de-dinero"
+            titulo={t('notificaciones.ventas')}
+            detalle={t('notificaciones.ventasDetalle')}
+            derecha={
+              <Interruptor
+                etiqueta={t('notificaciones.ventas')}
+                encendido={avisos.ventas !== false}
+                onCambio={(valor) => sesion && actualizarPreferencias(sesion.user.id, perfil?.preferences, { notificaciones: { ...avisos, ventas: valor } })}
+              />
+            }
+          />
+        )}
+        <FilaAjuste
+          emoji="calendario"
+          titulo={t('notificaciones.recordatorios')}
+          detalle={t('notificaciones.recordatoriosDetalle')}
+          derecha={
+            <Interruptor
+              etiqueta={t('notificaciones.recordatorios')}
+              encendido={avisos.recordatorios !== false}
+              onCambio={(valor) => sesion && actualizarPreferencias(sesion.user.id, perfil?.preferences, { notificaciones: { ...avisos, recordatorios: valor } })}
+            />
+          }
+        />
+      </GrupoAjustes>
+
       <GrupoAjustes titulo={t('ajustes.secciones.contenido')}>
         <FilaAjuste
           emoji="ojos"
@@ -129,6 +164,7 @@ export default function Ajustes() {
           }
         />
         )}
+        <FilaAjuste emoji="apreton-de-manos" titulo={t('vendedores.unirme')} detalle={t('vendedores.unirmeDetalle')} onPress={() => router.push('/ajustes/unirme')} />
         <FilaAjuste emoji="grafico-de-barras" titulo={t('ajustes.exportar.titulo')} detalle={t('ajustes.exportar.detalle')} onPress={exportarCsv} />
       </GrupoAjustes>
 
