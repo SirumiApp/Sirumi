@@ -335,6 +335,7 @@ export default function Catalogo() {
                   );
                 })}
               </View>
+              <Boton titulo={t('movimiento.cancelar')} variante="texto" onPress={() => setElegirDe(null)} />
             </SafeAreaView>
           </Pressable>
         </Pressable>

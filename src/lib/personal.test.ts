@@ -19,6 +19,7 @@ import {
   totalesDelPeriodo,
   variacionPorcentual,
   type Movimiento,
+  gastosFrecuentes,
 } from './personal';
 
 const mov = (fecha: string, tipo: 'gasto' | 'ingreso', monto: number, categoria: string, id = `${fecha}-${monto}`): Movimiento => ({
@@ -154,6 +155,31 @@ describe('Inicio: consejo del período y lista por días', () => {
     expect(grupos.map((g) => [g.fecha, g.totalGastos, g.movimientos.length])).toEqual([
       ['2026-11-15', 80_000, 3],
       ['2026-11-14', 20_000, 1],
+    ]);
+  });
+});
+
+describe('A6 · atajos de gasto', () => {
+  const m = (fecha: string, monto: number, descripcion: string, categoria = 'comida', tipo: 'gasto' | 'ingreso' = 'gasto') => ({ id: `${fecha}${monto}${descripcion}`, fecha, tipo, monto, categoria, descripcion });
+  it('lo que se repite, del más repetido al menos, en los últimos 60 días', () => {
+    const r = gastosFrecuentes(
+      [
+        m('2026-11-18', 18_000, 'Almuerzo'),
+        m('2026-11-17', 18_000, 'almuerzo '),
+        m('2026-11-16', 18_000, 'Almuerzo'),
+        m('2026-11-15', 2_950, 'Bus', 'transporte'),
+        m('2026-11-14', 2_950, 'Bus', 'transporte'),
+        m('2026-11-13', 50_000, 'Cine', 'salidas'),
+        m('2026-08-01', 9_000, 'Café'),
+        m('2026-08-02', 9_000, 'Café'),
+        m('2026-11-10', 4_800_000, 'Nómina', 'ingreso', 'ingreso'),
+        m('2026-11-11', 4_800_000, 'Nómina', 'ingreso', 'ingreso'),
+      ],
+      '2026-11-19',
+    );
+    expect(r).toEqual([
+      { categoria: 'comida', descripcion: 'Almuerzo', monto: 18_000, veces: 3 },
+      { categoria: 'transporte', descripcion: 'Bus', monto: 2_950, veces: 2 },
     ]);
   });
 });

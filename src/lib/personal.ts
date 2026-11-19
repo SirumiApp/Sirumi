@@ -1,6 +1,6 @@
 // Reglas de finanzas personales (docs/reglas-de-calculo.md, sección A). Funciones puras, sin redondeos intermedios.
 
-import { dentroDe, diasDelPeriodo, esMesCompletoOActual, type Fecha, type Periodo } from './fechas';
+import { dentroDe, diasDelPeriodo, esMesCompletoOActual, sumarDias, type Fecha, type Periodo } from './fechas';
 
 export type TipoMovimiento = 'gasto' | 'ingreso';
 
@@ -151,4 +151,27 @@ export function agruparPorDia(movimientos: Movimiento[]): { fecha: Fecha; totalG
     totalGastos: lista.filter((m) => m.tipo === 'gasto').reduce((s, m) => s + m.monto, 0),
     movimientos: lista,
   }));
+}
+
+/**
+ * A6 · Atajos de gasto: lo que la persona repite (misma categoría, mismo concepto y mismo valor) en los últimos 60 días,
+ * al menos 2 veces. Los más repetidos primero y, si empatan, los más recientes. Para registrarlos con un toque.
+ */
+export function gastosFrecuentes(movs: Movimiento[], hoy: Fecha, cuantos = 4): { categoria: string; descripcion: string; monto: number; veces: number }[] {
+  const desde = sumarDias(hoy, -60);
+  const grupos = new Map<string, { categoria: string; descripcion: string; monto: number; veces: number; ultima: Fecha }>();
+  for (const m of movs) {
+    if (m.tipo !== 'gasto' || m.fecha < desde || m.fecha > hoy || !m.categoria) continue;
+    const descripcion = (m.descripcion ?? '').trim();
+    const clave = `${m.categoria}|${descripcion.toLowerCase()}|${m.monto}`;
+    const g = grupos.get(clave) ?? { categoria: m.categoria, descripcion, monto: m.monto, veces: 0, ultima: m.fecha };
+    g.veces++;
+    if (m.fecha > g.ultima) g.ultima = m.fecha;
+    grupos.set(clave, g);
+  }
+  return [...grupos.values()]
+    .filter((g) => g.veces >= 2)
+    .sort((a, b) => b.veces - a.veces || b.ultima.localeCompare(a.ultima))
+    .slice(0, cuantos)
+    .map(({ categoria, descripcion, monto, veces }) => ({ categoria, descripcion, monto, veces }));
 }

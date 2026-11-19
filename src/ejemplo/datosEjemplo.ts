@@ -2,7 +2,7 @@
 // Funciones puras: las fechas se arman a partir de "hoy", así siempre se ven al día. Nada de esto va a la base de datos.
 // Los textos (conceptos, nombres) son claves de traducción bajo `ejemplo.textos`; las pantallas los traducen.
 
-import { armarFecha, diasDelMes, partes, type Fecha } from '@/lib/fechas';
+import { armarFecha, diasDelMes, partes, sumarDias, type Fecha } from '@/lib/fechas';
 import { impuestoIncluido } from '@/lib/impuestosPais';
 import type { Recurrente } from '@/lib/contactos';
 import { armarVariantes, codigoInterno, type FilaStock } from '@/lib/inventario';
@@ -77,6 +77,11 @@ export function movimientosPersonalesEjemplo(hoy: Fecha): Movimiento[] {
         descripcion: `ejemplo.textos.${concepto}`,
       });
     });
+  }
+  // Gastos pequeños que se repiten igual (para los atajos A6): el bus y el tinto de la mañana.
+  for (let d = 2; d <= 20; d += 3) {
+    lista.push({ id: `ej-bus-${d}`, fecha: sumarDias(hoy, -d), tipo: 'gasto', monto: 2_950, categoria: 'ej-transporte', descripcion: 'ejemplo.textos.bus' });
+    if (d % 2 === 0) lista.push({ id: `ej-tinto-${d}`, fecha: sumarDias(hoy, -d), tipo: 'gasto', monto: 4_500, categoria: 'ej-comida', descripcion: 'ejemplo.textos.tinto' });
   }
   return hastaHoy(hoy, lista).sort((a, b) => b.fecha.localeCompare(a.fecha));
 }

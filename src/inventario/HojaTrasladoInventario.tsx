@@ -55,7 +55,7 @@ function Formulario({ producto, bodegas, stock, onCerrar, onListo }: Props) {
   }
 
   return (
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.m }}>
+    <ScrollView automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.m }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
         <Pressable
           accessibilityRole="button"

@@ -367,6 +367,8 @@ export const en: Traducciones = {
     },
   },
   pos: {
+    carritoVacio: 'The cart is empty. Add products to charge.',
+    irAVender: 'Go sell',
     espera: {
       corto: 'Hold',
       poner: 'Put this sale on hold and serve another customer',
@@ -889,6 +891,8 @@ export const en: Traducciones = {
       moto: 'Motorcycle',
       negocio: 'La Montaña Coffee',
       efectivo: 'Cash',
+      bus: 'Bus',
+      tinto: 'Coffee',
       arriendoCasa: 'Apartment rent',
       planCelular: 'Phone plan',
       plataformas: 'Netflix and Spotify',
@@ -956,6 +960,7 @@ export const en: Traducciones = {
     agregar: 'Add transaction',
   },
   movimiento: {
+    atajo: 'Log the same: {{texto}}',
     nuevo: 'New transaction',
     editar: 'Edit transaction',
     dictar: 'Say it or type it',

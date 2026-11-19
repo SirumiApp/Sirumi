@@ -98,7 +98,7 @@ function Contenido({ negocioId, clientes, elegido, onElegir, onCreado, onCerrar 
 
   if (nuevo) {
     return (
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.m }}>
+      <ScrollView automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.m }}>
         {cabecera(t('pos.clienteNuevo'), () => setNuevo(false))}
         <CampoTexto
           etiqueta={`${t('contactos.nombre')} *`}
@@ -126,7 +126,7 @@ function Contenido({ negocioId, clientes, elegido, onElegir, onCreado, onCerrar 
   }
 
   return (
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.s + 4 }}>
+    <ScrollView automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.s + 4 }}>
       {cabecera(t('pos.cliente'))}
       <CampoTexto etiqueta="" accessibilityLabel={t('pos.buscarCliente')} placeholder={t('pos.buscarCliente')} value={busqueda} onChangeText={setBusqueda} />
       <Boton titulo={t('pos.registrarCliente')} variante="secundario" onPress={() => setNuevo(true)} />

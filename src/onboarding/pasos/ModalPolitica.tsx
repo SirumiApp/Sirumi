@@ -46,7 +46,7 @@ export function ModalPolitica({ abierta, inicial, onCerrar }: { abierta: TipoPol
             <Chip key={p} texto={t(`onboarding.politica.pestanas.${p}`)} elegido={pestana === p} onPress={() => setPestana(p)} />
           ))}
         </ScrollView>
-        <ScrollView contentContainerStyle={{ padding: ESPACIO.m, paddingBottom: ESPACIO.xl }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive" contentContainerStyle={{ padding: ESPACIO.m, paddingBottom: ESPACIO.xl }}>
           {filas.map((fila, i) =>
             fila.tipo === 't' ? (
               <Texto key={i} variante="titulo" style={{ marginTop: ESPACIO.s }}>

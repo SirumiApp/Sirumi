@@ -98,7 +98,9 @@ export default function InformeVentas() {
           </View>
           <View style={{ flex: 1 }}>
             <Texto variante="etiqueta">{t('informeVentas.ticket')}</Texto>
-            <Texto variante="fuerte">{plata(r.resumen.ticket)}</Texto>
+            <Texto variante="fuerte" numberOfLines={1} adjustsFontSizeToFit>
+              {plata(r.resumen.ticket)}
+            </Texto>
           </View>
           <View style={{ flex: 1 }}>
             <Texto variante="etiqueta">{t('informeVentas.unidades')}</Texto>

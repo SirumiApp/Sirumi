@@ -89,3 +89,10 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [ ] Recibo por WhatsApp con link (hoy se comparte el texto).
 - [ ] Cierre de mes guiado: extractos subidos, caja contada, impuestos al día.
 - [ ] Varios negocios por persona (cambiar entre ellos).
+
+## Revisión de uso (19 nov 2026)
+- [x] Recorrido automático de las 39 pantallas en claro y oscuro: sin errores ni contenido que se salga.
+- [x] Todas las hojas se cierran con la X, deslizando hacia abajo o con "atrás" en Android; el selector de período ahora tiene X y el de talla/color, "Cancelar".
+- [x] El teclado ya no tapa los botones en las hojas con campos (iPhone).
+- [x] Cobrar con el carrito vacío explica qué pasa y vuelve a vender.
+- [x] Atajos de gasto con un toque (A6).

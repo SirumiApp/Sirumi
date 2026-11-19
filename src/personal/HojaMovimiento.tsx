@@ -12,11 +12,11 @@ import { Emoji, type NombreEmoji } from '@/components/emoji/Emoji';
 import { TecladoNumerico } from '@/components/TecladoNumerico';
 import { Texto } from '@/components/Texto';
 import { sumarDias, type Fecha } from '@/lib/fechas';
-import type { Movimiento, TipoMovimiento } from '@/lib/personal';
+import { gastosFrecuentes, type Movimiento, type TipoMovimiento } from '@/lib/personal';
 import { interpretarFrase } from '@/lib/voz';
 import { ALTO_TOCABLE, COLORES_CATEGORIA, ESPACIO, FUENTES, PALETA, RADIO, sombraAccion, useTema, type ColorCategoria } from '@/theme';
 
-import { borrarMovimiento, guardarMovimiento, type Categoria } from './datos';
+import { borrarMovimiento, guardarMovimiento, useMovimientos, type Categoria } from './datos';
 import { fechaCorta } from './etiquetas';
 import { useNombreCategoria, usePlata, useTextosFecha } from './ganchos';
 
@@ -53,6 +53,9 @@ function Formulario({ movimiento, plantilla, categorias, hoy, onCerrar, onGuarda
   const { colores, oscuro } = useTema();
   const plata = usePlata();
   const nombreCategoria = useNombreCategoria();
+  // A6 · Atajos con los gastos que más se repiten (últimos 60 días).
+  const { movimientos: recientes } = useMovimientos(sumarDias(hoy, -60), hoy);
+  const atajos = gastosFrecuentes(recientes, hoy);
   const textosFecha = useTextosFecha();
 
   const [tipo, setTipo] = useState<TipoMovimiento>(movimiento?.tipo ?? 'gasto');
@@ -131,7 +134,7 @@ function Formulario({ movimiento, plantilla, categorias, hoy, onCerrar, onGuarda
 
   // Diseñada para caber en una sola pantalla: sin títulos de sección y con las categorías en una fila que se desliza.
   return (
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.s + 2 }}>
+    <ScrollView automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.s + 2 }}>
       {/* Cerrar a la izquierda: a la derecha lo tapa el botón de Expo Go mientras probamos */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
         <Pressable
@@ -150,6 +153,31 @@ function Formulario({ movimiento, plantilla, categorias, hoy, onCerrar, onGuarda
           <Chip texto={t('movimiento.ingreso')} elegido={tipo === 'ingreso'} onPress={() => cambiarTipo('ingreso')} />
         </View>
       </View>
+
+      {/* A6 · Atajos: lo que más repites, con un toque */}
+      {!movimiento && !plantilla && tipo === 'gasto' && atajos.length > 0 && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, marginHorizontal: -ESPACIO.m }} contentContainerStyle={{ gap: ESPACIO.s, paddingHorizontal: ESPACIO.m }}>
+          {atajos.map((a) => {
+            const cat = categorias.find((c) => c.id === a.categoria);
+            const texto = `${a.descripcion || nombreCategoria(cat)} · ${plata(a.monto)}`;
+            return (
+              <Pressable
+                key={`${a.categoria}${a.descripcion}${a.monto}`}
+                accessibilityRole="button"
+                accessibilityLabel={t('movimiento.atajo', { texto })}
+                onPress={() => {
+                  setMonto(String(a.monto));
+                  setCategoria(a.categoria);
+                  setDescripcion(a.descripcion);
+                }}
+                style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.xs, minHeight: ALTO_TOCABLE, paddingHorizontal: ESPACIO.m, borderRadius: 999, backgroundColor: colores.seleccionado, opacity: pressed ? 0.7 : 1 })}>
+                {cat && <Emoji name={cat.emoji as NombreEmoji} size={18} />}
+                <Texto variante="fuerte">{texto}</Texto>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      )}
 
       {/* Dictado: botón de micrófono que abre el teclado; su micrófono escribe la frase y la app la entiende */}
       <View

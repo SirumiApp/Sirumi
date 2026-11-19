@@ -364,3 +364,6 @@ Convenciones:
 
 ### B11b · Clientes frecuentes
 - Por cliente: total de sus ventas (cobradas o no), número de compras (una venta del POS con dos pagos cuenta una) y última fecha. "Hace rato no te compran" = más de 45 días.
+
+### A6 · Atajos de gasto
+- Al registrar un gasto nuevo, la app ofrece los que más se repiten en los últimos 60 días (misma categoría, mismo concepto y mismo valor, al menos 2 veces), máximo 4: los más repetidos primero y, si empatan, los más recientes. Un toque llena valor, categoría y concepto.

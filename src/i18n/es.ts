@@ -368,6 +368,8 @@ export const es = {
     },
   },
   pos: {
+    carritoVacio: 'El carrito está vacío. Agrega productos para cobrar.',
+    irAVender: 'Ir a vender',
     espera: {
       corto: 'Esperar',
       poner: 'Poner esta venta en espera y atender a otro cliente',
@@ -890,6 +892,8 @@ export const es = {
       moto: 'Moto',
       negocio: 'Café La Montaña',
       efectivo: 'Efectivo',
+      bus: 'Bus',
+      tinto: 'Tinto',
       arriendoCasa: 'Arriendo del apartamento',
       planCelular: 'Plan del celular',
       plataformas: 'Netflix y Spotify',
@@ -957,6 +961,7 @@ export const es = {
     agregar: 'Registrar movimiento',
   },
   movimiento: {
+    atajo: 'Registrar igual: {{texto}}',
     nuevo: 'Nuevo movimiento',
     editar: 'Editar movimiento',
     dictar: 'Dilo o escríbelo',

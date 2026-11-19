@@ -115,7 +115,7 @@ function FormularioItem({
   }
 
   return (
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.m }}>
+    <ScrollView automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.m }}>
       <Cabecera titulo={titulo} onCerrar={onCerrar} emoji={emoji} />
       <CampoTexto
         etiqueta={t('planPersonal.nombre')}

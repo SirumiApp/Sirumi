@@ -9,6 +9,7 @@ import { Boton } from '@/components/Boton';
 import { CampoDinero } from '@/components/CampoDinero';
 import { CampoTexto } from '@/components/CampoTexto';
 import { Chip } from '@/components/Chip';
+import { Emoji } from '@/components/emoji/Emoji';
 import { Interruptor } from '@/components/Interruptor';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
@@ -182,6 +183,21 @@ export default function Cobrar() {
   }
 
   const disponible = (variante: string | null) => (variante && bodega ? stockDeVariante(variante, stock, bodega) : Infinity);
+
+  // Carrito vacío (p. ej. después de cobrar y volver atrás): se explica y se vuelve a vender.
+  if (pos.lineas.length === 0) {
+    return (
+      <PantallaPos titulo={t('pos.cobrar')}>
+        <View style={{ alignItems: 'center', gap: ESPACIO.m, paddingVertical: ESPACIO.xl }}>
+          <Emoji name="carrito-de-compras" size={64} />
+          <Texto variante="suave" style={{ textAlign: 'center' }}>
+            {t('pos.carritoVacio')}
+          </Texto>
+          <Boton titulo={t('pos.irAVender')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/pos'))} />
+        </View>
+      </PantallaPos>
+    );
+  }
 
   return (
     <PantallaPos

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BotonCerrar } from '@/components/BotonCerrar';
 import { Boton } from '@/components/Boton';
 import { Calendario } from '@/components/Calendario';
 import { Emoji } from '@/components/emoji/Emoji';
@@ -71,8 +72,13 @@ export function SelectorPeriodo({ eleccion, hoy, onCambio }: { eleccion: Eleccio
 
       <Modal visible={abierto} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setAbierto(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: colores.fondo }} edges={['top', 'bottom']}>
-          <ScrollView contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.m }}>
-            <Texto variante="titulo">{t('periodo.titulo')}</Texto>
+          <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" keyboardDismissMode="interactive" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.m }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
+              <BotonCerrar onPress={() => setAbierto(false)} />
+              <Texto variante="titulo" style={{ flex: 1 }}>
+                {t('periodo.titulo')}
+              </Texto>
+            </View>
             <View style={{ gap: ESPACIO.s }}>
               {PREDEFINIDOS.map((p) => (
                 <Opcion

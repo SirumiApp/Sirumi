@@ -156,7 +156,7 @@ function Formulario({ movimiento, plantilla, contactos, negocioId, cuentas, tarj
   };
 
   return (
-    <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.s + 4 }}>
+    <ScrollView automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: ESPACIO.m, gap: ESPACIO.s + 4 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
         <Pressable
           accessibilityRole="button"
