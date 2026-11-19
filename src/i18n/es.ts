@@ -368,6 +368,18 @@ export const es = {
     },
   },
   pos: {
+    espera: {
+      corto: 'Esperar',
+      poner: 'Poner esta venta en espera y atender a otro cliente',
+      titulo_one: '{{count}} venta en espera',
+      titulo_other: '{{count}} ventas en espera',
+      detalle_one: '{{count}} artículo · {{monto}} · {{hora}}',
+      detalle_other: '{{count}} artículos · {{monto}} · {{hora}}',
+      retomar: 'Retomar',
+      descartar: 'Descartar venta en espera',
+      descartarDetalle: 'Se borra este carrito. No se cobra nada.',
+      siDescartar: 'Sí, descartar',
+    },
     parcial: {
       boton: 'Devolver algunos productos',
       titulo: '¿Qué te devuelven?',
@@ -516,6 +528,16 @@ export const es = {
     },
   },
   inventario: {
+    compra: {
+      registrar: 'Registrar la compra',
+      registrarAyuda: 'Además de subir el inventario, queda la plata que pagaste (o que debes) al proveedor.',
+      total: 'Lo que costó en total',
+      totalAyuda: 'Sugerido: el costo del producto ({{costo}}) × la cantidad. Cámbialo si pagaste otro valor.',
+      proveedor: 'Proveedor',
+      sinProveedor: 'Sin proveedor',
+      guardada: 'Listo: el inventario subió y quedó la compra por {{monto}}.',
+      errorPago: 'El inventario subió, pero no pudimos registrar la compra. Regístrala con el + en Negocio.',
+    },
     iva: {
       titulo: '{{impuesto}} de este producto',
       general: 'General ({{tasa}}%)',

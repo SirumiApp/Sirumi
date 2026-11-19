@@ -5,7 +5,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 
 import { hoyEn } from '@/lib/fechas';
 import { fechaCorta } from '@/personal/etiquetas';
-import { useTextosFecha } from '@/personal/ganchos';
+import { usePlata, useTextosFecha } from '@/personal/ganchos';
 
 import { Aviso } from '@/components/Aviso';
 import { Boton } from '@/components/Boton';
@@ -21,6 +21,9 @@ import { MiniaturaProducto } from '@/inventario/Foto';
 import { CampoCantidad } from '@/inventario/Piezas';
 import { stockDeVariante, validarSalida } from '@/lib/inventario';
 import { useNegocio } from '@/negocio/contexto';
+import { guardarMovNegocio } from '@/negocio/datos';
+import { CampoDinero } from '@/components/CampoDinero';
+import { Interruptor } from '@/components/Interruptor';
 import { deshacerMovimientoInventario, leerErrorInventario, moverInventario, movimientosDeInventario, type MovInventario } from '@/negocio/inventarioDatos';
 import { ESPACIO, FUENTES, sombraSuave, useTema } from '@/theme';
 
@@ -32,10 +35,17 @@ const sinTildes = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLo
 export default function Mercancia() {
   const { t } = useTranslation();
   const textosFecha = useTextosFecha();
+  const plataFn = usePlata();
   const { colores, oscuro } = useTema();
   const ejemplo = useModoEjemplo();
   const params = useLocalSearchParams<{ producto?: string; variante?: string }>();
-  const { negocio, bodegas, productos, stock, actualizar, version } = useNegocio();
+  const { negocio, bodegas, productos, stock, actualizar, version, cuentas, contactos } = useNegocio();
+  // C10 · Compra a un proveedor: además de subir el inventario, registra la compra (pagada o por pagar).
+  const [conPago, setConPago] = useState(true);
+  const [montoCompra, setMontoCompra] = useState<number | null>(null);
+  const [pagada, setPagada] = useState(true);
+  const [cuentaCompra, setCuentaCompra] = useState<string | null>(null);
+  const [proveedor, setProveedor] = useState<string | null>(null);
   const principal = bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null;
 
   const [productoId, setProductoId] = useState<string | null>(params.producto ?? null);
@@ -82,6 +92,11 @@ export default function Mercancia() {
     elegir(p.id, p.variantes.find((v) => v.codigo === codigo)?.id ?? null);
   }
 
+  const esCompra = entra && motivo === 'compraProveedor';
+  const totalCompra = montoCompra ?? (producto?.costo ?? 0) * cantidad;
+  const cuentaElegida = cuentaCompra ?? cuentas.find((c) => c.principal)?.id ?? cuentas[0]?.id ?? null;
+  const proveedores = contactos.filter((c) => c.tipo === 'proveedor');
+
   async function registrar() {
     if (!variante || !bodega) return;
     if (!entra) {
@@ -91,6 +106,23 @@ export default function Mercancia() {
     } else if (cantidad <= 0) return setMensaje({ texto: t('inventario.errores.cantidadInvalida'), tipo: 'error' });
     setGuardando(true);
     const { error } = await moverInventario(variante.id, bodega, entra ? cantidad : -cantidad, motivo, nota);
+    if (!error && esCompra && conPago && negocio && totalCompra > 0) {
+      const { error: e2 } = await guardarMovNegocio(negocio.id, {
+        fecha: hoyEn(),
+        tipo: 'compra',
+        monto: totalCompra,
+        pagado: pagada && !!cuentaElegida,
+        cuenta: pagada ? cuentaElegida : null,
+        tarjeta: null,
+        concepto: `${producto?.nombre ?? ''} × ${cantidad}`,
+        contacto: proveedor,
+      });
+      if (e2) {
+        setGuardando(false);
+        actualizar();
+        return setMensaje({ texto: t('inventario.compra.errorPago'), tipo: 'error' });
+      }
+    }
     setGuardando(false);
     const err = leerErrorInventario(error);
     if (err) {
@@ -99,7 +131,8 @@ export default function Mercancia() {
         tipo: 'error',
       });
     }
-    setMensaje({ texto: t('inventario.mercancia.guardado'), tipo: 'info' });
+    setMensaje({ texto: esCompra && conPago && totalCompra > 0 ? t('inventario.compra.guardada', { monto: plataFn(totalCompra) }) : t('inventario.mercancia.guardado'), tipo: 'info' });
+    setMontoCompra(null);
     setCantidad(1);
     setNota('');
     actualizar();
@@ -238,6 +271,44 @@ export default function Mercancia() {
             <Texto variante="medio" color={quedarian < 0 ? colores.errorTexto : colores.textoSuave}>
               {t('inventario.mercancia.hoyHay', { hay, bodega: nombreBodega.get(bodega), quedarian })}
             </Texto>
+          )}
+          {esCompra && (
+            <View style={{ gap: ESPACIO.s, padding: ESPACIO.m, borderRadius: 16, backgroundColor: colores.relleno }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.m }}>
+                <View style={{ flex: 1 }}>
+                  <Texto variante="fuerte">{t('inventario.compra.registrar')}</Texto>
+                  <Texto variante="pequeno">{t('inventario.compra.registrarAyuda')}</Texto>
+                </View>
+                <Interruptor etiqueta={t('inventario.compra.registrar')} encendido={conPago} onCambio={setConPago} />
+              </View>
+              {conPago && (
+                <>
+                  <CampoDinero etiqueta={t('inventario.compra.total')} ayuda={t('inventario.compra.totalAyuda', { costo: plataFn(producto?.costo ?? 0) })} valor={totalCompra} onCambio={setMontoCompra} />
+                  <View style={{ flexDirection: 'row', gap: ESPACIO.s }}>
+                    <Chip texto={t('negocioApp.movimiento.pagado')} elegido={pagada} onPress={() => setPagada(true)} />
+                    <Chip texto={t('negocioApp.movimiento.pendiente')} elegido={!pagada} onPress={() => setPagada(false)} />
+                  </View>
+                  {pagada && cuentas.length > 0 && (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: ESPACIO.s }}>
+                      {cuentas.map((c) => (
+                        <Chip key={c.id} texto={c.nombre} elegido={cuentaElegida === c.id} onPress={() => setCuentaCompra(c.id)} />
+                      ))}
+                    </View>
+                  )}
+                  {proveedores.length > 0 && (
+                    <View style={{ gap: ESPACIO.xs }}>
+                      <Texto variante="etiqueta">{t('inventario.compra.proveedor')}</Texto>
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: ESPACIO.s }}>
+                        <Chip texto={t('inventario.compra.sinProveedor')} elegido={!proveedor} onPress={() => setProveedor(null)} />
+                        {proveedores.map((c) => (
+                          <Chip key={c.id} texto={c.nombre} elegido={proveedor === c.id} onPress={() => setProveedor(c.id)} />
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                </>
+              )}
+            </View>
           )}
           <CampoTexto etiqueta="" accessibilityLabel={t('inventario.mercancia.nota')} placeholder={t('inventario.mercancia.nota')} value={nota} onChangeText={setNota} maxLength={120} />
           {mensaje && <Aviso mensaje={mensaje.texto} tipo={mensaje.tipo} />}

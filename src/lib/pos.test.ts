@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { cabeEnCarrito, cierreDelDia, costoDeVentas, devolucionParcial, dividirPago, numeroVenta, repartir, sugerenciasEfectivo, totalesVenta, validarCobro, vuelto, type LineaCarrito } from './pos';
+import { apartadasEnEspera, cabeEnCarrito, cierreDelDia, costoDeVentas, devolucionParcial, dividirPago, numeroVenta, repartir, sugerenciasEfectivo, totalesVenta, validarCobro, vuelto, type LineaCarrito } from './pos';
 
 const bolso: LineaCarrito = { clave: 'bolso', variante: 'v-bolso', nombre: 'Bolso', precio: 85_000, cantidad: 1 };
 
@@ -162,5 +162,17 @@ describe('D6b · IVA por producto', () => {
   });
   it('si el negocio no cobra IVA, nada', () => {
     expect(totalesVenta([l(105_000, 5)], null, null)).toMatchObject({ iva: 0, total: 105_000, porTarifa: [] });
+  });
+});
+
+describe('D11 · ventas en espera', () => {
+  it('lo apartado en espera en la misma bodega no está disponible', () => {
+    const espera = [
+      { bodega: 'feria', lineas: [{ variante: 'taza', cantidad: 2 }, { variante: null, cantidad: 1 }] },
+      { bodega: 'feria', lineas: [{ variante: 'taza', cantidad: 1 }] },
+      { bodega: 'local', lineas: [{ variante: 'taza', cantidad: 5 }] },
+    ];
+    expect(apartadasEnEspera(espera, 'taza', 'feria')).toBe(3);
+    expect(apartadasEnEspera(espera, 'cafe', 'feria')).toBe(0);
   });
 });

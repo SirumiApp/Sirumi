@@ -52,6 +52,11 @@ export function cabeEnCarrito(variante: string | null, disponible: number, carri
   return enCarrito + 1 <= disponible;
 }
 
+/** D11 · Unidades de una variante apartadas en ventas en espera de una bodega (no se pueden vender dos veces). */
+export function apartadasEnEspera(enEspera: { bodega: string | null; lineas: { variante: string | null; cantidad: number }[] }[], variante: string, bodega: string | null): number {
+  return enEspera.filter((c) => c.bodega === bodega).reduce((s, c) => s + c.lineas.filter((l) => l.variante === variante).reduce((t, l) => t + l.cantidad, 0), 0);
+}
+
 /** D3 · Vuelto en efectivo. */
 export function vuelto(recibido: number, total: number): number {
   return Math.max(0, recibido - total);

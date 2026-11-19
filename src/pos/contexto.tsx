@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import type { Descuento, LineaCarrito } from '@/lib/pos';
 
@@ -35,7 +36,19 @@ type EstadoPos = {
   comprobante: Comprobante | null;
 };
 
+/** D11 · Una venta en espera: el carrito de un cliente mientras se atiende a otro. */
+export type CarritoEnEspera = { id: string; creado: string; bodega: string | null; lineas: LineaCarrito[]; descuento: Descuento; cliente: string | null; codigo: string | null; ivaIncluido: boolean };
+
+const CLAVE_ESPERA = 'sirumi.carritosEnEspera';
+
 type ContextoPos = EstadoPos & {
+  /** D11 · Ventas en espera (se guardan en el celular). */
+  enEspera: CarritoEnEspera[];
+  /** Pone el carrito actual en espera y deja uno vacío. */
+  ponerEnEspera: () => void;
+  /** Retoma una venta en espera (si hay algo en el carrito, ese pasa a espera). */
+  retomar: (id: string) => void;
+  descartarEspera: (id: string) => void;
   cambiar: (c: Partial<EstadoPos>) => void;
   agregar: (l: Omit<LineaCarrito, 'cantidad' | 'clave'> & { clave?: string }) => void;
   cambiarCantidad: (clave: string, cantidad: number) => void;
@@ -80,7 +93,47 @@ export function ProveedorPos({ children }: { children: ReactNode }) {
 
   const nuevaVenta = useCallback(() => setEstado((e) => ({ ...INICIAL, bodega: e.bodega })), []);
 
-  const valor = useMemo(() => ({ ...estado, cambiar, agregar, cambiarCantidad, nuevaVenta }), [estado, cambiar, agregar, cambiarCantidad, nuevaVenta]);
+  const [enEspera, setEnEspera] = useState<CarritoEnEspera[]>([]);
+  useEffect(() => {
+    AsyncStorage.getItem(CLAVE_ESPERA)
+      .then((v) => v && setEnEspera(JSON.parse(v) as CarritoEnEspera[]))
+      .catch(() => {});
+  }, []);
+  const guardarEspera = useCallback((lista: CarritoEnEspera[]) => {
+    setEnEspera(lista);
+    AsyncStorage.setItem(CLAVE_ESPERA, JSON.stringify(lista)).catch(() => {});
+  }, []);
+  const aEspera = (e: EstadoPos): CarritoEnEspera => ({
+    id: `espera-${Date.now()}-${Math.round(Math.random() * 1e6)}`,
+    creado: new Date().toISOString(),
+    bodega: e.bodega,
+    lineas: e.lineas,
+    descuento: e.descuento,
+    cliente: e.cliente,
+    codigo: e.codigo,
+    ivaIncluido: e.ivaIncluido,
+  });
+  const ponerEnEspera = useCallback(() => {
+    if (!estado.lineas.length) return;
+    guardarEspera([...enEspera, aEspera(estado)]);
+    setEstado((e) => ({ ...INICIAL, bodega: e.bodega }));
+  }, [estado, enEspera, guardarEspera]);
+  const retomar = useCallback(
+    (id: string) => {
+      const c = enEspera.find((x) => x.id === id);
+      if (!c) return;
+      const resto = enEspera.filter((x) => x.id !== id);
+      guardarEspera(estado.lineas.length ? [...resto, aEspera(estado)] : resto);
+      setEstado({ ...INICIAL, bodega: c.bodega ?? estado.bodega, lineas: c.lineas, descuento: c.descuento, cliente: c.cliente, codigo: c.codigo, ivaIncluido: c.ivaIncluido });
+    },
+    [estado, enEspera, guardarEspera],
+  );
+  const descartarEspera = useCallback((id: string) => guardarEspera(enEspera.filter((x) => x.id !== id)), [enEspera, guardarEspera]);
+
+  const valor = useMemo(
+    () => ({ ...estado, cambiar, agregar, cambiarCantidad, nuevaVenta, enEspera, ponerEnEspera, retomar, descartarEspera }),
+    [estado, cambiar, agregar, cambiarCantidad, nuevaVenta, enEspera, ponerEnEspera, retomar, descartarEspera],
+  );
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>;
 }
 

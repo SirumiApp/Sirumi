@@ -14,7 +14,7 @@ import { Texto } from '@/components/Texto';
 import { Escaner } from '@/inventario/Escaner';
 import { MiniaturaProducto } from '@/inventario/Foto';
 import { stockDeVariante } from '@/lib/inventario';
-import { cabeEnCarrito, totalesVenta } from '@/lib/pos';
+import { apartadasEnEspera, cabeEnCarrito, totalesVenta } from '@/lib/pos';
 import { useNegocio } from '@/negocio/contexto';
 import { useTributario } from '@/impuestos/ganchos';
 import type { Producto } from '@/negocio/inventarioDatos';
@@ -46,7 +46,8 @@ export default function Catalogo() {
   const [mensajeEscaner, setMensajeEscaner] = useState<{ texto: string; tipo: 'ok' | 'error' } | null>(null);
 
   const nombreBodega = bodegas.find((b) => b.id === bodega)?.nombre ?? '';
-  const disponible = (variante: string) => (bodega ? stockDeVariante(variante, stock, bodega) : 0);
+  // Lo apartado en ventas en espera (D11) no se puede vender dos veces.
+  const disponible = (variante: string) => (bodega ? stockDeVariante(variante, stock, bodega) - apartadasEnEspera(pos.enEspera, variante, bodega) : 0);
   const unidades = pos.lineas.reduce((s, l) => s + l.cantidad, 0);
   const { total } = totalesVenta(pos.lineas, pos.descuento, negocio?.configuracion.responsable_iva && tributario.tasaVentas > 0 ? { tarifa: tributario.tasaVentas, incluido: pos.ivaIncluido } : null);
   const colecciones = [...new Set(productos.map((p) => p.coleccion).filter((c): c is string => !!c))];
@@ -137,10 +138,53 @@ export default function Catalogo() {
             <Texto variante="pequeno">{t('pos.articulos', { count: unidades })}</Texto>
             <Texto style={{ fontFamily: FUENTES.titulo, fontSize: 20, lineHeight: 26 }}>{plata(total)}</Texto>
           </View>
+          {pos.lineas.length > 0 && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('pos.espera.poner')}
+              onPress={pos.ponerEnEspera}
+              style={{ minHeight: ALTO_TOCABLE, paddingHorizontal: ESPACIO.s + 4, borderRadius: 999, justifyContent: 'center', backgroundColor: colores.relleno }}>
+              <Texto variante="fuerte">{t('pos.espera.corto')}</Texto>
+            </Pressable>
+          )}
           <Boton titulo={`${t('pos.irACobrar')} →`} disabled={!pos.lineas.length} onPress={() => router.push('/pos/cobrar')} style={{ paddingHorizontal: ESPACIO.l }} />
         </View>
       }>
       <BannerPendientes />
+      {/* D11 · Ventas en espera: atender a otro cliente y volver */}
+      {pos.enEspera.length > 0 && (
+        <View style={{ gap: ESPACIO.s }}>
+          <Texto variante="fuerte">{t('pos.espera.titulo', { count: pos.enEspera.length })}</Texto>
+          {pos.enEspera.map((c) => {
+            const n = c.lineas.reduce((s, l) => s + l.cantidad, 0);
+            const monto = c.lineas.reduce((s, l) => s + l.precio * l.cantidad, 0);
+            const hora = new Date(c.creado).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            return (
+              <View key={c.id} style={[{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s, padding: ESPACIO.s + 4, borderRadius: 16, backgroundColor: colores.tarjeta }, sombraSuave(oscuro)]}>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Texto variante="fuerte" numberOfLines={1}>
+                    {c.lineas.map((l) => l.nombre).join(', ')}
+                  </Texto>
+                  <Texto variante="pequeno">{t('pos.espera.detalle', { count: n, monto: plata(monto), hora })}</Texto>
+                </View>
+                <Boton titulo={t('pos.espera.retomar')} variante="secundario" onPress={() => pos.retomar(c.id)} />
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('pos.espera.descartar')}
+                  onPress={() =>
+                    Alert.alert(t('pos.espera.descartar'), t('pos.espera.descartarDetalle'), [
+                      { text: t('movimiento.cancelar'), style: 'cancel' },
+                      { text: t('pos.espera.siDescartar'), style: 'destructive', onPress: () => pos.descartarEspera(c.id) },
+                    ])
+                  }
+                  style={{ width: ALTO_TOCABLE, height: ALTO_TOCABLE, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icono nombre="cerrar" tamano={18} />
+                </Pressable>
+              </View>
+            );
+          })}
+        </View>
+      )}
       {bodegas.length > 1 && !bodegaFija && (
         <View style={{ gap: ESPACIO.s }}>
           <Texto variante="fuerte">{t('pos.bodega')}</Texto>

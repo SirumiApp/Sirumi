@@ -367,6 +367,18 @@ export const en: Traducciones = {
     },
   },
   pos: {
+    espera: {
+      corto: 'Hold',
+      poner: 'Put this sale on hold and serve another customer',
+      titulo_one: '{{count}} sale on hold',
+      titulo_other: '{{count}} sales on hold',
+      detalle_one: '{{count}} item · {{monto}} · {{hora}}',
+      detalle_other: '{{count}} items · {{monto}} · {{hora}}',
+      retomar: 'Resume',
+      descartar: 'Discard held sale',
+      descartarDetalle: 'This cart is deleted. Nothing is charged.',
+      siDescartar: 'Yes, discard',
+    },
     parcial: {
       boton: 'Return some products',
       titulo: 'What are they returning?',
@@ -515,6 +527,16 @@ export const en: Traducciones = {
     },
   },
   inventario: {
+    compra: {
+      registrar: 'Record the purchase',
+      registrarAyuda: 'Besides raising the stock, it records the money you paid (or owe) the supplier.',
+      total: 'Total cost',
+      totalAyuda: "Suggested: the product's cost ({{costo}}) × quantity. Change it if you paid a different amount.",
+      proveedor: 'Supplier',
+      sinProveedor: 'No supplier',
+      guardada: 'Done: stock went up and the {{monto}} purchase was recorded.',
+      errorPago: "Stock went up, but we couldn't record the purchase. Record it with the + in Business.",
+    },
     iva: {
       titulo: "This product's {{impuesto}}",
       general: 'Standard ({{tasa}}%)',
