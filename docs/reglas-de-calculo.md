@@ -344,3 +344,23 @@ Convenciones:
 - Es una deuda con la DIAN: el IVA cobrado (POS y ventas a mano) del período en curso, más el del período anterior mientras no haya pasado su fecha de pago (del calendario B12; sin dígito del NIT, el último día del mes en que vence).
 - Período: SIMPLE → año (se declara en febrero); si no, bimestral o cuatrimestral según lo elegido.
 - Ejemplo (bimestral, hoy 19 nov, sep-oct vence el 20 nov): IVA de nov 50.000 + sep-oct 150.000 → por pagar 200.000; después del 20 nov, 50.000.
+
+### D11 · Ventas en espera
+- "Esperar" guarda el carrito (productos, descuento, cliente, código) en el celular y deja uno vacío para atender a otro cliente. "Retomar" lo trae de vuelta; si había algo en el carrito, ese pasa a espera.
+- Lo apartado en ventas en espera de una bodega no está disponible para vender (no se vende dos veces).
+
+### C10 · Compra a un proveedor
+- En "Entradas de mercancía" con motivo "Compra a proveedor", además de subir el inventario se puede registrar la compra: total sugerido = costo × cantidad (editable), pagada desde una cuenta o por pagar, con proveedor opcional.
+
+### C11 · Etiquetas con código de barras
+- Code 128 (lo leen la cámara y las pistolas). Hoja de 3 etiquetas por fila con nombre, talla/color, precio, código y negocio, en PDF para imprimir o compartir. Una por variante o una por unidad en inventario (máximo 300).
+
+### B15 · Meta de ventas del mes
+- Avance = vendido ÷ meta. Falta = meta − vendido. Por día = falta ÷ días que quedan (contando hoy), redondeado hacia arriba. Proyección = vendido ÷ día del mes × días del mes. Lograda si vendido ≥ meta; "vas bien" si la proyección llega; si no, atrasado.
+- Ejemplo (30 días, día 15): meta 15.000.000, vendido 8.000.000 → 53%, faltan 7.000.000, 437.500 por día, proyección 16.000.000 → vas bien.
+
+### B16 · Comparar períodos
+- Ventas, gastos fijos y variables y utilidad neta del período contra el anterior (B6) y el mismo del año pasado (29 feb → 28). Variación = (actual − otro) ÷ otro; sin dato, "—".
+
+### B11b · Clientes frecuentes
+- Por cliente: total de sus ventas (cobradas o no), número de compras (una venta del POS con dos pagos cuenta una) y última fecha. "Hace rato no te compran" = más de 45 días.

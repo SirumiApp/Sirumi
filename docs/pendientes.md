@@ -77,3 +77,15 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] Devolución parcial (D4b).
 - [x] IVA por producto (D6b) e "IVA por pagar" en el balance (B12b).
 - [x] Resumen semanal por notificación (B14).
+
+## Hecho (19 nov 2026, tanda 3)
+- [x] Ventas en espera en el POS (D11).
+- [x] Compras a proveedores que suben el inventario (C10).
+- [x] Etiquetas con código de barras en PDF (C11). Falta: impresora de etiquetas o recibos Bluetooth.
+- [x] Meta de ventas del mes (B15), comparar períodos (B16) y clientes frecuentes (B11b).
+
+## Ideas para después
+- [ ] Mensaje por WhatsApp a un cliente que hace rato no compra (con su autorización).
+- [ ] Recibo por WhatsApp con link (hoy se comparte el texto).
+- [ ] Cierre de mes guiado: extractos subidos, caja contada, impuestos al día.
+- [ ] Varios negocios por persona (cambiar entre ellos).

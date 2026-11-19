@@ -528,6 +528,15 @@ export const es = {
     },
   },
   inventario: {
+    etiquetas: {
+      boton: 'Imprimir etiquetas',
+      titulo: 'Etiquetas con código de barras',
+      detalle: 'Se arma un PDF para imprimir en cualquier impresora (3 por fila) o compartirlo.',
+      unaPorVariante: 'Una de cada talla o color',
+      porUnidad_one: 'Una por unidad ({{count}})',
+      porUnidad_other: 'Una por unidad ({{count}})',
+      error: 'No pudimos armar las etiquetas. Inténtalo otra vez.',
+    },
     compra: {
       registrar: 'Registrar la compra',
       registrarAyuda: 'Además de subir el inventario, queda la plata que pagaste (o que debes) al proveedor.',

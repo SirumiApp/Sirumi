@@ -527,6 +527,15 @@ export const en: Traducciones = {
     },
   },
   inventario: {
+    etiquetas: {
+      boton: 'Print labels',
+      titulo: 'Barcode labels',
+      detalle: 'A PDF is made to print on any printer (3 per row) or share.',
+      unaPorVariante: 'One per size or color',
+      porUnidad_one: 'One per unit ({{count}})',
+      porUnidad_other: 'One per unit ({{count}})',
+      error: "We couldn't make the labels. Try again.",
+    },
     compra: {
       registrar: 'Record the purchase',
       registrarAyuda: 'Besides raising the stock, it records the money you paid (or owe) the supplier.',

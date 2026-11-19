@@ -42,6 +42,7 @@ import { EditorFoto } from './Foto';
 import { HojaTrasladoInventario } from './HojaTrasladoInventario';
 import { CampoCosto, LineaMargen } from './NuevoProducto';
 import { Escaner } from './Escaner';
+import { imprimirEtiquetas } from './imprimir';
 import { SelectorIva } from './SelectorIva';
 import { CampoCantidad, CampoCodigo, SelectorEmoji } from './Piezas';
 
@@ -160,6 +161,31 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
   // B8 · Unidades de este producto para cubrir los gastos fijos del mes.
   const cfg = negocio?.configuracion;
   const precioNeto = sinIva(producto.precio, producto.tarifaIva);
+
+  /** C11 · Etiquetas: una por variante o una por cada unidad en inventario. */
+  function preguntarEtiquetas() {
+    if (!producto) return;
+    const p = producto;
+    const armar = (porUnidad: boolean) =>
+      imprimirEtiquetas(
+        p.variantes
+          .filter((v) => v.codigo)
+          .flatMap((v) =>
+            Array.from({ length: porUnidad ? Math.max(0, stockDeVariante(v.id, stock)) : 1 }, () => ({
+              nombre: p.nombre,
+              detalle: p.variantes.length > 1 ? v.nombre : null,
+              precio: plata(p.precio),
+              codigo: v.codigo as string,
+            })),
+          ),
+        negocio?.nombre ?? 'Sirumi',
+      ).catch(() => Alert.alert(t('inventario.etiquetas.error')));
+    Alert.alert(t('inventario.etiquetas.titulo'), t('inventario.etiquetas.detalle'), [
+      { text: t('movimiento.cancelar'), style: 'cancel' },
+      { text: t('inventario.etiquetas.unaPorVariante'), onPress: () => armar(false) },
+      { text: t('inventario.etiquetas.porUnidad', { count: stockDeProducto(p.variantes.map((v) => v.id), stock) }), onPress: () => armar(true) },
+    ]);
+  }
   const equilibrio = cfg?.fijos_mes ? puntoDeEquilibrio({ fijosMes: cfg.fijos_mes, costoPorcentaje: precioNeto ? (producto.costo / precioNeto) * 100 : 0, variables: 0, ventas: 0 }).ventasEquilibrio : null;
   const total = stockDeProducto(ids, stock);
   const bajo = porReponer({ ...producto, variantes: ids }, stock);
@@ -205,6 +231,7 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
         </Texto>
       )}
       {equilibrio !== null && equilibrio > 0 && <Texto variante="pequeno">{t('inventario.detalleProducto.equilibrio', { unidades: unidadesDeEquilibrio(equilibrio, precioNeto) })}</Texto>}
+      {producto.variantes.some((v) => v.codigo) && <Boton titulo={t('inventario.etiquetas.boton')} variante="secundario" onPress={preguntarEtiquetas} />}
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
         <Texto variante="subtitulo" style={{ flex: 1 }}>
