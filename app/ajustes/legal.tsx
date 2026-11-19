@@ -40,7 +40,8 @@ export default function Legal() {
       <GrupoAjustes>
         <FilaAjuste emoji="pergamino" titulo={t('legal.tratamiento')} onPress={() => setPolitica('co')} />
         <FilaAjuste emoji="candado" titulo={t('legal.privacidad')} onPress={() => setPolitica('int')} />
-        <FilaAjuste emoji="pagina" titulo={t('legal.terminos')} insignia={t('legal.terminosPronto')} />
+        <FilaAjuste emoji="pagina" titulo={t('legal.terminos')} onPress={() => setPolitica('terminos')} />
+        <FilaAjuste emoji="apreton-de-manos" titulo={t('legal.anexo')} onPress={() => setPolitica('anexo')} />
       </GrupoAjustes>
 
       <View style={{ gap: ESPACIO.xs }}>

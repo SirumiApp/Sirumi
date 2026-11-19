@@ -137,6 +137,8 @@ export const es = {
       vasAVender: 'Vas a vender en {{negocio}} ✓',
       nombreNegocio: '¿Cómo se llama tu negocio? (opcional)',
       nombreNegocioAyuda: 'Saldrá arriba en tu módulo de negocio. Lo puedes cambiar después.',
+      aceptaAnexo: 'Al crear tu negocio aceptas el Contrato de transmisión de datos: los datos de tus clientes son de tu negocio y Sirumi solo los guarda por tu cuenta.',
+      leerAnexo: 'Leer el contrato',
     },
     objetivo: {
       titulo: '¿Qué quieres lograr con tu plata?',
@@ -179,6 +181,7 @@ export const es = {
     privacidad: {
       titulo: 'Tus datos, tu control',
       detalle: 'Antes de crear tu cuenta necesitamos tu autorización. Puedes consultar, corregir o eliminar tus datos cuando quieras.',
+      leerTerminos: 'Leer los Términos y Condiciones',
       leerColombia: 'Leer la política de tratamiento de datos (Colombia)',
       leerInternacional: 'Leer la política de privacidad (internacional)',
       borrador: 'Borrador pendiente de revisión legal. Los datos entre corchetes se completan antes de publicar.',
@@ -193,9 +196,10 @@ export const es = {
       },
     },
     politica: {
-      titulo: 'Política de datos',
+      titulo: 'Términos y privacidad',
       colombia: '🇨🇴 Colombia',
       internacional: 'Internacional',
+      pestanas: { terminos: 'Términos', co: '🇨🇴 Datos (Colombia)', int: 'Privacidad (internacional)', anexo: 'Datos de tus clientes' },
     },
     listo: {
       titulo: '¡Todo listo!',
@@ -1002,7 +1006,7 @@ export const es = {
     privacidad: 'Política de privacidad (internacional)',
     tratamiento: 'Tratamiento de datos personales (Colombia)',
     terminos: 'Términos de servicio',
-    terminosPronto: 'Muy pronto',
+    anexo: 'Contrato de transmisión de datos (datos de tus clientes)',
     autorizaciones: 'Tus autorizaciones',
     autorizacionesDetalle: 'Lo que aceptaste y cuándo (Ley 1581). Para cambiarlas, escríbenos.',
     tipos: { terminos: 'Términos y privacidad', datos: 'Tratamiento de datos', ia: 'IA lee tus archivos', novedades: 'Consejos y novedades' },

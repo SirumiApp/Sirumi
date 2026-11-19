@@ -33,6 +33,7 @@ export function PasoPrivacidad({ d, cambiar, intentado }: PropsPaso) {
       <EncabezadoPaso emoji="candado" titulo={t('onboarding.privacidad.titulo')} detalle={t('onboarding.privacidad.detalle')} />
 
       <View style={{ gap: ESPACIO.xs }}>
+        <Boton titulo={t('onboarding.privacidad.leerTerminos')} variante="texto" onPress={() => setPolitica('terminos')} />
         <Boton titulo={t('onboarding.privacidad.leerColombia')} variante="texto" onPress={() => setPolitica('co')} />
         <Boton titulo={t('onboarding.privacidad.leerInternacional')} variante="texto" onPress={() => setPolitica('int')} />
         <Texto variante="pequeno" style={{ textAlign: 'center' }}>

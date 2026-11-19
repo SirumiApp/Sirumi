@@ -9,7 +9,8 @@ import { ALTO_TOCABLE, ESPACIO, FUENTES, useTema } from '@/theme';
 
 import { politicas, type FilaPolitica } from '../politica';
 
-export type TipoPolitica = 'co' | 'int';
+export type TipoPolitica = 'terminos' | 'co' | 'int' | 'anexo';
+const PESTANAS: TipoPolitica[] = ['terminos', 'co', 'int', 'anexo'];
 
 /** La política completa, para leerla antes de aceptar. */
 export function ModalPolitica({ abierta, inicial, onCerrar }: { abierta: TipoPolitica | null; inicial?: TipoPolitica; onCerrar: () => void }) {
@@ -25,7 +26,7 @@ export function ModalPolitica({ abierta, inicial, onCerrar }: { abierta: TipoPol
   }
 
   const textos = politicas(i18n.language);
-  const filas: FilaPolitica[] = pestana === 'co' ? textos.colombia : textos.internacional;
+  const filas: FilaPolitica[] = pestana === 'terminos' ? textos.terminos : pestana === 'co' ? textos.colombia : pestana === 'int' ? textos.internacional : textos.anexo;
 
   return (
     <Modal visible={abierta !== null} animationType="slide" presentationStyle="pageSheet" onRequestClose={onCerrar}>
@@ -40,10 +41,11 @@ export function ModalPolitica({ abierta, inicial, onCerrar }: { abierta: TipoPol
             <Texto style={{ fontFamily: FUENTES.textoFuerte, fontSize: 20 }}>✕</Texto>
           </Pressable>
         </View>
-        <View style={{ flexDirection: 'row', gap: ESPACIO.s, paddingHorizontal: ESPACIO.m }} accessibilityRole="tablist">
-          <Chip texto={t('onboarding.politica.colombia')} elegido={pestana === 'co'} onPress={() => setPestana('co')} />
-          <Chip texto={t('onboarding.politica.internacional')} elegido={pestana === 'int'} onPress={() => setPestana('int')} />
-        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: ESPACIO.s, paddingHorizontal: ESPACIO.m }} accessibilityRole="tablist">
+          {PESTANAS.map((p) => (
+            <Chip key={p} texto={t(`onboarding.politica.pestanas.${p}`)} elegido={pestana === p} onPress={() => setPestana(p)} />
+          ))}
+        </ScrollView>
         <ScrollView contentContainerStyle={{ padding: ESPACIO.m, paddingBottom: ESPACIO.xl }}>
           {filas.map((fila, i) =>
             fila.tipo === 't' ? (

@@ -138,6 +138,8 @@ export const en: Traducciones = {
       vasAVender: "You'll sell at {{negocio}} ✓",
       nombreNegocio: "What's your business called? (optional)",
       nombreNegocioAyuda: 'It will show at the top of your business module. You can change it later.',
+      aceptaAnexo: "By creating your business you accept the Data transmission agreement: your customers' data belongs to your business and Sirumi only stores it on your behalf.",
+      leerAnexo: 'Read the agreement',
     },
     objetivo: {
       titulo: 'What do you want to achieve with your money?',
@@ -180,6 +182,7 @@ export const en: Traducciones = {
     privacidad: {
       titulo: 'Your data, your control',
       detalle: 'Before creating your account we need your permission. You can review, correct or delete your data anytime.',
+      leerTerminos: 'Read the Terms and Conditions',
       leerColombia: 'Read the data processing policy (Colombia)',
       leerInternacional: 'Read the privacy policy (international)',
       borrador: 'Draft pending legal review. Details in brackets will be completed before publishing.',
@@ -194,9 +197,10 @@ export const en: Traducciones = {
       },
     },
     politica: {
-      titulo: 'Data policy',
+      titulo: 'Terms and privacy',
       colombia: '🇨🇴 Colombia',
       internacional: 'International',
+      pestanas: { terminos: 'Terms', co: '🇨🇴 Data (Colombia)', int: 'Privacy (international)', anexo: "Your customers' data" },
     },
     listo: {
       titulo: 'All set!',
@@ -1001,7 +1005,7 @@ export const en: Traducciones = {
     privacidad: 'Privacy policy (international)',
     tratamiento: 'Personal data processing (Colombia)',
     terminos: 'Terms of service',
-    terminosPronto: 'Coming soon',
+    anexo: "Data transmission agreement (your customers' data)",
     autorizaciones: 'Your consents',
     autorizacionesDetalle: 'What you accepted and when (Law 1581). To change them, write to us.',
     tipos: { terminos: 'Terms and privacy', datos: 'Data processing', ia: 'AI reads your files', novedades: 'Tips and news' },

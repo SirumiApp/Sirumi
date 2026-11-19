@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
+import { Boton } from '@/components/Boton';
 import { CampoTexto } from '@/components/CampoTexto';
 import { Opcion } from '@/components/Opcion';
 import { Texto } from '@/components/Texto';
@@ -11,6 +12,7 @@ import { ESPACIO, useTema } from '@/theme';
 import type { Uso } from '../camino';
 import { incluyeNegocio } from '../datos';
 import { EncabezadoPaso, type PropsPaso } from './comun';
+import { ModalPolitica } from './ModalPolitica';
 
 const USOS: { id: Uso; emoji: 'monedero' | 'tienda' | 'destellos' | 'apreton-de-manos' }[] = [
   { id: 'personal', emoji: 'monedero' },
@@ -23,6 +25,7 @@ export function PasoUso({ d, cambiar, intentado }: PropsPaso) {
   const { t } = useTranslation();
   const { colores } = useTema();
   const [revisando, setRevisando] = useState(false);
+  const [anexo, setAnexo] = useState(false);
 
   /** Revisa el código apenas tiene 6 letras y muestra a qué negocio pertenece. */
   async function cambiarCodigo(valor: string) {
@@ -78,6 +81,13 @@ export function PasoUso({ d, cambiar, intentado }: PropsPaso) {
           autoCapitalize="sentences"
           ayuda={t('onboarding.uso.nombreNegocioAyuda')}
         />
+      )}
+      {incluyeNegocio(d) && (
+        <View style={{ gap: ESPACIO.xs }}>
+          <Texto variante="pequeno">{t('onboarding.uso.aceptaAnexo')}</Texto>
+          <Boton titulo={t('onboarding.uso.leerAnexo')} variante="texto" onPress={() => setAnexo(true)} />
+          <ModalPolitica abierta={anexo ? 'anexo' : null} onCerrar={() => setAnexo(false)} />
+        </View>
       )}
     </>
   );
