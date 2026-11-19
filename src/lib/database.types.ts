@@ -259,6 +259,60 @@ export type Database = {
         }
         Relationships: []
       }
+      cash_counts: {
+        Row: {
+          account_id: string
+          adjusted: boolean
+          business_id: string
+          counted: number
+          created_at: string
+          created_by: string | null
+          difference: number | null
+          expected: number
+          id: string
+          note: string | null
+        }
+        Insert: {
+          account_id: string
+          adjusted?: boolean
+          business_id: string
+          counted: number
+          created_at?: string
+          created_by?: string | null
+          difference?: number | null
+          expected: number
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          account_id?: string
+          adjusted?: boolean
+          business_id?: string
+          counted?: number
+          created_at?: string
+          created_by?: string | null
+          difference?: number | null
+          expected?: number
+          id?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_counts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_counts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           color: string
@@ -1536,6 +1590,7 @@ export type Database = {
         Returns: boolean
       }
       recurrente_personal: { Args: { recurrente: string }; Returns: boolean }
+      registrar_arqueo: { Args: { datos: Json }; Returns: string }
       registrar_celular: {
         Args: { plataforma: string; token_celular: string }
         Returns: undefined

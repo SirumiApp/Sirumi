@@ -14,6 +14,7 @@ import { cierreDelDia } from '@/lib/pos';
 import { useNegocio } from '@/negocio/contexto';
 import { paraReglas } from '@/negocio/inventarioDatos';
 import { BotonCompartir, conSigno, FilaCifra, ListaFilas, textoInforme } from '@/negocio/Piezas';
+import { ArqueoCaja } from '@/negocio/ArqueoCaja';
 import { calcularResumen } from '@/negocio/resumen';
 import { useTributario } from '@/impuestos/ganchos';
 import { etiquetaDia, rangoCorto } from '@/personal/etiquetas';
@@ -219,6 +220,8 @@ export default function Informe() {
             </ListaFilas>
           </>
         )}
+        {/* D10 · Contar la caja (solo hoy: es lo que hay ahora en efectivo) */}
+        {dia === 'hoy' && <ArqueoCaja />}
       </>
     );
   }

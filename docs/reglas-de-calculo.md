@@ -318,3 +318,9 @@ Convenciones:
 - Si se devuelve todo lo que queda, es una devolución completa (D4).
 - Ejemplo: 2 tazas de 28.000 + café 32.000 = 88.000, 10% → 79.200 pagado mitad efectivo y mitad Nequi. Devolver 1 taza → reembolso 25.200; la venta queda en 54.000 (27.000 + 27.000).
 - El informe de ventas suma en "devoluciones" lo devuelto por partes.
+
+### D10 · Contar la caja (arqueo)
+- Esperado = saldo de la cuenta de efectivo con todo lo registrado (B2). Contado = lo que la persona cuenta (total o billete por billete: 100.000 … 50).
+- Diferencia = contado − esperado: 0 cuadra, positiva sobra, negativa falta.
+- Cada conteo queda guardado. Si la persona marca "Registrar la diferencia" (viene desmarcada): faltante → gasto variable "Faltante de caja"; sobrante → venta "Sobrante de caja" (casi siempre es una venta sin anotar). Así el saldo queda igual a lo contado.
+- Ejemplo: esperado 600.000, contado 580.000 → faltan 20.000; con ajuste, gasto variable de 20.000 y el saldo queda en 580.000.
