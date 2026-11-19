@@ -73,7 +73,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 ## Mejoras propuestas (por decidir)
 - [x] POS sin internet (ferias): vender sin señal y sincronizar al volver (D9).
 - [x] Arqueo de caja al cerrar el día (D10).
-- [ ] Aviso de inventario bajo el mínimo y de topes personales al 80%.
+- [x] Aviso de inventario bajo (C9) y de topes personales (A2).
 - [x] Devolución parcial (D4b).
 - [ ] IVA por producto (exento, 5%) e "IVA por pagar" en el balance.
-- [ ] Resumen semanal por notificación ("esta semana vendiste $ X, gastaste $ Y").
+- [x] Resumen semanal por notificación (B14).

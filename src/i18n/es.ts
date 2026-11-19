@@ -253,6 +253,10 @@ export const es = {
     anterior: 'el período anterior',
   },
   notificaciones: {
+    inventario: 'Inventario bajo',
+    inventarioDetalle: 'Cuando un producto llega a su mínimo',
+    semanal: 'Resumen de la semana',
+    semanalDetalle: 'Los lunes a las 8 a. m.: cuánto vendiste y gastaste',
     titulo: 'Notificaciones',
     estado: {
       activos: 'Avisos activos en este celular ✓',
@@ -945,6 +949,9 @@ export const es = {
     topes: 'Topes',
   },
   topes: {
+    avisoUmbral: 'Ya vas en el {{porcentaje}}% de tu tope de {{categoria}}',
+    avisoTope: 'Llegaste a tu tope de {{categoria}} ({{porcentaje}}%)',
+    avisoDetalle: 'Llevas {{gastado}} de {{tope}} este mes.',
     titulo: 'Topes del mes',
     detalle: 'Ponle un límite a cada categoría y te avisamos antes de pasarte.',
     tituloPantalla: 'Topes',

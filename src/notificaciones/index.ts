@@ -68,10 +68,12 @@ export async function refrescarRegistro() {
 export function escucharToques(): () => void {
   if (Platform.OS === 'web') return () => {};
   const s = Notifications.addNotificationResponseReceivedListener((r) => {
-    const data = r.notification.request.content.data as { tipo?: string; venta?: string; ambito?: string } | undefined;
+    const data = r.notification.request.content.data as { tipo?: string; venta?: string; ambito?: string; producto?: string } | undefined;
     if (data?.tipo === 'venta' && data.venta) router.push({ pathname: '/pos/venta/[id]', params: { id: data.venta } });
     if (data?.tipo === 'recurrente') router.push({ pathname: '/recurrentes', params: { ambito: data.ambito ?? 'negocio' } });
     if (data?.tipo === 'impuesto') router.push('/impuestos');
+    if (data?.tipo === 'inventario' && data.producto) router.push({ pathname: '/inventario/[id]', params: { id: data.producto } });
+    if (data?.tipo === 'semanal') router.push('/');
     if (data?.tipo === 'extracto') router.push({ pathname: '/extractos', params: { ambito: data.ambito ?? 'negocio' } });
   });
   return () => s.remove();

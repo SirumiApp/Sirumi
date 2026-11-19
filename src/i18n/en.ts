@@ -252,6 +252,10 @@ export const en: Traducciones = {
     anterior: 'the previous period',
   },
   notificaciones: {
+    inventario: 'Low stock',
+    inventarioDetalle: 'When a product reaches its minimum',
+    semanal: 'Weekly summary',
+    semanalDetalle: 'Mondays at 8 a.m.: how much you sold and spent',
     titulo: 'Notifications',
     estado: {
       activos: 'Notifications on for this phone ✓',
@@ -944,6 +948,9 @@ export const en: Traducciones = {
     topes: 'Limits',
   },
   topes: {
+    avisoUmbral: "You're at {{porcentaje}}% of your {{categoria}} limit",
+    avisoTope: 'You reached your {{categoria}} limit ({{porcentaje}}%)',
+    avisoDetalle: "You've spent {{gastado}} of {{tope}} this month.",
     titulo: 'Monthly limits',
     detalle: "Set a limit for each category and we'll warn you before you go over.",
     tituloPantalla: 'Limits',

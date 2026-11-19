@@ -1,14 +1,18 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Alert } from 'react-native';
 
 import { usePerfil } from '@/auth/perfil';
 import { useSesion } from '@/auth/sesion';
 import { useModoEjemplo } from '@/ejemplo/modo';
 import type { PagoHecho, Recurrente } from '@/lib/contactos';
-import { hoyEn } from '@/lib/fechas';
+import { hoyEn, periodoPredefinido } from '@/lib/fechas';
 import type { Movimiento } from '@/lib/personal';
 
-import { guardarAlerta, leerAlerta, useCategorias, useTopes, type AlertaTopes, type Categoria } from './datos';
+import { cruceDeTope } from '@/lib/analisis';
+
+import { gastadoEnCategoria, guardarAlerta, leerAlerta, useCategorias, useTopes, type AlertaTopes, type Categoria } from './datos';
+import { useNombreCategoria, usePlata } from './ganchos';
 import { HojaMovimiento, type PlantillaMovimiento } from './HojaMovimiento';
 import { cargarRecurrentesPersonales } from './recurrentesDatos';
 
@@ -44,6 +48,8 @@ export function ProveedorPersonal({ children }: { children: ReactNode }) {
 
   const actualizar = useCallback(() => setVersion((v) => v + 1), []);
   const { t } = useTranslation();
+  const plata = usePlata();
+  const nombreCategoria = useNombreCategoria();
   const ejemplo = useModoEjemplo();
   const [rec, setRec] = useState<{ recurrentes: Recurrente[]; pagos: PagoHecho[] }>({ recurrentes: [], pagos: [] });
   useEffect(() => {
@@ -67,6 +73,23 @@ export function ProveedorPersonal({ children }: { children: ReactNode }) {
     setHoja({ abierta: true, movimiento, plantilla });
   }, []);
 
+  /** A2 · Si el gasto hizo cruzar el aviso del tope (o el tope), se avisa una vez, en la app. */
+  async function avisarSiCruzaTope(g: { categoria: string; monto: number; fecha: string }) {
+    const tope = topes[g.categoria];
+    const hoy = hoyEn();
+    if (!alerta.alertaActiva || !tope || g.fecha.slice(0, 7) !== hoy.slice(0, 7)) return;
+    const { desde, hasta } = periodoPredefinido('mes', hoy);
+    const despues = await gastadoEnCategoria(g.categoria, desde, hasta);
+    const cruce = cruceDeTope({ gastadoAntes: despues - g.monto, monto: g.monto, tope, umbral: alerta.umbral });
+    if (!cruce) return;
+    const nombre = nombreCategoria(categorias.find((c) => c.id === g.categoria));
+    const pct = Math.round((despues / tope) * 100);
+    Alert.alert(
+      t(cruce === 'tope' ? 'topes.avisoTope' : 'topes.avisoUmbral', { categoria: nombre, porcentaje: pct }),
+      t('topes.avisoDetalle', { gastado: plata(despues), tope: plata(tope) }),
+    );
+  }
+
   const valor = useMemo(
     () => ({ categorias, topes, alerta, version, actualizar, recargarCategorias, cambiarAlerta, abrirHoja, recurrentes: rec.recurrentes, pagosRecurrentes: rec.pagos }),
     [categorias, topes, alerta, version, actualizar, recargarCategorias, cambiarAlerta, abrirHoja, rec],
@@ -82,9 +105,10 @@ export function ProveedorPersonal({ children }: { children: ReactNode }) {
         categorias={categorias}
         hoy={hoyEn()}
         onCerrar={() => setHoja({ abierta: false, movimiento: null })}
-        onGuardado={() => {
+        onGuardado={(gasto) => {
           setHoja({ abierta: false, movimiento: null });
           actualizar();
+          if (gasto) avisarSiCruzaTope(gasto);
         }}
       />
     </Contexto.Provider>

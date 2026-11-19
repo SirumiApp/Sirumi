@@ -1,7 +1,7 @@
 // Análisis del mes y topes (docs/reglas-de-calculo.md, A3 y A8). Pruebas escritas antes del código.
 import { describe, expect, it } from '@jest/globals';
 
-import { comparacionPorCategoria, consejosDelMes, estadosDeTopes, serieMensual } from './analisis';
+import { comparacionPorCategoria, cruceDeTope, consejosDelMes, estadosDeTopes, serieMensual } from './analisis';
 import type { Movimiento } from './personal';
 
 let n = 0;
@@ -123,5 +123,16 @@ describe('A8 · consejos del mes', () => {
     const consejos = consejosDelMes({ ...base, hormiga: { cantidad: 4, total: 60_000, avisar: true }, topesSuperados: 2 });
     expect(consejos).toContainEqual({ tipo: 'hormiga', cantidad: 4, total: 60_000 });
     expect(consejos).toContainEqual({ tipo: 'topesSuperados', cantidad: 2 });
+  });
+});
+
+describe('A2 · aviso al cruzar el tope', () => {
+  it('avisa al cruzar el 80% y al llegar al 100%, una sola vez', () => {
+    expect(cruceDeTope({ gastadoAntes: 300_000, monto: 30_000, tope: 400_000, umbral: 80 })).toBe('umbral');
+    expect(cruceDeTope({ gastadoAntes: 330_000, monto: 10_000, tope: 400_000, umbral: 80 })).toBeNull();
+    expect(cruceDeTope({ gastadoAntes: 380_000, monto: 30_000, tope: 400_000, umbral: 80 })).toBe('tope');
+    expect(cruceDeTope({ gastadoAntes: 100_000, monto: 400_000, tope: 400_000, umbral: 80 })).toBe('tope');
+    expect(cruceDeTope({ gastadoAntes: 420_000, monto: 5_000, tope: 400_000, umbral: 80 })).toBeNull();
+    expect(cruceDeTope({ gastadoAntes: 0, monto: 5_000, tope: 0, umbral: 80 })).toBeNull();
   });
 });

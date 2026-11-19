@@ -130,6 +130,19 @@ export async function borrarMovimiento(id: string) {
   return supabase.from('movements').delete().eq('id', id);
 }
 
+/** Lo gastado en una categoría entre dos fechas (para el aviso del tope). */
+export async function gastadoEnCategoria(categoria: string, desde: Fecha, hasta: Fecha): Promise<number> {
+  if (modoEjemploActivo()) {
+    return personalEjemplo(movimientosPersonalesEjemplo(hoyEn()))
+      .filter((m) => m.tipo === 'gasto' && m.categoria === categoria && m.fecha >= desde && m.fecha <= hasta)
+      .reduce((s, m) => s + m.monto, 0);
+  }
+  const { data } = await todasLasFilas((d, h) =>
+    supabase.from('movements').select('amount').eq('owner_type', 'personal').eq('kind', 'gasto').eq('category_id', categoria).gte('date', desde).lte('date', hasta).order('id').range(d, h),
+  );
+  return (data ?? []).reduce((s, m) => s + m.amount, 0);
+}
+
 /** Topes mensuales por categoría (id de categoría → tope). Cambiar `version` los vuelve a leer. */
 export function useTopes(version = 0) {
   const { sesion } = useSesion();

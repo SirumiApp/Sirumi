@@ -324,3 +324,12 @@ Convenciones:
 - Diferencia = contado − esperado: 0 cuadra, positiva sobra, negativa falta.
 - Cada conteo queda guardado. Si la persona marca "Registrar la diferencia" (viene desmarcada): faltante → gasto variable "Faltante de caja"; sobrante → venta "Sobrante de caja" (casi siempre es una venta sin anotar). Así el saldo queda igual a lo contado.
 - Ejemplo: esperado 600.000, contado 580.000 → faltan 20.000; con ajuste, gasto variable de 20.000 y el saldo queda en 580.000.
+
+### C9 · Aviso de inventario bajo
+- Cuando un producto (sumando todas sus bodegas) pasa de estar por encima de su mínimo a estar en el mínimo o por debajo, el servidor avisa al celular de los dueños: "Queda poco: Taza · Quedan 2 (mínimo 3)". No vuelve a avisar mientras siga abajo; si se repone y vuelve a bajar, avisa otra vez. Se apaga en Ajustes.
+
+### B14 · Resumen semanal
+- Cada lunes a las 8 a. m. (Bogotá), lo de lunes a domingo de la semana pasada: si es dueña de un negocio, ventas (movimientos de venta), número de ventas del POS y lo que salió (compras, gastos, impuestos, inversión); si no, sus gastos e ingresos personales. Solo a quien tuvo movimiento. Se apaga en Ajustes.
+
+### A2 (ampliación) · Aviso al cruzar el tope
+- Al registrar un gasto nuevo del mes, si con él se cruza el % de aviso del tope (por ejemplo 80%) o el tope completo, la app avisa una vez: "Ya vas en el 83% de tu tope de Comida · Llevas $ 330.000 de $ 400.000". Si ya estaba por encima antes, no vuelve a avisar.

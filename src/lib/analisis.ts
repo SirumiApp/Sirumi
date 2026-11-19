@@ -116,3 +116,16 @@ export function consejosDelMes(d: {
 
   return consejos;
 }
+
+/**
+ * A2 · ¿Este gasto hizo cruzar el aviso del tope (umbral %) o el tope completo?
+ * Solo avisa una vez por cruce: si ya estaba por encima antes del gasto, no vuelve a avisar.
+ */
+export function cruceDeTope(d: { gastadoAntes: number; monto: number; tope: number; umbral: number }): 'tope' | 'umbral' | null {
+  if (d.tope <= 0 || d.monto <= 0) return null;
+  const antes = d.gastadoAntes / d.tope;
+  const despues = (d.gastadoAntes + d.monto) / d.tope;
+  if (antes < 1 && despues >= 1) return 'tope';
+  if (antes < d.umbral / 100 && despues >= d.umbral / 100) return 'umbral';
+  return null;
+}

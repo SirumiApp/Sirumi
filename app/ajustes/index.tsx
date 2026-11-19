@@ -41,7 +41,7 @@ export default function Ajustes() {
   const pais = paisPorCodigo(perfil?.country ?? 'CO');
   const ejemplo = useModoEjemplo();
   const uso = usoDeApp(perfil?.usage);
-  const avisos = ((perfil?.preferences as { notificaciones?: { ventas?: boolean; recordatorios?: boolean; impuestos?: boolean; extractos?: boolean } } | null)?.notificaciones ?? {});
+  const avisos = ((perfil?.preferences as { notificaciones?: { ventas?: boolean; recordatorios?: boolean; impuestos?: boolean; extractos?: boolean; inventario?: boolean; semanal?: boolean } } | null)?.notificaciones ?? {});
   const mostrarIngresos = (perfil?.preferences as { mostrarIngresos?: boolean } | null)?.mostrarIngresos !== false;
 
   async function exportarCsv() {
@@ -134,6 +134,32 @@ export default function Ajustes() {
             }
           />
         )}
+        {veNegocio(uso) && (
+          <FilaAjuste
+            emoji="paquete"
+            titulo={t('notificaciones.inventario')}
+            detalle={t('notificaciones.inventarioDetalle')}
+            derecha={
+              <Interruptor
+                etiqueta={t('notificaciones.inventario')}
+                encendido={avisos.inventario !== false}
+                onCambio={(valor) => sesion && actualizarPreferencias(sesion.user.id, perfil?.preferences, { notificaciones: { ...avisos, inventario: valor } })}
+              />
+            }
+          />
+        )}
+        <FilaAjuste
+          emoji="grafico-de-barras"
+          titulo={t('notificaciones.semanal')}
+          detalle={t('notificaciones.semanalDetalle')}
+          derecha={
+            <Interruptor
+              etiqueta={t('notificaciones.semanal')}
+              encendido={avisos.semanal !== false}
+              onCambio={(valor) => sesion && actualizarPreferencias(sesion.user.id, perfil?.preferences, { notificaciones: { ...avisos, semanal: valor } })}
+            />
+          }
+        />
         <FilaAjuste
           emoji="banco"
           titulo={t('notificaciones.extractos')}

@@ -31,7 +31,8 @@ type Props = {
   categorias: Categoria[];
   hoy: Fecha;
   onCerrar: () => void;
-  onGuardado: () => void;
+  /** `gasto` viene cuando se registró un gasto nuevo (para avisar si cruza el tope). */
+  onGuardado: (gasto?: { categoria: string; monto: number; fecha: Fecha }) => void;
 };
 
 /** Hoja para registrar, editar o borrar un gasto o un ingreso. */
@@ -110,7 +111,7 @@ function Formulario({ movimiento, plantilla, categorias, hoy, onCerrar, onGuarda
     const { error: e } = await guardarMovimiento({ fecha, tipo, monto: valor, categoria: categoriaFinal, descripcion, recurrente: movimiento ? undefined : plantilla?.recurrente }, movimiento?.id);
     setGuardando(false);
     if (e) return setError(t('movimiento.errorGuardar'));
-    onGuardado();
+    onGuardado(!movimiento && tipo === 'gasto' ? { categoria: categoriaFinal, monto: valor, fecha } : undefined);
   }
 
   async function borrar() {
