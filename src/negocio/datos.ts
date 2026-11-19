@@ -7,10 +7,11 @@ import type { Fecha } from '@/lib/fechas';
 import type { Recurrente } from '@/lib/contactos';
 import { iconoDeCuenta, type MovNegocio, type TipoNegocio, type Transferencia } from '@/lib/negocio';
 import { BODEGAS_EJEMPLO, CONTACTOS_EJEMPLO, CUENTAS_EJEMPLO, esTextoEjemplo, PRODUCTOS_EJEMPLO, RECURRENTES_EJEMPLO, STOCK_EJEMPLO, ventasPosEjemplo, movimientosNegocioEjemplo, NEGOCIO_EJEMPLO, TARJETAS_EJEMPLO, trasladosEjemplo } from '@/ejemplo/datosEjemplo';
-import { borrarNegocioEnEjemplo, guardarNegocioEnEjemplo, negocioEjemplo, stockEjemplo, useArenero, ventasEjemplo } from '@/ejemplo/arenero';
+import { borrarNegocioEnEjemplo, conDevoluciones, guardarNegocioEnEjemplo, negocioEjemplo, stockEjemplo, useArenero, ventasEjemplo } from '@/ejemplo/arenero';
 import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
 import { hoyEn } from '@/lib/fechas';
 import { nombreVariante } from '@/lib/inventario';
+import { todasLasFilas } from '@/lib/paginas';
 import { supabase } from '@/lib/supabase';
 
 import { cargarPos, type CodigoDescuento, type FormaPagoPropia, type Venta } from '@/pos/datos';
@@ -157,14 +158,30 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
     const [cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, inventario, pos] = await Promise.all([
       supabase.from('accounts').select('id, name, kind, initial_balance, is_main').eq('business_id', b.id).order('created_at'),
       supabase.from('credit_cards').select('id, name, credit_limit, initial_debt').eq('business_id', b.id).order('created_at'),
-      supabase
-        .from('movements')
-        .select('id, date, kind, amount, paid, account_id, card_id, description, contact_id, recurring_id, sale_id')
-        .eq('business_id', b.id)
-        .order('date', { ascending: false })
-        .order('created_at', { ascending: false }),
-      supabase.from('transfers').select('id, date, from_account, to_account, to_card, amount, note').eq('business_id', b.id).order('date', { ascending: false }).order('created_at', { ascending: false }),
-      supabase.from('contacts').select('id, kind, name, doc_type, doc_number, phone, email, address, city, notes').eq('business_id', b.id).order('name'),
+      // Todo (por páginas): los saldos de las cuentas dependen de todos los movimientos.
+      todasLasFilas((desde, hasta) =>
+        supabase
+          .from('movements')
+          .select('id, date, kind, amount, paid, account_id, card_id, description, contact_id, recurring_id, sale_id')
+          .eq('business_id', b.id)
+          .order('date', { ascending: false })
+          .order('created_at', { ascending: false })
+          .order('id')
+          .range(desde, hasta),
+      ),
+      todasLasFilas((desde, hasta) =>
+        supabase
+          .from('transfers')
+          .select('id, date, from_account, to_account, to_card, amount, note')
+          .eq('business_id', b.id)
+          .order('date', { ascending: false })
+          .order('created_at', { ascending: false })
+          .order('id')
+          .range(desde, hasta),
+      ),
+      todasLasFilas((desde, hasta) =>
+        supabase.from('contacts').select('id, kind, name, doc_type, doc_number, phone, email, address, city, notes').eq('business_id', b.id).order('name').order('id').range(desde, hasta),
+      ),
       supabase.from('recurring_payments').select('id, name, kind, amount, day_of_month, account_id, active').eq('business_id', b.id).order('day_of_month'),
       cargarInventario(b.id),
       cargarPos(b.id),
@@ -242,14 +259,14 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
       })),
       stock: stockEjemplo(STOCK_EJEMPLO),
       codigos: [{ id: 'ej-cod-1', codigo: 'FERIA10', tipo: 'porcentaje', valor: 10, activo: true, vence: null }],
-      ventas: [
+      ventas: conDevoluciones([
         ...ventasEjemplo(),
         ...pos.ventas.map((v) => ({
         ...v,
         pagos: v.pagos.map((p) => ({ ...p, nombre: tx(p.nombre) ?? '' })),
         lineas: v.lineas.map((l) => ({ ...l, nombre: l.nombre.includes('|') ? `${tx(l.nombre.split('|')[0])} · ${l.nombre.split('|')[1]}` : (tx(l.nombre) ?? '') })),
         })),
-      ],
+      ]),
       formasPago: [],
       cargando: false,
     };
@@ -282,12 +299,18 @@ export type DatosArranque = {
   tarjetasQuitadas: string[];
 };
 
+/** La configuración del negocio como está ahora en el servidor (o la que hay en la app, si no hay conexión). */
+async function configuracionActual(negocio: Negocio): Promise<Configuracion> {
+  const { data } = await supabase.rpc('configuracion_de_negocio', { negocio: negocio.id });
+  return ((data as { setup?: Configuracion } | null)?.setup ?? negocio.configuracion) as Configuracion;
+}
+
 /** Guarda el arranque. Devuelve cuántos movimientos pasaron a la cuenta principal por quitar cuentas. */
 export async function guardarArranque(negocio: Negocio, d: DatosArranque): Promise<{ error: unknown; movidos: number; errorTarjeta: boolean }> {
   if (modoEjemploActivo()) return sinGuardar({ movidos: 0, errorTarjeta: false });
   const r1 = await supabase
     .from('businesses')
-    .update({ name: d.nombre.trim() || negocio.nombre, tax_regime: d.regimen, setup: { ...negocio.configuracion, ...d.configuracion, arranque_listo: true } as Json })
+    .update({ name: d.nombre.trim() || negocio.nombre, tax_regime: d.regimen, setup: { ...(await configuracionActual(negocio)), ...d.configuracion, arranque_listo: true } as Json })
     .eq('id', negocio.id);
   if (r1.error) return { error: r1.error, movidos: 0, errorTarjeta: false };
 
@@ -371,11 +394,13 @@ export async function cargarParametrosImpuestos(anio: number) {
 }
 
 /** Cambia parte de la configuración del negocio (businesses.setup). Solo el dueño. */
-export function guardarConfiguracion(negocio: Negocio, cambios: Partial<Configuracion>, regimen?: Regimen | null) {
+export async function guardarConfiguracion(negocio: Negocio, cambios: Partial<Configuracion>, regimen?: Regimen | null) {
   if (modoEjemploActivo()) return sinGuardar();
+  // Se lee la configuración actual del servidor: si la persona toca dos opciones seguidas, no se pierde la primera.
+  const actual = await configuracionActual(negocio);
   return supabase
     .from('businesses')
-    .update({ setup: { ...negocio.configuracion, ...cambios } as Json, ...(regimen !== undefined ? { tax_regime: regimen } : {}) })
+    .update({ setup: { ...actual, ...cambios } as Json, ...(regimen !== undefined ? { tax_regime: regimen } : {}) })
     .eq('id', negocio.id);
 }
 

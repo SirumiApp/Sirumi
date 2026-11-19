@@ -4,6 +4,7 @@ import { modoEjemploActivo, sinGuardar } from '@/ejemplo/modo';
 import type { Json } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
 import type { IvaVenta } from '@/lib/pos';
+import { todasLasFilas } from '@/lib/paginas';
 import { supabase } from '@/lib/supabase';
 import { normalizarCodigo, type CodigoDescuento } from '@/lib/ventas';
 
@@ -39,12 +40,17 @@ export type { CodigoDescuento } from '@/lib/ventas';
 /** Últimas ventas del negocio con sus líneas, y las formas de pago creadas por la persona. */
 export async function cargarPos(negocioId: string): Promise<{ ventas: Venta[]; formasPago: FormaPagoPropia[]; codigos: CodigoDescuento[] }> {
   const [ventas, formas, codigos] = await Promise.all([
-    supabase
-      .from('sales')
-      .select('id, number, date, warehouse_id, contact_id, subtotal, discount, total, payments, received, change, tax, tax_rate, tax_included, status, created_at, seller_id, discount_code, sale_items(variant_id, name, unit_price, unit_cost, quantity, line_total)')
-      .eq('business_id', negocioId)
-      .order('created_at', { ascending: false })
-      .limit(500),
+    // Las ventas desde el 1 de enero del año pasado (informes del año y comparaciones), por páginas.
+    todasLasFilas((desde, hasta) =>
+      supabase
+        .from('sales')
+        .select('id, number, date, warehouse_id, contact_id, subtotal, discount, total, payments, received, change, tax, tax_rate, tax_included, status, created_at, seller_id, discount_code, sale_items(variant_id, name, unit_price, unit_cost, quantity, line_total)')
+        .eq('business_id', negocioId)
+        .gte('date', `${new Date().getFullYear() - 1}-01-01`)
+        .order('created_at', { ascending: false })
+        .order('id')
+        .range(desde, hasta),
+    ),
     supabase.from('payment_methods').select('id, name, account_id').eq('business_id', negocioId).order('created_at'),
     supabase.from('discount_codes').select('id, code, kind, value, active, expires_on').eq('business_id', negocioId).order('code'),
   ]);

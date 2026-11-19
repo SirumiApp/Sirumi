@@ -3,6 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 
+import { hoyEn } from '@/lib/fechas';
+import { fechaCorta } from '@/personal/etiquetas';
+
 import { Aviso } from '@/components/Aviso';
 import { Boton } from '@/components/Boton';
 import { CampoDinero } from '@/components/CampoDinero';
@@ -31,7 +34,7 @@ import {
 } from '@/negocio/inventarioDatos';
 import { quitarFotoProducto, subirFotoProducto } from '@/negocio/fotos';
 import { FilaCifra, ListaFilas } from '@/negocio/Piezas';
-import { usePlata } from '@/personal/ganchos';
+import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { ESPACIO, FUENTES, useTema } from '@/theme';
 
 import { EditorFoto } from './Foto';
@@ -42,7 +45,8 @@ import { CampoCantidad, CampoCodigo, SelectorEmoji } from './Piezas';
 
 /** Detalle del producto (spec 04, §4): margen (C1), stock por bodega (C2), códigos (C6), variantes e historial. */
 export function DetalleProducto({ producto }: { producto: Producto }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const textosFecha = useTextosFecha();
   const { colores } = useTema();
   const plata = usePlata();
   const ejemplo = useModoEjemplo();
@@ -155,7 +159,8 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
   const equilibrio = cfg?.fijos_mes ? puntoDeEquilibrio({ fijosMes: cfg.fijos_mes, costoPorcentaje: producto.precio ? (producto.costo / producto.precio) * 100 : 0, variables: 0, ventas: 0 }).ventasEquilibrio : null;
   const total = stockDeProducto(ids, stock);
   const bajo = porReponer({ ...producto, variantes: ids }, stock);
-  const fecha = (iso: string) => new Date(iso).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'es-CO', { day: 'numeric', month: 'short' });
+  // "15 nov", en la hora de Colombia, igual que en el resto de la app.
+  const fecha = (iso: string) => fechaCorta(hoyEn(new Date(iso)), textosFecha);
 
   if (editando) return <EditarProducto producto={producto} onListo={() => setEditando(false)} />;
 

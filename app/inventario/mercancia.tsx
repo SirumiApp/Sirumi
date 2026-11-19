@@ -3,6 +3,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, View } from 'react-native';
 
+import { hoyEn } from '@/lib/fechas';
+import { fechaCorta } from '@/personal/etiquetas';
+import { useTextosFecha } from '@/personal/ganchos';
+
 import { Aviso } from '@/components/Aviso';
 import { Boton } from '@/components/Boton';
 import { CampoTexto } from '@/components/CampoTexto';
@@ -26,7 +30,8 @@ const sinTildes = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLo
 
 /** Entrada y salida de mercancía (spec 04, §5; reglas C2 y C3). */
 export default function Mercancia() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const textosFecha = useTextosFecha();
   const { colores, oscuro } = useTema();
   const ejemplo = useModoEjemplo();
   const params = useLocalSearchParams<{ producto?: string; variante?: string }>();
@@ -111,7 +116,8 @@ export default function Mercancia() {
 
   const texto = sinTildes(busqueda.trim());
   const encontrados = texto ? productos.filter((p) => sinTildes(p.nombre).includes(texto) || p.variantes.some((v) => v.codigo?.includes(texto))).slice(0, 12) : productos.slice(0, 12);
-  const fecha = (iso: string) => new Date(iso).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'es-CO', { day: 'numeric', month: 'short' });
+  // "15 nov", en la hora de Colombia, igual que en el resto de la app.
+  const fecha = (iso: string) => fechaCorta(hoyEn(new Date(iso)), textosFecha);
   const motivos = entra ? MOTIVOS_ENTRADA : MOTIVOS_SALIDA;
 
   return (

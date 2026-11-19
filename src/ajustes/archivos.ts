@@ -2,6 +2,7 @@ import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Platform } from 'react-native';
 
+import { todasLasFilas } from '@/lib/paginas';
 import { supabase } from '@/lib/supabase';
 
 /** Crea un archivo temporal y abre el menú del celular para guardarlo o compartirlo (correo, Drive, WhatsApp…). */
@@ -23,11 +24,9 @@ export async function compartirArchivo(nombre: string, contenido: string, tipo: 
 
 /** Todos los movimientos personales (de todas las fechas), del más reciente al más antiguo. */
 export async function todosMisMovimientos() {
-  const { data, error } = await supabase
-    .from('movements')
-    .select('date, kind, amount, category_id, description')
-    .eq('owner_type', 'personal')
-    .order('date', { ascending: false });
+  const { data, error } = await todasLasFilas((desde, hasta) =>
+    supabase.from('movements').select('date, kind, amount, category_id, description').eq('owner_type', 'personal').order('date', { ascending: false }).order('id').range(desde, hasta),
+  );
   if (error) throw error;
   return data ?? [];
 }
@@ -40,7 +39,8 @@ export async function misDatosCompletos(correo: string | undefined) {
   const tablas = ['profiles', 'consents', 'categories', 'movements', 'budgets', 'goals', 'debts', 'assets', 'net_worth_snapshots', 'accounts', 'business_members', 'businesses', 'warehouses', 'recurring_payments', 'statement_imports'] as const;
   const resultado: Record<string, unknown> = { exportado: new Date().toISOString(), correo };
   for (const tabla of tablas) {
-    const { data, error } = await supabase.from(tabla).select('*');
+    // Todo, por páginas (el servidor entrega máximo 1.000 filas por consulta).
+    const { data, error } = await todasLasFilas((desde, hasta) => supabase.from(tabla).select('*').range(desde, hasta));
     if (error) throw error;
     resultado[tabla] = data ?? [];
   }

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Share } from 'react-native';
 
+import { devolverEnEjemplo } from '@/ejemplo/arenero';
+import { modoEjemploActivo } from '@/ejemplo/modo';
 import { Aviso } from '@/components/Aviso';
 import { Boton } from '@/components/Boton';
 import { Texto } from '@/components/Texto';
@@ -54,6 +56,12 @@ export default function DetalleVenta() {
         style: 'destructive',
         onPress: async () => {
           setDevolviendo(true);
+          // En el ejemplo la devolución queda en la memoria del celular.
+          if (modoEjemploActivo()) {
+            devolverEnEjemplo(v!);
+            setDevolviendo(false);
+            return actualizar();
+          }
           const { error: e } = await devolverVenta(v!.id);
           setDevolviendo(false);
           const err = leerErrorInventario(e);

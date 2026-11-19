@@ -7,7 +7,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] **Período por defecto**: decidido con Nicolás (nov 2026): el mes va siempre del 1 al último día, en personal y en negocio. No se agrega el ajuste.
 - [x] **Notificaciones**: aviso de cada venta al dueño (servidor → Expo) y recordatorios de pagos recurrentes (en el celular). En Expo Go para iPhone llegan; en Android hace falta la app instalada.
 - [ ] Más avisos: topes, resumen semanal, calendario de impuestos, "sube tus extractos".
-- [ ] **Términos de servicio**: falta el texto (Fase 3, paso 11).
+- [x] **Términos de servicio**: en la app (borrador 2), falta revisión legal.
 - [ ] **Importar CSV** (desde un CSV exportado de la app).
 - [ ] **¿Te gusta la app? Déjanos una reseña**: cuando esté en las tiendas.
 - [ ] **Sugerencias** (votar funciones).
@@ -43,12 +43,12 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 
 ## Ideas de Nicolás (nov 2026) — ver docs/hoja-de-ruta.md
 - [x] Importar extracto del banco (CSV/Excel, regla B9) para negocio y personal, con deshacer. Falta: extractos de tarjetas de crédito; PDF con IA en la v2.
-- [ ] Calendario de impuestos y retenciones con recordatorios (según régimen y último dígito del NIT; fechas por año en una tabla, validar con contador).
+- [x] Calendario de impuestos y retenciones con recordatorios (según régimen y último dígito del NIT; fechas por año en una tabla, validar con contador).
 - [x] Pagos recurrentes personales y modo "solo personal" más limpio.
 
 ## Modo ejemplo
 - [x] Ajustes → "Ver la app con un ejemplo" y botón "Ver un ejemplo primero" cuando la cuenta está vacía. Datos inventados en `src/ejemplo/` (no tocan la base de datos; guardar está bloqueado con aviso).
-- [ ] Cuando existan productos, inventario y POS: sumarles datos de ejemplo.
+- [x] Cuando existan productos, inventario y POS: sumarles datos de ejemplo.
 
 ## Lo que sigue (pedido de Nicolás, nov 2026)
 - [x] Códigos de descuento (D7) e informe de ventas (D8): más vendidos con ganancia, vendedores, formas de pago, clientes.
@@ -62,3 +62,18 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [ ] Servicio de correo propio (SMTP) y volver a activar la confirmación de correo con código.
 - [ ] Revisión legal de las políticas en español e inglés.
 - [ ] Micrófono propio para dictar (requiere la app instalada).
+
+## Revisión de errores (19 nov 2026)
+- [x] El servidor entrega máximo 1.000 filas por consulta: movimientos, traslados, contactos, productos, stock, ventas y exportar ahora se piden por páginas (antes los saldos saldrían mal en negocios con mucho movimiento).
+- [x] Ventas del POS: se cargan desde el 1 de enero del año pasado (antes, solo las últimas 500).
+- [x] Guardar la configuración del negocio ya no pisa un cambio hecho en otra pantalla o dos toques seguidos.
+- [x] Modo ejemplo: editar una venta del POS ya no la desliga de su venta; se puede devolver una venta.
+- [x] Fechas del historial de inventario con el formato de la app ("15 nov") y la hora de Colombia.
+
+## Mejoras propuestas (por decidir)
+- [ ] POS sin internet (ferias): vender sin señal y sincronizar al volver.
+- [ ] Arqueo de caja al cerrar el día: contar el efectivo y ver la diferencia.
+- [ ] Aviso de inventario bajo el mínimo y de topes personales al 80%.
+- [ ] Devolución parcial (una sola línea de la venta).
+- [ ] IVA por producto (exento, 5%) e "IVA por pagar" en el balance.
+- [ ] Resumen semanal por notificación ("esta semana vendiste $ X, gastaste $ Y").

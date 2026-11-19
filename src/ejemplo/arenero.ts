@@ -11,10 +11,11 @@ import type { Movimiento } from '@/lib/personal';
 import type { LineaVenta, PagoVenta, Venta } from '@/pos/datos';
 
 export type MovPersonalEjemplo = Movimiento & { recurrente?: string | null };
-type Lista<T> = { nuevos: T[]; editados: Map<string, T>; borrados: Set<string> };
+/** Lo editado se guarda como cambios parciales: los campos que no se tocaron (p. ej. la venta enlazada) se conservan. */
+type Lista<T> = { nuevos: T[]; editados: Map<string, Partial<T>>; borrados: Set<string> };
 const lista = <T>(): Lista<T> => ({ nuevos: [], editados: new Map(), borrados: new Set() });
 
-let estado = { personal: lista<MovPersonalEjemplo>(), negocio: lista<MovNegocio>(), ventas: [] as Venta[], stock: [] as FilaStock[], numero: 0 };
+let estado = { personal: lista<MovPersonalEjemplo>(), negocio: lista<MovNegocio>(), ventas: [] as Venta[], stock: [] as FilaStock[], numero: 0, devueltas: new Set<string>() };
 let version = 0;
 let siguiente = 1;
 const oyentes = new Set<() => void>();
@@ -39,19 +40,30 @@ export const idEjemplo = (prefijo: string) => `ej-${prefijo}-nuevo-${siguiente++
 
 /** Aplica lo registrado en el ejemplo a una lista: quita lo borrado, cambia lo editado y suma lo nuevo (primero). */
 export function aplicar<T extends { id: string }>(base: T[], cambios: Lista<T>): T[] {
-  const nuevos = cambios.nuevos.filter((m) => !cambios.borrados.has(m.id)).map((m) => cambios.editados.get(m.id) ?? m);
-  return [...nuevos, ...base.filter((m) => !cambios.borrados.has(m.id)).map((m) => cambios.editados.get(m.id) ?? m)];
+  const editar = (m: T): T => ({ ...m, ...(cambios.editados.get(m.id) ?? {}) });
+  return [...cambios.nuevos, ...base].filter((m) => !cambios.borrados.has(m.id)).map(editar);
 }
 
 function guardar<T extends { id: string }>(l: Lista<T>, m: T, id?: string) {
-  if (id) l.editados.set(id, { ...m, id });
+  if (id) l.editados.set(id, { ...(l.editados.get(id) ?? {}), ...m, id });
   else l.nuevos.unshift(m);
   avisar();
 }
 
 export const personalEjemplo = (base: Movimiento[]) => aplicar(base, estado.personal);
-export const negocioEjemplo = (base: MovNegocio[]) => aplicar(base, estado.negocio);
+/** Movimientos del negocio en el ejemplo (sin los de ventas devueltas: D4 quita la plata de la venta). */
+export const negocioEjemplo = (base: MovNegocio[]) => aplicar(base, estado.negocio).filter((m) => !m.venta || !estado.devueltas.has(m.venta));
 export const ventasEjemplo = () => estado.ventas;
+/** Marca como devueltas las ventas que se devolvieron en el ejemplo. */
+export const conDevoluciones = (ventas: Venta[]) => ventas.map((v) => (estado.devueltas.has(v.id) ? { ...v, estado: 'devuelta' as const } : v));
+
+/** D4 en el ejemplo: la venta queda devuelta, su plata sale y el stock vuelve a la misma bodega. */
+export function devolverEnEjemplo(v: Pick<Venta, 'id' | 'bodega' | 'lineas' | 'estado'>) {
+  if (v.estado === 'devuelta' || estado.devueltas.has(v.id)) return;
+  estado.devueltas.add(v.id);
+  if (v.bodega) for (const l of v.lineas) if (l.variante) estado.stock.push({ variante: l.variante, bodega: v.bodega, cantidad: -l.cantidad });
+  avisar();
+}
 /** Pagos de recurrentes personales registrados en el ejemplo. */
 export const pagosRecurrentesEjemplo = () => estado.personal.nuevos.filter((m) => m.recurrente && !estado.personal.borrados.has(m.id)).map((m) => ({ fecha: m.fecha, recurrente: m.recurrente }));
 
@@ -158,6 +170,6 @@ export function cobrarEnEjemplo(d: CobroEjemplo, primerNumero: number) {
 
 /** Al salir del ejemplo se borra todo lo que se registró en él. */
 export function vaciarArenero() {
-  estado = { personal: lista(), negocio: lista(), ventas: [], stock: [], numero: 0 };
+  estado = { personal: lista(), negocio: lista(), ventas: [], stock: [], numero: 0, devueltas: new Set() };
   avisar();
 }

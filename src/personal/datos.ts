@@ -6,6 +6,7 @@ import { useSesion } from '@/auth/sesion';
 import type { Tables } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
 import type { Movimiento, TipoMovimiento } from '@/lib/personal';
+import { todasLasFilas } from '@/lib/paginas';
 import { supabase } from '@/lib/supabase';
 import { CATEGORIAS_EJEMPLO, esTextoEjemplo, movimientosPersonalesEjemplo, TOPES_EJEMPLO } from '@/ejemplo/datosEjemplo';
 import { borrarPersonalEnEjemplo, guardarPersonalEnEjemplo, personalEjemplo, useArenero } from '@/ejemplo/arenero';
@@ -45,14 +46,18 @@ export function useMovimientos(desde: Fecha, hasta: Fecha, version = 0) {
 
   const cargar = useCallback(async () => {
     if (!idUsuario) return;
-    const { data } = await supabase
-      .from('movements')
-      .select('id, date, kind, amount, category_id, description')
-      .eq('owner_type', 'personal')
-      .gte('date', desde)
-      .lte('date', hasta)
-      .order('date', { ascending: false })
-      .order('created_at', { ascending: false });
+    const { data } = await todasLasFilas((d, h) =>
+      supabase
+        .from('movements')
+        .select('id, date, kind, amount, category_id, description')
+        .eq('owner_type', 'personal')
+        .gte('date', desde)
+        .lte('date', hasta)
+        .order('date', { ascending: false })
+        .order('created_at', { ascending: false })
+        .order('id')
+        .range(d, h),
+    );
     setMovimientos(
       (data ?? []).map((m) => ({
         id: m.id,

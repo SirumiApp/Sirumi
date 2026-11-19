@@ -3,6 +3,7 @@
 import { modoEjemploActivo, sinGuardar } from '@/ejemplo/modo';
 import type { Json } from '@/lib/database.types';
 import { nombreVariante, type FilaStock } from '@/lib/inventario';
+import { todasLasFilas } from '@/lib/paginas';
 import { supabase } from '@/lib/supabase';
 
 import { enlacesDeFotos } from './fotos';
@@ -30,12 +31,18 @@ export type DatosInventario = { bodegas: Bodega[]; productos: Producto[]; stock:
 export async function cargarInventario(negocioId: string): Promise<DatosInventario> {
   const [bodegas, productos, stock] = await Promise.all([
     supabase.from('warehouses').select('id, name, is_main').eq('business_id', negocioId).order('created_at'),
-    supabase
-      .from('products')
-      .select('id, name, collection, emoji, photo_path, price, cost, cost_breakdown, min_stock, product_variants(id, color, size, barcode, position)')
-      .eq('business_id', negocioId)
-      .order('name'),
-    supabase.from('stock').select('variant_id, warehouse_id, quantity').eq('business_id', negocioId),
+    todasLasFilas((desde, hasta) =>
+      supabase
+        .from('products')
+        .select('id, name, collection, emoji, photo_path, price, cost, cost_breakdown, min_stock, product_variants(id, color, size, barcode, position)')
+        .eq('business_id', negocioId)
+        .order('name')
+        .order('id')
+        .range(desde, hasta),
+    ),
+    todasLasFilas((desde, hasta) =>
+      supabase.from('stock').select('variant_id, warehouse_id, quantity').eq('business_id', negocioId).order('variant_id').order('warehouse_id').range(desde, hasta),
+    ),
   ]);
   const enlaces = await enlacesDeFotos((productos.data ?? []).map((p) => p.photo_path).filter((r): r is string => !!r));
   return {

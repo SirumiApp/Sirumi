@@ -89,7 +89,12 @@ function FormularioArranque({
     prestamos: conf.prestamos ?? 0,
     tarjetas: tarjetasF.map((tj) => ({ cupo: tj.cupo, deuda: tj.deuda })),
   });
-  const cambiarConf = (parcial: Partial<Configuracion>) => setConf((c) => ({ ...c, ...parcial }));
+  // Solo se guarda lo que la persona cambió aquí: así no se pisa lo que cambió en otra pantalla (p. ej. impuestos).
+  const [cambios, setCambios] = useState<Partial<Configuracion>>({});
+  const cambiarConf = (parcial: Partial<Configuracion>) => {
+    setConf((c) => ({ ...c, ...parcial }));
+    setCambios((c) => ({ ...c, ...parcial }));
+  };
 
   async function guardar() {
     setGuardando(true);
@@ -97,7 +102,7 @@ function FormularioArranque({
     const r = await guardarArranque(negocio, {
       nombre,
       regimen,
-      configuracion: conf,
+      configuracion: cambios,
       cuentas: cuentasF.filter((c) => c.efectivo || c.nombre.trim()).map((c) => ({ id: c.id, nombre: c.nombre, saldo: c.saldo })),
       cuentasQuitadas: cuentasIniciales.filter((c) => !c.efectivo && !cuentasF.some((x) => x.id === c.id)).map((c) => c.id!),
       tarjetas: tarjetasF.filter((tj) => tj.nombre.trim()).map((tj) => ({ id: tj.id, nombre: tj.nombre, cupo: tj.cupo, deuda: tj.deuda })),

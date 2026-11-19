@@ -16,8 +16,9 @@ const base: CobroEjemplo = {
 
 describe('arenero del modo ejemplo', () => {
   it('lo nuevo va primero, lo editado se cambia y lo borrado se quita', () => {
-    const l = { nuevos: [{ id: 'n', v: 1 }], editados: new Map([['a', { id: 'a', v: 9 }]]), borrados: new Set(['b']) };
-    expect(aplicar([{ id: 'a', v: 0 }, { id: 'b', v: 0 }], l)).toEqual([{ id: 'n', v: 1 }, { id: 'a', v: 9 }]);
+    const l = { nuevos: [{ id: 'n', v: 1, w: 1 }], editados: new Map([['a', { v: 9 }]]), borrados: new Set(['b']) };
+    // Lo que no se editó (w) se conserva.
+    expect(aplicar([{ id: 'a', v: 0, w: 5 }, { id: 'b', v: 0, w: 0 }], l)).toEqual([{ id: 'n', v: 1, w: 1 }, { id: 'a', v: 9, w: 5 }]);
   });
   it('una venta pagada: un movimiento por pago y el stock que sale', () => {
     const r = armarVentaEjemplo(base, 'v1', 25, 'x');
