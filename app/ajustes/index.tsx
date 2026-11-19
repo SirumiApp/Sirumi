@@ -41,7 +41,7 @@ export default function Ajustes() {
   const pais = paisPorCodigo(perfil?.country ?? 'CO');
   const ejemplo = useModoEjemplo();
   const uso = usoDeApp(perfil?.usage);
-  const avisos = ((perfil?.preferences as { notificaciones?: { ventas?: boolean; recordatorios?: boolean } } | null)?.notificaciones ?? {});
+  const avisos = ((perfil?.preferences as { notificaciones?: { ventas?: boolean; recordatorios?: boolean; impuestos?: boolean; extractos?: boolean } } | null)?.notificaciones ?? {});
   const mostrarIngresos = (perfil?.preferences as { mostrarIngresos?: boolean } | null)?.mostrarIngresos !== false;
 
   async function exportarCsv() {
@@ -117,6 +117,32 @@ export default function Ajustes() {
               etiqueta={t('notificaciones.recordatorios')}
               encendido={avisos.recordatorios !== false}
               onCambio={(valor) => sesion && actualizarPreferencias(sesion.user.id, perfil?.preferences, { notificaciones: { ...avisos, recordatorios: valor } })}
+            />
+          }
+        />
+        {veNegocio(uso) && (
+          <FilaAjuste
+            emoji="balanza"
+            titulo={t('notificaciones.impuestos')}
+            detalle={t('notificaciones.impuestosDetalle')}
+            derecha={
+              <Interruptor
+                etiqueta={t('notificaciones.impuestos')}
+                encendido={avisos.impuestos !== false}
+                onCambio={(valor) => sesion && actualizarPreferencias(sesion.user.id, perfil?.preferences, { notificaciones: { ...avisos, impuestos: valor } })}
+              />
+            }
+          />
+        )}
+        <FilaAjuste
+          emoji="banco"
+          titulo={t('notificaciones.extractos')}
+          detalle={t('notificaciones.extractosDetalle')}
+          derecha={
+            <Interruptor
+              etiqueta={t('notificaciones.extractos')}
+              encendido={avisos.extractos !== false}
+              onCambio={(valor) => sesion && actualizarPreferencias(sesion.user.id, perfil?.preferences, { notificaciones: { ...avisos, extractos: valor } })}
             />
           }
         />

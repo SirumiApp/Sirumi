@@ -19,6 +19,8 @@ export type ParametrosImpuestos = {
   /** ICA por defecto (por mil de las ventas). Depende del municipio. */
   icaPorMil: number;
   iva: number;
+  /** B12 · Ajustes al calendario de la DIAN (días cívicos, fechas movidas). */
+  calendario?: import('./calendarioTributario').AjustesCalendario;
 };
 
 /** Impuesto de renta de persona natural (art. 241) para una renta anual en UVT. Devuelve UVT. */

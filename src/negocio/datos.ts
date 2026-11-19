@@ -33,6 +33,12 @@ export type Configuracion = {
   /** ICA del municipio, por mil de las ventas (si no, el de la tabla del año). */
   ica_por_mil?: number;
   arranque_listo?: boolean;
+  /** B12 · Último dígito del NIT (sin el de verificación), para las fechas de la DIAN. */
+  digito_nit?: number;
+  /** B12 · ¿Practica retención en la fuente? (declara cada mes). */
+  agente_retencion?: boolean;
+  /** B12 · IVA bimestral (ventas altas) o cuatrimestral. */
+  periodo_iva?: 'bimestral' | 'cuatrimestral';
 };
 
 export type Negocio = {
@@ -341,6 +347,15 @@ export function borrarMovNegocio(id: string) {
 export async function cargarParametrosImpuestos(anio: number) {
   const { data } = await supabase.from('tax_parameters').select('year, params').lte('year', anio).order('year', { ascending: false }).limit(1).maybeSingle();
   return data ? (data.params as unknown as import('@/lib/impuestos').ParametrosImpuestos) : null;
+}
+
+/** Cambia parte de la configuración del negocio (businesses.setup). Solo el dueño. */
+export function guardarConfiguracion(negocio: Negocio, cambios: Partial<Configuracion>, regimen?: Regimen | null) {
+  if (modoEjemploActivo()) return sinGuardar();
+  return supabase
+    .from('businesses')
+    .update({ setup: { ...negocio.configuracion, ...cambios } as Json, ...(regimen !== undefined ? { tax_regime: regimen } : {}) })
+    .eq('id', negocio.id);
 }
 
 /** Mover plata entre cuentas o pagar una tarjeta (regla B2/B3). */

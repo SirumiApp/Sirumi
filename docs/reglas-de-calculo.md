@@ -271,3 +271,19 @@ Convenciones:
 - Por producto: unidades, ventas (suma de las líneas) y ganancia (ventas − costo × unidades; sin costo conocido no se calcula). Ordenado de más a menos vendido.
 - Por vendedor, por forma de pago (cada parte del pago cuenta en su forma) y por cliente.
 - Ejemplo: dos ventas de 100.000 y 50.000 y una devuelta de 30.000 → ventas 150.000, 2 ventas, ticket promedio 75.000, devoluciones 1 por 30.000.
+
+## B12 · Calendario de impuestos (DIAN)
+
+- **Base**: Decreto 2229 de 2023 (DUR 1625 de 2016). Los pagos mensuales y bimestrales (retención en la fuente, IVA bimestral o cuatrimestral, anticipos del SIMPLE) vencen en el **día hábil 7 a 16** del mes, según el último dígito del NIT sin el de verificación: 1 → 7.º, 2 → 8.º … 9 → 15.º, 0 → 16.º.
+- **Día hábil**: lunes a viernes que no sea festivo. Festivos: Ley 51 de 1983 (los que se corren al lunes) y los de Semana Santa según la Pascua.
+- Comprobado contra las fechas publicadas: octubre 2026 (9 al 23), noviembre 2026 (11 al 25) y diciembre 2025 (10 al 23).
+- **Qué le toca a cada negocio**:
+  - Agente de retención: retención del mes anterior, cada mes (formulario 350).
+  - SIMPLE: anticipos bimestrales (recibo 2593). Ene-feb se paga en mayo, mar-abr en junio, may-jun en julio, jul-ago en septiembre, sep-oct en noviembre y nov-dic en enero. Declaración anual en abril (formulario 260). Si es responsable de IVA, IVA anual en febrero.
+  - Ordinario o persona natural responsable de IVA: IVA cada 2 meses (vence en ene, mar, may, jul, sep, nov) o cada 4 (ene, may, sep).
+  - Renta: sociedades entre abril y mayo; personas naturales entre agosto y octubre.
+- Las declaraciones anuales se muestran **por mes, sin día exacto**: el día lo confirma el contador.
+- Si la DIAN mueve una fecha (día cívico, festivo nuevo), el ajuste va en `tax_parameters.params.calendario` (`diasNoHabiles` o `fechas["obligacion|AAAA-MM|digito"]`), sin publicar otra versión de la app.
+- **Avisos**: 3 días antes y el mismo día, a las 9 a. m.; para lo que solo tiene mes, el día 1 de ese mes. "Sube tus extractos de {mes}" el día 5 de cada mes. Cada aviso se apaga en Ajustes.
+- El ICA es municipal y no entra (cada ciudad tiene su calendario).
+- VALIDAR CON EL CONTADOR ANTES DE LANZAR.

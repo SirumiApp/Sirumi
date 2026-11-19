@@ -8,6 +8,7 @@ import { ProveedorSesion, useSesion } from '@/auth/sesion';
 import { escucharToques, refrescarRegistro } from '@/notificaciones';
 import { cargarIdiomaGuardado } from '@/i18n';
 import { ProveedorNegocio } from '@/negocio/contexto';
+import { ProgramadorAvisos } from '@/notificaciones/Programador';
 import { ProveedorPersonal } from '@/personal/contexto';
 import { FUENTES_A_CARGAR, ProveedorTema, useTema } from '@/theme';
 
@@ -88,6 +89,7 @@ function Navegacion() {
               <Stack.Screen name="codigos" />
               <Stack.Screen name="informe-ventas" />
               <Stack.Screen name="extractos" />
+              <Stack.Screen name="impuestos" />
             </Stack.Protected>
             <Stack.Protected guard={!sesion}>
               <Stack.Screen name="(auth)" />
@@ -96,6 +98,7 @@ function Navegacion() {
               <Stack.Screen name="onboarding" />
             </Stack.Protected>
           </Stack>
+          {!!sesion && onboardingListo === true && <ProgramadorAvisos />}
         </ProveedorNegocio>
       </ProveedorPersonal>
     </ThemeProvider>

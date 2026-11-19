@@ -53,7 +53,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 ## Lo que sigue (pedido de Nicolás, nov 2026)
 - [x] Códigos de descuento (D7) e informe de ventas (D8): más vendidos con ganancia, vendedores, formas de pago, clientes.
 - [x] Importar extractos (CSV/Excel) por cuenta y mes, en negocio y personal (B9).
-- [ ] Calendario de impuestos y retenciones con avisos, y aviso mensual "sube tus extractos".
+- [x] Calendario de impuestos y retenciones con avisos, y aviso mensual "sube tus extractos".
 - [ ] Pagos recurrentes personales con avisos.
 - [ ] Factura electrónica DIAN (después): conectar con un proveedor tecnológico autorizado.
 

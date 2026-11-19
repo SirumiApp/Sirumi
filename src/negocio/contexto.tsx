@@ -1,11 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { avisarEjemplo, modoEjemploActivo, useModoEjemplo } from '@/ejemplo/modo';
-import { usePerfil } from '@/auth/perfil';
+import { avisarEjemplo, modoEjemploActivo } from '@/ejemplo/modo';
 import { hoyEn, partes } from '@/lib/fechas';
-import { recordatoriosDeRecurrentes } from '@/lib/recordatorios';
-import { programarRecordatorios, quitarRecordatorios } from '@/notificaciones';
-import { usePlata } from '@/personal/ganchos';
 import type { ParametrosImpuestos } from '@/lib/impuestos';
 import type { MovNegocio } from '@/lib/negocio';
 
@@ -35,21 +31,6 @@ export function ProveedorNegocio({ children }: { children: ReactNode }) {
     if (conNegocio) cargarParametrosImpuestos(partes(hoyEn()).anio).then(setParametros);
   }, [conNegocio]);
 
-  // Recordatorios de pagos recurrentes en el celular (solo el dueño, con datos reales y si no los apagó).
-  const perfil = usePerfil();
-  const plata = usePlata();
-  const ejemplo = useModoEjemplo();
-  const conRecordatorios = (perfil?.preferences as { notificaciones?: { recordatorios?: boolean } } | null)?.notificaciones?.recordatorios !== false;
-  useEffect(() => {
-    if (ejemplo || datos.cargando || datos.negocio?.rol !== 'owner') return;
-    if (!conRecordatorios) {
-      quitarRecordatorios();
-      return;
-    }
-    const hoy = hoyEn();
-    programarRecordatorios(recordatoriosDeRecurrentes(datos.recurrentes, datos.movimientos, hoy), plata, hoy);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `plata` cambia en cada render; basta con los datos
-  }, [ejemplo, datos.cargando, datos.negocio?.rol, datos.recurrentes, datos.movimientos, conRecordatorios]);
   const actualizar = useCallback(() => setVersion((v) => v + 1), []);
   const abrirHoja = useCallback((movimiento: MovNegocio | null, plantilla?: Partial<DatosMovNegocio>) => {
     // En el modo ejemplo no se registra nada: se avisa y se ofrece salir.

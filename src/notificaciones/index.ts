@@ -9,7 +9,6 @@ import { t as traducir } from 'i18next';
 import { Platform } from 'react-native';
 
 import type { Fecha } from '@/lib/fechas';
-import type { Recordatorio } from '@/lib/recordatorios';
 import { supabase } from '@/lib/supabase';
 
 export type EstadoAvisos = 'activos' | 'sinPermiso' | 'preguntar' | 'noDisponible';
@@ -69,35 +68,41 @@ export async function refrescarRegistro() {
 export function escucharToques(): () => void {
   if (Platform.OS === 'web') return () => {};
   const s = Notifications.addNotificationResponseReceivedListener((r) => {
-    const data = r.notification.request.content.data as { tipo?: string; venta?: string } | undefined;
+    const data = r.notification.request.content.data as { tipo?: string; venta?: string; ambito?: string } | undefined;
     if (data?.tipo === 'venta' && data.venta) router.push({ pathname: '/pos/venta/[id]', params: { id: data.venta } });
     if (data?.tipo === 'recurrente') router.push('/recurrentes');
+    if (data?.tipo === 'impuesto') router.push('/impuestos');
+    if (data?.tipo === 'extracto') router.push({ pathname: '/extractos', params: { ambito: data.ambito ?? 'negocio' } });
   });
   return () => s.remove();
 }
 
-const PREFIJO = 'recurrente-';
+const PREFIJO = 'sirumi-';
+/** Los de versiones anteriores empezaban así. */
+const PREFIJOS_VIEJOS = ['recurrente-'];
+const esNuestro = (id: string) => id.startsWith(PREFIJO) || PREFIJOS_VIEJOS.some((p) => id.startsWith(p));
+
+/** Un recordatorio local listo para mostrar (los textos ya traducidos). */
+export type AvisoLocal = { clave: string; fecha: Fecha; titulo: string; cuerpo: string; data: Record<string, string> };
 
 /**
- * Programa en el celular los recordatorios de pagos recurrentes (a las 9 a. m. del día que vence).
- * Borra los anteriores para que no queden repetidos ni de pagos que ya se hicieron.
+ * Programa en el celular los recordatorios (pagos recurrentes, impuestos, extractos) a las 9 a. m. del día.
+ * Borra los anteriores para que no queden repetidos ni de cosas que ya se hicieron.
+ * iOS deja máximo 64 programados: se guardan los más cercanos.
  */
-export async function programarRecordatorios(lista: Recordatorio[], plata: (v: number) => string, hoy: Fecha) {
+export async function programarAvisos(lista: AvisoLocal[]) {
   if ((await estadoAvisos()) !== 'activos') return;
   const programados = await Notifications.getAllScheduledNotificationsAsync();
-  await Promise.all(programados.filter((n) => n.identifier.startsWith(PREFIJO)).map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)));
+  await Promise.all(programados.filter((n) => esNuestro(n.identifier)).map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)));
   const ahora = new Date();
-  for (const r of lista) {
+  const proximos = [...lista].sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 60);
+  for (const r of proximos) {
     const [a, m, d] = r.fecha.split('-').map(Number);
     const cuando = new Date(a, m - 1, d, 9, 0, 0);
     if (cuando <= ahora) continue;
     await Notifications.scheduleNotificationAsync({
-      identifier: r.clave,
-      content: {
-        title: r.fecha === hoy ? traducir('notificaciones.recurrenteHoy') : traducir('notificaciones.recurrente'),
-        body: `${r.recurrente.nombre} · ${plata(r.recurrente.monto)}`,
-        data: { tipo: 'recurrente', recurrente: r.recurrente.id },
-      },
+      identifier: PREFIJO + r.clave,
+      content: { title: r.titulo, body: r.cuerpo, data: r.data },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: cuando, channelId: 'recordatorios' },
     });
   }
@@ -107,5 +112,5 @@ export async function programarRecordatorios(lista: Recordatorio[], plata: (v: n
 export async function quitarRecordatorios() {
   if (Platform.OS === 'web') return;
   const programados = await Notifications.getAllScheduledNotificationsAsync();
-  await Promise.all(programados.filter((n) => n.identifier.startsWith(PREFIJO)).map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)));
+  await Promise.all(programados.filter((n) => esNuestro(n.identifier)).map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)));
 }

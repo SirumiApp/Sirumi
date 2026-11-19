@@ -127,6 +127,7 @@ export const NEGOCIO_EJEMPLO = {
     deuda_proveedores: 1_000_000,
     prestamos: 0,
     arranque_listo: true,
+    digito_nit: 7,
   },
 };
 
