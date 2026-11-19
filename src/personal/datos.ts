@@ -8,6 +8,7 @@ import type { Fecha } from '@/lib/fechas';
 import type { Movimiento, TipoMovimiento } from '@/lib/personal';
 import { supabase } from '@/lib/supabase';
 import { CATEGORIAS_EJEMPLO, esTextoEjemplo, movimientosPersonalesEjemplo, TOPES_EJEMPLO } from '@/ejemplo/datosEjemplo';
+import { borrarPersonalEnEjemplo, guardarPersonalEnEjemplo, personalEjemplo, useArenero } from '@/ejemplo/arenero';
 import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
 import { hoyEn } from '@/lib/fechas';
 
@@ -73,14 +74,18 @@ export function useMovimientos(desde: Fecha, hasta: Fecha, version = 0) {
 
   const ejemplo = useModoEjemplo();
   const { t } = useTranslation();
+  const arenero = useArenero();
   const deEjemplo = useMemo(
     () =>
       ejemplo
-        ? movimientosPersonalesEjemplo(hoyEn())
+        ? personalEjemplo(
+            movimientosPersonalesEjemplo(hoyEn()).map((m) => ({ ...m, descripcion: esTextoEjemplo(m.descripcion) ? (t(m.descripcion as never) as string) : m.descripcion })),
+          )
             .filter((m) => m.fecha >= desde && m.fecha <= hasta)
-            .map((m) => ({ ...m, descripcion: esTextoEjemplo(m.descripcion) ? (t(m.descripcion as never) as string) : m.descripcion }))
+            .sort((a, b) => b.fecha.localeCompare(a.fecha))
         : null,
-    [ejemplo, desde, hasta, t],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `arenero` cambia cuando se registra algo en el ejemplo
+    [ejemplo, desde, hasta, t, arenero],
   );
   if (deEjemplo) return { movimientos: deEjemplo, cargando: false, recargar: cargar };
   return { movimientos, cargando, recargar: cargar };
@@ -97,7 +102,11 @@ export type DatosMovimiento = {
 };
 
 export async function guardarMovimiento(datos: DatosMovimiento, id?: string) {
-  if (modoEjemploActivo()) return sinGuardar();
+  if (modoEjemploActivo()) {
+    // En el ejemplo se guarda solo en la memoria del celular (se borra al salir del ejemplo).
+    guardarPersonalEnEjemplo({ fecha: datos.fecha, tipo: datos.tipo, monto: Math.round(datos.monto), categoria: datos.categoria ?? '', descripcion: datos.descripcion.trim() || null, recurrente: datos.recurrente ?? null }, id);
+    return { error: null };
+  }
   const fila = {
     date: datos.fecha,
     kind: datos.tipo,
@@ -109,7 +118,10 @@ export async function guardarMovimiento(datos: DatosMovimiento, id?: string) {
 }
 
 export async function borrarMovimiento(id: string) {
-  if (modoEjemploActivo()) return sinGuardar();
+  if (modoEjemploActivo()) {
+    borrarPersonalEnEjemplo(id);
+    return { error: null };
+  }
   return supabase.from('movements').delete().eq('id', id);
 }
 

@@ -1,4 +1,5 @@
 import { esTextoEjemplo, pagosPersonalesEjemplo, RECURRENTES_PERSONALES_EJEMPLO } from '@/ejemplo/datosEjemplo';
+import { pagosRecurrentesEjemplo } from '@/ejemplo/arenero';
 import { modoEjemploActivo, sinGuardar } from '@/ejemplo/modo';
 import type { PagoHecho, Recurrente } from '@/lib/contactos';
 import { hoyEn } from '@/lib/fechas';
@@ -10,7 +11,7 @@ export async function cargarRecurrentesPersonales(traducir: (clave: string) => s
   if (modoEjemploActivo()) {
     return {
       recurrentes: RECURRENTES_PERSONALES_EJEMPLO.map((r) => ({ ...r, nombre: esTextoEjemplo(r.nombre) ? traducir(r.nombre) : r.nombre })),
-      pagos: pagosPersonalesEjemplo(hoy),
+      pagos: [...pagosPersonalesEjemplo(hoy), ...pagosRecurrentesEjemplo()],
     };
   }
   const [recurrentes, pagos] = await Promise.all([

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { usePerfil } from '@/auth/perfil';
 import { useSesion } from '@/auth/sesion';
-import { avisarEjemplo, modoEjemploActivo, useModoEjemplo } from '@/ejemplo/modo';
+import { useModoEjemplo } from '@/ejemplo/modo';
 import type { PagoHecho, Recurrente } from '@/lib/contactos';
 import { hoyEn } from '@/lib/fechas';
 import type { Movimiento } from '@/lib/personal';
@@ -63,8 +63,7 @@ export function ProveedorPersonal({ children }: { children: ReactNode }) {
     [sesion, perfil?.preferences],
   );
   const abrirHoja = useCallback((movimiento: Movimiento | null, plantilla?: PlantillaMovimiento) => {
-    // En el modo ejemplo no se registra nada: se avisa y se ofrece salir.
-    if (modoEjemploActivo()) return avisarEjemplo();
+    // En el modo ejemplo también se puede registrar: queda solo en la memoria del celular.
     setHoja({ abierta: true, movimiento, plantilla });
   }, []);
 

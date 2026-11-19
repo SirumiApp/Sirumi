@@ -21,7 +21,8 @@ export type NombreIcono =
   | 'adelante'
   | 'buscar'
   | 'cerrar'
-  | 'calendario';
+  | 'calendario'
+  | 'codigoBarras';
 
 export function Icono({ nombre, tamano = 22, color, grosor = 2 }: { nombre: NombreIcono; tamano?: number; color?: string; grosor?: number }) {
   const { colores } = useTema();
@@ -49,6 +50,14 @@ export function Icono({ nombre, tamano = 22, color, grosor = 2 }: { nombre: Nomb
         </>
       )}
       {nombre === 'mas' && <Path d="M12 5v14M5 12h14" {...p} />}
+      {nombre === 'codigoBarras' && (
+        <>
+          {/* Marco de escáner con barras: abre la cámara para leer el código. */}
+          <Path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" {...p} />
+          <Path d="M7 8v8M10 8v8M13 8v8M17 8v8" {...p} />
+          <Path d="M15 8v8" {...p} strokeWidth={grosor * 0.6} />
+        </>
+      )}
       {nombre === 'ajustes' && (
         <>
           <Path d="M4 7h9M19 7h1M4 17h3M13 17h7" {...p} />

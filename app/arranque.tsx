@@ -16,6 +16,7 @@ import { Interruptor } from '@/components/Interruptor';
 import { Texto } from '@/components/Texto';
 import { valorInventario } from '@/lib/inventario';
 import { iconoDeCuenta, resumenArranque } from '@/lib/negocio';
+import { TarjetaImpuestosPais } from '@/impuestos/TarjetaImpuestosPais';
 import { useNegocio } from '@/negocio/contexto';
 import { guardarArranque, type Configuracion, type Regimen } from '@/negocio/datos';
 import { paraReglas } from '@/negocio/inventarioDatos';
@@ -65,6 +66,7 @@ function FormularioArranque({
   const { colores } = useTema();
   const plata = usePlata();
   const perfil = usePerfil();
+  const colombia = (perfil?.country ?? 'CO') === 'CO';
   const separador = paisPorCodigo(perfil?.country ?? 'CO').separador;
 
   const [nombre, setNombre] = useState(negocio.nombre);
@@ -204,25 +206,31 @@ function FormularioArranque({
           cambiarConf({ costo_porcentaje: limpio ? parseInt(limpio, 10) : undefined });
         }}
       />
-      <Texto variante="fuerte">{t('negocioApp.arranque.regimen')}</Texto>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: ESPACIO.s }} accessibilityRole="radiogroup">
-        {REGIMENES.map((r) => (
-          <Chip key={r} texto={t(`negocioApp.regimenes.${r}`)} elegido={regimen === r} onPress={() => setRegimen(r)} />
-        ))}
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.m, minHeight: ALTO_TOCABLE }}>
-        <View style={{ flex: 1 }}>
-          <Texto variante="fuerte">{t('negocioApp.arranque.responsableIva')}</Texto>
-          <Texto variante="pequeno">{t('negocioApp.arranque.responsableIvaAyuda')}</Texto>
-        </View>
-        <Interruptor etiqueta={t('negocioApp.arranque.responsableIva')} encendido={!!conf.responsable_iva} onCambio={(v) => cambiarConf({ responsable_iva: v })} />
-      </View>
-      <Texto variante="fuerte">{t('negocioApp.arranque.grupo')}</Texto>
-      <View style={{ gap: ESPACIO.s }} accessibilityRole="radiogroup">
-        {GRUPOS.map((g) => (
-          <Chip key={g} texto={t(`negocioApp.grupos.g${g}`)} elegido={conf.grupo_actividad === g} onPress={() => cambiarConf({ grupo_actividad: g })} />
-        ))}
-      </View>
+      {colombia ? (
+        <>
+          <Texto variante="fuerte">{t('negocioApp.arranque.regimen')}</Texto>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: ESPACIO.s }} accessibilityRole="radiogroup">
+            {REGIMENES.map((r) => (
+              <Chip key={r} texto={t(`negocioApp.regimenes.${r}`)} elegido={regimen === r} onPress={() => setRegimen(r)} />
+            ))}
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.m, minHeight: ALTO_TOCABLE }}>
+            <View style={{ flex: 1 }}>
+              <Texto variante="fuerte">{t('negocioApp.arranque.responsableIva')}</Texto>
+              <Texto variante="pequeno">{t('negocioApp.arranque.responsableIvaAyuda')}</Texto>
+            </View>
+            <Interruptor etiqueta={t('negocioApp.arranque.responsableIva')} encendido={!!conf.responsable_iva} onCambio={(v) => cambiarConf({ responsable_iva: v })} />
+          </View>
+          <Texto variante="fuerte">{t('negocioApp.arranque.grupo')}</Texto>
+          <View style={{ gap: ESPACIO.s }} accessibilityRole="radiogroup">
+            {GRUPOS.map((g) => (
+              <Chip key={g} texto={t(`negocioApp.grupos.g${g}`)} elegido={conf.grupo_actividad === g} onPress={() => cambiarConf({ grupo_actividad: g })} />
+            ))}
+          </View>
+        </>
+      ) : (
+        <TarjetaImpuestosPais />
+      )}
 
       {/* Resumen */}
       <Tarjeta style={{ gap: ESPACIO.xs }}>

@@ -3,6 +3,7 @@
 // Los textos (conceptos, nombres) son claves de traducción bajo `ejemplo.textos`; las pantallas los traducen.
 
 import { armarFecha, diasDelMes, partes, type Fecha } from '@/lib/fechas';
+import { impuestoIncluido } from '@/lib/impuestosPais';
 import type { Recurrente } from '@/lib/contactos';
 import { armarVariantes, codigoInterno, type FilaStock } from '@/lib/inventario';
 import type { MovNegocio, TipoNegocio, Transferencia } from '@/lib/negocio';
@@ -128,6 +129,8 @@ export const NEGOCIO_EJEMPLO = {
     prestamos: 0,
     arranque_listo: true,
     digito_nit: 7,
+    // Cobra IVA (lo normal es que el precio ya lo incluya): así se ve el 19% en el POS y en Resultados.
+    responsable_iva: true,
   },
 };
 
@@ -180,18 +183,18 @@ const ENLACES: Record<string, { contacto?: string; recurrente?: string }> = {
 /** Un mes típico del negocio: [día, tipo, monto, cuenta o tarjeta, concepto]. Ventas 10.600.000, fijos 3.200.000, variables 1.000.000. */
 const MES_NEGOCIO: [number, TipoNegocio, number, string, string][] = [
   [2, 'fijo', 1_300_000, 'ej-banco', 'arriendo'],
-  [3, 'venta', 2_100_000, 'ej-efectivo', 'ventasFeria'],
+  [3, 'venta', 2_500_000, 'ej-efectivo', 'ventasFeria'],
   [5, 'compra', 1_800_000, 'ej-banco', 'materiaPrima'],
-  [6, 'venta', 1_650_000, 'ej-nequi', 'ventasOnline'],
+  [6, 'venta', 1_960_000, 'ej-nequi', 'ventasOnline'],
   [8, 'variable', 300_000, 'ej-visa', 'publicidad'],
-  [10, 'venta', 2_400_000, 'ej-banco', 'mayorista'],
+  [10, 'venta', 2_850_000, 'ej-banco', 'mayorista'],
   [12, 'fijo', 1_500_000, 'ej-banco', 'nomina'],
-  [14, 'venta', 1_900_000, 'ej-banco', 'ventasDatafono'],
+  [14, 'venta', 2_260_000, 'ej-banco', 'ventasDatafono'],
   [15, 'variable', 450_000, 'ej-nequi', 'domicilios'],
   [16, 'retiro', 800_000, 'ej-banco', 'miSueldo'],
-  [20, 'venta', 1_350_000, 'ej-nequi', 'ventasOnline'],
+  [20, 'venta', 1_610_000, 'ej-nequi', 'ventasOnline'],
   [22, 'fijo', 400_000, 'ej-banco', 'servicios'],
-  [25, 'venta', 1_200_000, 'ej-efectivo', 'ventasFeria'],
+  [25, 'venta', 1_430_000, 'ej-efectivo', 'ventasFeria'],
   [26, 'variable', 250_000, 'ej-banco', 'comisiones'],
   [28, 'impuesto', 160_000, 'ej-banco', 'simple'],
 ];
@@ -220,7 +223,7 @@ export function movimientosNegocioEjemplo(hoy: Fecha): MovNegocio[] {
   }
   lista.push(
     { id: 'ej-n-aporte', fecha: fechaEn(hoy, -2, 4), tipo: 'aporte', monto: 1_000_000, pagado: true, cuenta: 'ej-banco', tarjeta: null, concepto: 'ejemplo.textos.aporte' },
-    { id: 'ej-n-cliente', fecha: fechaEn(hoy, -2, 18), tipo: 'venta', monto: 700_000, pagado: false, cuenta: null, tarjeta: null, concepto: 'ejemplo.textos.clienteFiado', contacto: 'ej-c-oficina' },
+    { id: 'ej-n-cliente', fecha: fechaEn(hoy, -2, 18), tipo: 'venta', monto: 830_000, pagado: false, cuenta: null, tarjeta: null, concepto: 'ejemplo.textos.clienteFiado', contacto: 'ej-c-oficina' },
     { id: 'ej-n-empaques', fecha: fechaEn(hoy, -1, 19), tipo: 'compra', monto: 800_000, pagado: false, cuenta: null, tarjeta: null, concepto: 'ejemplo.textos.empaques', contacto: 'ej-c-empaques' },
   );
   return hastaHoy(hoy, lista).sort((a, b) => b.fecha.localeCompare(a.fecha));
@@ -328,9 +331,9 @@ export function ventasPosEjemplo(hoy: Fecha, movimientos: MovNegocio[]) {
       pagos: [{ nombre: 'ejemplo.textos.efectivo', cuenta: m.cuenta, monto: m.monto }],
       recibido: null,
       vuelto: null,
-      iva: 0,
-      tarifaIva: null,
-      ivaIncluido: null,
+      iva: impuestoIncluido(m.monto, 19),
+      tarifaIva: 19,
+      ivaIncluido: true,
       estado: 'pagada' as const,
       creada: `${m.fecha}T15:00:00.000Z`,
       vendedor: null,

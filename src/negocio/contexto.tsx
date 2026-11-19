@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { avisarEjemplo, modoEjemploActivo } from '@/ejemplo/modo';
 import { hoyEn, partes } from '@/lib/fechas';
 import type { ParametrosImpuestos } from '@/lib/impuestos';
 import type { MovNegocio } from '@/lib/negocio';
@@ -33,8 +32,7 @@ export function ProveedorNegocio({ children }: { children: ReactNode }) {
 
   const actualizar = useCallback(() => setVersion((v) => v + 1), []);
   const abrirHoja = useCallback((movimiento: MovNegocio | null, plantilla?: Partial<DatosMovNegocio>) => {
-    // En el modo ejemplo no se registra nada: se avisa y se ofrece salir.
-    if (modoEjemploActivo()) return avisarEjemplo();
+    // En el modo ejemplo también se puede registrar: queda solo en la memoria del celular.
     setHoja({ abierta: true, movimiento, plantilla });
   }, []);
   const { negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, bodegas, productos, stock, ventas, formasPago, codigos, cargando } = datos;

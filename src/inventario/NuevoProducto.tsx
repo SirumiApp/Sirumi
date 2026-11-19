@@ -8,7 +8,7 @@ import { Boton } from '@/components/Boton';
 import { CampoDinero } from '@/components/CampoDinero';
 import { CampoTexto } from '@/components/CampoTexto';
 import { Chip } from '@/components/Chip';
-import { Emoji } from '@/components/emoji/Emoji';
+import { Icono } from '@/components/Icono';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
@@ -228,7 +228,7 @@ export function NuevoProducto() {
               accessibilityLabel={`${t('inventario.escaner.escanear')} ${v.nombre}`}
               onPress={() => setEscaneando(v.nombre)}
               style={{ width: ALTO_TOCABLE, height: ALTO_TOCABLE, borderRadius: ALTO_TOCABLE / 2, alignItems: 'center', justifyContent: 'center', backgroundColor: colores.seleccionado }}>
-              <Emoji name="camara" size={22} />
+              <Icono nombre="codigoBarras" tamano={24} color={colores.enlace} />
             </Pressable>
             <Pressable
               accessibilityRole="button"

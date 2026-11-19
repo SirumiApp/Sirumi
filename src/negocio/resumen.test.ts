@@ -95,3 +95,32 @@ describe('D6 · IVA cobrado en el POS', () => {
     expect(r.caja).toBe(169_000);
   });
 });
+
+describe('B13 · impuestos según el país y el IVA de las ventas a mano', () => {
+  const P = { desde: '2026-11-01', hasta: '2026-11-30' };
+  const A = { desde: '2026-10-01', hasta: '2026-10-31' };
+  it('D6: si es responsable de IVA, una venta a mano de 1.190.000 cuenta como 1.000.000', () => {
+    const r = calcularResumen(
+      { cuentas: [], movimientos: [mov({ tipo: 'venta', monto: 1_190_000 })], traslados: [], configuracion: { responsable_iva: true, costo_porcentaje: 45 } },
+      P,
+      A,
+      { parametros: P2026, regimen: 'simple', tasaVentas: 19 },
+    );
+    expect(r.ivaCobrado).toBe(190_000);
+    expect(r.resultados.ventas).toBe(1_000_000);
+    // El costo (45%) va sobre el precio sin IVA.
+    expect(r.resultados.costoVentas).toBe(450_000);
+  });
+  it('fuera de Colombia: sin regímenes; % sobre la utilidad y el IVA del país', () => {
+    const r = calcularResumen(
+      { cuentas: [], movimientos: [mov({ tipo: 'venta', monto: 1_160_000 })], traslados: [], configuracion: { responsable_iva: true } },
+      P,
+      A,
+      { parametros: P2026, regimen: null, pais: 'MX', tasaVentas: 16, tasaUtilidad: 30 },
+    );
+    expect(r.impuestos).toBeNull();
+    expect(r.resultados.ventas).toBe(1_000_000);
+    expect(r.resultados.impuestos).toBe(300_000);
+    expect(r.colombia).toBe(false);
+  });
+});

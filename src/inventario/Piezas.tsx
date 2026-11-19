@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 
 import { Emoji } from "@/components/emoji/Emoji";
+import { Icono } from "@/components/Icono";
 import type { NombreEmoji } from "@/components/emoji/registro";
 import { Texto } from "@/components/Texto";
 import { ALTO_TOCABLE, ESPACIO, FUENTES, useTema } from "@/theme";
@@ -202,7 +203,7 @@ export function CampoCodigo({ valor, etiqueta, onGuardar, onEscanear, onGenerar 
         accessibilityLabel={`${t('inventario.escaner.escanear')} ${etiqueta}`}
         onPress={onEscanear}
         style={{ width: ALTO_TOCABLE, height: ALTO_TOCABLE, borderRadius: ALTO_TOCABLE / 2, alignItems: 'center', justifyContent: 'center', backgroundColor: colores.seleccionado }}>
-        <Emoji name="camara" size={22} />
+        <Icono nombre="codigoBarras" tamano={24} color={colores.enlace} />
       </Pressable>
       {!valor && (
         <Pressable

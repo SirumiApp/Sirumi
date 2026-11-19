@@ -65,7 +65,7 @@ export function ProgramadorAvisos() {
         });
       }
     }
-    if (dueno && negocio && conImpuestos) {
+    if (dueno && negocio && conImpuestos && (perfil.country ?? 'CO') === 'CO') {
       const v = vencimientos(perfilTributario(negocio), hoy, sumarDias(hoy, 120), parametros?.calendario);
       for (const r of recordatoriosDeImpuestos(v, hoy)) {
         const nombre = t(`impuestos.obligaciones.${r.vencimiento.obligacion}.nombre`);

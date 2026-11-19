@@ -289,3 +289,14 @@ Convenciones:
 - **Avisos**: 3 días antes y el mismo día, a las 9 a. m.; para lo que solo tiene mes, el día 1 de ese mes. "Sube tus extractos de {mes}" el día 5 de cada mes. Cada aviso se apaga en Ajustes.
 - El ICA es municipal y no entra (cada ciudad tiene su calendario).
 - VALIDAR CON EL CONTADOR ANTES DE LANZAR.
+
+## B13 · Impuestos según el país
+
+- El país es el de la persona (perfil). **Colombia**: cálculo completo (SIMPLE, ordinario, persona natural, calendario DIAN).
+- **Otros países**: no hay regímenes ni calendario. Impuesto a las ventas con la tarifa general del país (MX IVA 16%, AR 21%, CL 19%, PE IGV 18%, EC 15%, PA ITBMS 7%, ES 21%; US y BR dependen del estado o producto: la persona pone la suya). Impuesto estimado = utilidad operativa (si es positiva) × el % que pone la persona (se lo pregunta a su contador). VALIDAR las tarifas antes de lanzar en cada país.
+- La tarifa propia (si la pone) manda sobre la del país; en Colombia, si no hay propia, se usa la del año (`tax_parameters`).
+- **El IVA no es un gasto del negocio**: lo paga el cliente dentro del precio y se le pasa al gobierno. Por eso nunca aparece en "Impuestos estimados" (que es el impuesto sobre lo que se gana).
+
+### D6 (ampliación) · Ventas registradas a mano con IVA
+- Si el negocio es responsable de IVA, las ventas registradas a mano también traen el IVA dentro (lo normal): ventas = monto − monto × tarifa / (100 + tarifa). Ejemplo: 1.190.000 al 19% → ventas 1.000.000 e IVA 190.000.
+- El % de costo (B5) va sobre el precio **sin IVA**, en las ventas a mano y en las líneas libres del POS. Ejemplo: 1.190.000 con costo 45% → costo 450.000.

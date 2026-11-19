@@ -7,7 +7,7 @@ import { Aviso } from '@/components/Aviso';
 import { Boton } from '@/components/Boton';
 import { CampoTexto } from '@/components/CampoTexto';
 import { Chip } from '@/components/Chip';
-import { Emoji } from '@/components/emoji/Emoji';
+import { Icono } from '@/components/Icono';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
@@ -143,7 +143,7 @@ export default function Mercancia() {
               accessibilityLabel={t('inventario.escaner.escanear')}
               onPress={() => setEscaneando(true)}
               style={({ pressed }) => ({ width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: colores.seleccionado, opacity: pressed ? 0.7 : 1 })}>
-              <Emoji name="camara" size={28} />
+              <Icono nombre="codigoBarras" tamano={28} color={colores.enlace} />
             </Pressable>
           </View>
           {encontrados.map((p) => (

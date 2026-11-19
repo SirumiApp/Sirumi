@@ -7,6 +7,7 @@ import type { Fecha } from '@/lib/fechas';
 import type { Recurrente } from '@/lib/contactos';
 import { iconoDeCuenta, type MovNegocio, type TipoNegocio, type Transferencia } from '@/lib/negocio';
 import { BODEGAS_EJEMPLO, CONTACTOS_EJEMPLO, CUENTAS_EJEMPLO, esTextoEjemplo, PRODUCTOS_EJEMPLO, RECURRENTES_EJEMPLO, STOCK_EJEMPLO, ventasPosEjemplo, movimientosNegocioEjemplo, NEGOCIO_EJEMPLO, TARJETAS_EJEMPLO, trasladosEjemplo } from '@/ejemplo/datosEjemplo';
+import { borrarNegocioEnEjemplo, guardarNegocioEnEjemplo, negocioEjemplo, stockEjemplo, useArenero, ventasEjemplo } from '@/ejemplo/arenero';
 import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
 import { hoyEn } from '@/lib/fechas';
 import { nombreVariante } from '@/lib/inventario';
@@ -39,6 +40,10 @@ export type Configuracion = {
   agente_retencion?: boolean;
   /** B12 · IVA bimestral (ventas altas) o cuatrimestral. */
   periodo_iva?: 'bimestral' | 'cuatrimestral';
+  /** B13 · Tarifa propia del impuesto a las ventas (si no, la del país). */
+  tasa_ventas?: number;
+  /** B13 · Fuera de Colombia: % de impuesto sobre la utilidad (lo dice el contador). */
+  tasa_utilidad?: number;
 };
 
 export type Negocio = {
@@ -212,6 +217,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
   }, [cargar]);
 
   const ejemplo = useModoEjemplo();
+  const arenero = useArenero();
   const { t } = useTranslation();
   const deEjemplo = useMemo<DatosNegocio | null>(() => {
     if (!ejemplo) return null;
@@ -222,7 +228,8 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
       negocio: { ...NEGOCIO_EJEMPLO, nombre: tx(NEGOCIO_EJEMPLO.nombre) ?? '', rol: 'owner', bodegaAsignada: null },
       cuentas: CUENTAS_EJEMPLO.map((c) => ({ ...c, nombre: tx(c.nombre) ?? '' })),
       tarjetas: TARJETAS_EJEMPLO,
-      movimientos: pos.movimientos.map((m) => ({ ...m, concepto: tx(m.concepto) })),
+      // Lo inventado más lo que la persona registró en el ejemplo (arenero).
+      movimientos: negocioEjemplo(pos.movimientos.map((m) => ({ ...m, concepto: tx(m.concepto) }))).sort((a, b) => b.fecha.localeCompare(a.fecha)),
       traslados: trasladosEjemplo(hoy).map((tr) => ({ ...tr, nota: tx(tr.nota) })),
       contactos: CONTACTOS_EJEMPLO.map((c) => ({ ...c, notas: tx(c.notas) ?? '' })),
       recurrentes: RECURRENTES_EJEMPLO.map((r) => ({ ...r, nombre: tx(r.nombre) ?? '' })),
@@ -233,17 +240,21 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         coleccion: tx(p.coleccion),
         variantes: p.variantes.map((v) => ({ ...v, color: tx(v.color), nombre: nombreVariante({ color: tx(v.color), talla: v.talla }) })),
       })),
-      stock: STOCK_EJEMPLO,
+      stock: stockEjemplo(STOCK_EJEMPLO),
       codigos: [{ id: 'ej-cod-1', codigo: 'FERIA10', tipo: 'porcentaje', valor: 10, activo: true, vence: null }],
-      ventas: pos.ventas.map((v) => ({
+      ventas: [
+        ...ventasEjemplo(),
+        ...pos.ventas.map((v) => ({
         ...v,
         pagos: v.pagos.map((p) => ({ ...p, nombre: tx(p.nombre) ?? '' })),
         lineas: v.lineas.map((l) => ({ ...l, nombre: l.nombre.includes('|') ? `${tx(l.nombre.split('|')[0])} · ${l.nombre.split('|')[1]}` : (tx(l.nombre) ?? '') })),
-      })),
+        })),
+      ],
       formasPago: [],
       cargando: false,
     };
-  }, [ejemplo, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `arenero` cambia cuando se registra algo en el ejemplo
+  }, [ejemplo, t, arenero]);
   return { ...(deEjemplo ?? datos), recargar: cargar };
 }
 
@@ -320,8 +331,15 @@ export type DatosMovNegocio = {
   recurrente?: string | null;
 };
 
-export function guardarMovNegocio(negocioId: string, d: DatosMovNegocio, id?: string) {
-  if (modoEjemploActivo()) return sinGuardar();
+export async function guardarMovNegocio(negocioId: string, d: DatosMovNegocio, id?: string) {
+  if (modoEjemploActivo()) {
+    // En el ejemplo se guarda solo en la memoria del celular (se borra al salir del ejemplo).
+    guardarNegocioEnEjemplo(
+      { fecha: d.fecha, tipo: d.tipo, monto: Math.round(d.monto), pagado: d.pagado, cuenta: d.pagado ? d.cuenta : null, tarjeta: d.pagado ? d.tarjeta : null, concepto: d.concepto.trim() || null, contacto: d.contacto ?? null, recurrente: d.recurrente ?? null },
+      id,
+    );
+    return { error: null };
+  }
   const fila = {
     owner_type: 'negocio',
     business_id: negocioId,
@@ -338,8 +356,11 @@ export function guardarMovNegocio(negocioId: string, d: DatosMovNegocio, id?: st
   return id ? supabase.from('movements').update(fila).eq('id', id) : supabase.from('movements').insert(fila);
 }
 
-export function borrarMovNegocio(id: string) {
-  if (modoEjemploActivo()) return sinGuardar();
+export async function borrarMovNegocio(id: string) {
+  if (modoEjemploActivo()) {
+    borrarNegocioEnEjemplo(id);
+    return { error: null };
+  }
   return supabase.from('movements').delete().eq('id', id);
 }
 

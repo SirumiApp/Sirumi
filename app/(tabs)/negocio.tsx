@@ -18,6 +18,7 @@ import { useNegocio } from '@/negocio/contexto';
 import { crearMiNegocio } from '@/negocio/datos';
 import { EMOJI_TIPO } from '@/negocio/HojaMovNegocio';
 import { calcularResumen } from '@/negocio/resumen';
+import { useTributario } from '@/impuestos/ganchos';
 import { etiquetaDia } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from '@/personal/SelectorPeriodo';
@@ -32,7 +33,8 @@ function ResumenNegocioContenido() {
   const { colores, oscuro } = useTema();
   const plata = usePlata();
   const textosFecha = useTextosFecha();
-  const { negocio, cuentas, tarjetas, movimientos, traslados, recurrentes, ventas, cargando, parametros, abrirHoja, actualizar } = useNegocio();
+  const { negocio, cuentas, tarjetas, movimientos, traslados, recurrentes, ventas, cargando, abrirHoja, actualizar } = useNegocio();
+  const tributario = useTributario();
   const hoy = hoyEn();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
   const [filtro, setFiltro] = useState<'todos' | 'pendientes'>('todos');
@@ -73,7 +75,7 @@ function ResumenNegocioContenido() {
     { cuentas: cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial })), movimientos, traslados, configuracion: negocio.configuracion, ventas },
     periodo,
     periodoAnterior(periodo, hoy),
-    { parametros, regimen: negocio.regimen },
+    tributario,
   );
   const { resultados } = r;
   // B10 · Pagos recurrentes vencidos, de hoy o de los próximos días.

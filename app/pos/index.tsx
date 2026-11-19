@@ -16,6 +16,7 @@ import { MiniaturaProducto } from '@/inventario/Foto';
 import { stockDeVariante } from '@/lib/inventario';
 import { cabeEnCarrito, totalesVenta } from '@/lib/pos';
 import { useNegocio } from '@/negocio/contexto';
+import { useTributario } from '@/impuestos/ganchos';
 import type { Producto } from '@/negocio/inventarioDatos';
 import { usePlata } from '@/personal/ganchos';
 import { usePos } from '@/pos/contexto';
@@ -29,7 +30,8 @@ export default function Catalogo() {
   const { t } = useTranslation();
   const { colores, oscuro } = useTema();
   const plata = usePlata();
-  const { negocio, bodegas, productos, stock, parametros } = useNegocio();
+  const { negocio, bodegas, productos, stock } = useNegocio();
+  const tributario = useTributario();
   const pos = usePos();
   // El vendedor vende desde su bodega asignada (no la puede cambiar).
   const bodegaFija = negocio?.rol === 'seller' ? negocio.bodegaAsignada : null;
@@ -45,7 +47,7 @@ export default function Catalogo() {
   const nombreBodega = bodegas.find((b) => b.id === bodega)?.nombre ?? '';
   const disponible = (variante: string) => (bodega ? stockDeVariante(variante, stock, bodega) : 0);
   const unidades = pos.lineas.reduce((s, l) => s + l.cantidad, 0);
-  const { total } = totalesVenta(pos.lineas, pos.descuento, negocio?.configuracion.responsable_iva ? { tarifa: parametros?.iva ?? 19, incluido: pos.ivaIncluido } : null);
+  const { total } = totalesVenta(pos.lineas, pos.descuento, negocio?.configuracion.responsable_iva && tributario.tasaVentas > 0 ? { tarifa: tributario.tasaVentas, incluido: pos.ivaIncluido } : null);
   const colecciones = [...new Set(productos.map((p) => p.coleccion).filter((c): c is string => !!c))];
   const texto = sinTildes(busqueda.trim());
   const lista = productos.filter(
@@ -116,7 +118,7 @@ export default function Catalogo() {
             accessibilityLabel={t('inventario.escaner.escanear')}
             onPress={() => setEscaneando(true)}
             style={[{ width: ALTO_TOCABLE, height: ALTO_TOCABLE, borderRadius: ALTO_TOCABLE / 2, alignItems: 'center', justifyContent: 'center', backgroundColor: colores.tarjeta }, sombraSuave(oscuro)]}>
-            <Emoji name="camara" size={22} />
+            <Icono nombre="codigoBarras" tamano={24} color={colores.enlace} />
           </Pressable>
           <Pressable
             accessibilityRole="button"

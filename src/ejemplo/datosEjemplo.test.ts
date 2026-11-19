@@ -1,5 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { impuestoIncluido } from '@/lib/impuestosPais';
+
 import { en } from '@/i18n/en';
 import { es } from '@/i18n/es';
 import { periodoPredefinido } from '@/lib/fechas';
@@ -61,9 +63,13 @@ describe('datos de ejemplo', () => {
     const movs = movimientosNegocioEjemplo(HOY);
     const tras = trasladosEjemplo(HOY);
     const octubre = movs.filter((m) => m.fecha.startsWith('2026-10'));
-    const r = estadoDeResultados(octubre, { costoPorcentaje: NEGOCIO_EJEMPLO.configuracion.costo_porcentaje });
-    expect(r.ventas).toBe(10_600_000);
-    expect(r.operativa).toBeGreaterThan(0);
+    // El negocio del ejemplo cobra IVA (incluido en el precio): las ventas cuentan sin él y el costo va sobre eso.
+    const bruto = octubre.filter((m) => m.tipo === 'venta').reduce((t, m) => t + m.monto, 0);
+    const iva = impuestoIncluido(bruto, 19);
+    const r = estadoDeResultados(octubre, { costoPorcentaje: NEGOCIO_EJEMPLO.configuracion.costo_porcentaje, ivaVentas: iva, costoReal: ((bruto - iva) * 45) / 100 });
+    expect(bruto).toBe(12_610_000);
+    expect(r.ventas).toBe(bruto - iva);
+    expect(r.operativa).toBeGreaterThan(800_000);
     expect(cajaTotal(cuentas, movs, tras)).toBeGreaterThan(0);
     expect(flujoDelPeriodo(periodoPredefinido('mes', HOY), cuentas, movs, tras).cierre).toBe(cajaTotal(cuentas, movs, tras));
     expect(movs.some((m) => !m.pagado && m.tipo === 'venta')).toBe(true);

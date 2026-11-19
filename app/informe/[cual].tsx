@@ -15,6 +15,7 @@ import { useNegocio } from '@/negocio/contexto';
 import { paraReglas } from '@/negocio/inventarioDatos';
 import { BotonCompartir, conSigno, FilaCifra, ListaFilas, textoInforme } from '@/negocio/Piezas';
 import { calcularResumen } from '@/negocio/resumen';
+import { useTributario } from '@/impuestos/ganchos';
 import { etiquetaDia, rangoCorto } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from '@/personal/SelectorPeriodo';
@@ -31,7 +32,8 @@ export default function Informe() {
   const textosFecha = useTextosFecha();
   const { cual: crudo } = useLocalSearchParams<{ cual: string }>();
   const cual: Cual = (['balance', 'cartera', 'dueno', 'entradas', 'cierre'] as const).find((c) => c === crudo) ?? 'balance';
-  const { negocio, cuentas, tarjetas, movimientos, traslados, parametros, productos, stock, ventas } = useNegocio();
+  const { negocio, cuentas, tarjetas, movimientos, traslados, productos, stock, ventas } = useNegocio();
+  const tributario = useTributario();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
   const [dia, setDia] = useState<'hoy' | 'ayer'>('hoy');
   const hoy = hoyEn();
@@ -42,7 +44,7 @@ export default function Informe() {
   const cfg = negocio.configuracion;
   const base = cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial }));
   const periodo = periodoDe(eleccion, hoy);
-  const r = calcularResumen({ cuentas: base, movimientos, traslados, configuracion: cfg, ventas }, periodo, periodoAnterior(periodo, hoy), { parametros, regimen: negocio.regimen });
+  const r = calcularResumen({ cuentas: base, movimientos, traslados, configuracion: cfg, ventas }, periodo, periodoAnterior(periodo, hoy), tributario);
   const conPeriodo = cual === 'dueno' || cual === 'entradas';
   const fechaCierre = dia === 'hoy' ? hoy : sumarDias(hoy, -1);
   const subtitulo = `${negocio.nombre} · ${cual === 'cierre' ? etiquetaDia(fechaCierre, hoy, textosFecha) : conPeriodo ? rangoCorto(periodo, textosFecha) : t('negocioApp.informes.aHoy')}`;

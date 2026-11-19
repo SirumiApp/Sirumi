@@ -3,8 +3,11 @@ import { t as traducir } from 'i18next';
 import { useSyncExternalStore } from 'react';
 import { Alert } from 'react-native';
 
+import { vaciarArenero } from './arenero';
+
 // "Modo ejemplo": la app se llena con datos inventados (src/ejemplo/datosEjemplo.ts) para entenderla sin registrar nada.
-// Solo cambia lo que se ve: no lee ni escribe datos de la persona. Se recuerda en el celular.
+// No lee ni escribe datos de la persona. Lo que se registre en el ejemplo (gastos, ventas) vive solo en la
+// memoria del celular (./arenero.ts) y se borra al salir. Se recuerda en el celular.
 
 const CLAVE = 'sirumi.modoEjemplo';
 let activo = false;
@@ -21,6 +24,7 @@ export function modoEjemploActivo(): boolean {
 }
 
 export function cambiarModoEjemplo(valor: boolean, guardar = true) {
+  if (!valor) vaciarArenero();
   activo = valor;
   if (guardar) AsyncStorage.setItem(CLAVE, valor ? '1' : '0').catch(() => {});
   oyentes.forEach((o) => o());

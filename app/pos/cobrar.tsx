@@ -12,7 +12,8 @@ import { Chip } from '@/components/Chip';
 import { Interruptor } from '@/components/Interruptor';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
-import { avisarEjemplo, modoEjemploActivo } from '@/ejemplo/modo';
+import { cobrarEnEjemplo } from '@/ejemplo/arenero';
+import { modoEjemploActivo } from '@/ejemplo/modo';
 import { CampoCantidad } from '@/inventario/Piezas';
 import { hoyEn } from '@/lib/fechas';
 import { formasDePago, type FormaPago } from '@/lib/formasPago';
@@ -20,6 +21,7 @@ import { stockDeVariante } from '@/lib/inventario';
 import { aplicarCodigo } from '@/lib/ventas';
 import { dividirPago, sugerenciasEfectivo, totalesVenta, validarCobro, vuelto, type IvaVenta } from '@/lib/pos';
 import { useNegocio } from '@/negocio/contexto';
+import { useTributario } from '@/impuestos/ganchos';
 import { leerErrorInventario } from '@/negocio/inventarioDatos';
 import { FilaCifra, ListaFilas } from '@/negocio/Piezas';
 import { usePlata } from '@/personal/ganchos';
@@ -38,7 +40,8 @@ export default function Cobrar() {
   const { colores } = useTema();
   const plata = usePlata();
   const perfil = usePerfil();
-  const { negocio, cuentas, contactos, stock, bodegas, formasPago, codigos, parametros, actualizar } = useNegocio();
+  const { negocio, cuentas, contactos, stock, bodegas, formasPago, codigos, productos, ventas, actualizar } = useNegocio();
+  const tributario = useTributario();
   const pos = usePos();
   const vendedor = negocio?.rol === 'seller';
   const bodega = (vendedor ? negocio?.bodegaAsignada : null) ?? pos.bodega ?? bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null;
@@ -65,7 +68,7 @@ export default function Cobrar() {
   const fiado = forma?.tipo === 'fiado';
   const segunda = formas.find((f) => f.clave === pos.segundaForma) ?? null;
   // D6 · Solo si el negocio es responsable de IVA. Lo normal: el precio ya lo incluye.
-  const iva: IvaVenta = negocio?.configuracion.responsable_iva ? { tarifa: parametros?.iva ?? 19, incluido: pos.ivaIncluido } : null;
+  const iva: IvaVenta = negocio?.configuracion.responsable_iva && tributario.tasaVentas > 0 ? { tarifa: tributario.tasaVentas, incluido: pos.ivaIncluido } : null;
   const { subtotal, descuento, base, iva: valorIva, total } = totalesVenta(pos.lineas, pos.descuento, iva);
   const [parte1, parte2] = pos.dividido ? dividirPago(total, pos.porcentaje) : [total, 0];
   const conEfectivo = forma?.tipo === 'efectivo' && !pos.dividido;
@@ -106,7 +109,6 @@ export default function Cobrar() {
 
   async function cobrar() {
     if (motivo || !negocio || !forma || falta) return;
-    if (modoEjemploActivo()) return avisarEjemplo();
     const pagos: PagoVenta[] = fiado
       ? [{ nombre: t('pos.fiado'), cuenta: null, monto: total }]
       : pos.dividido && segunda
@@ -117,7 +119,7 @@ export default function Cobrar() {
         : [{ nombre: nombreForma(forma), cuenta: forma.cuenta, monto: total }];
     setError(null);
     setCobrando(true);
-    const { data, error: e } = await cobrarVenta(negocio.id, {
+    const datosCobro = {
       fecha: hoyEn(),
       bodega,
       cliente: pos.cliente,
@@ -127,7 +129,18 @@ export default function Cobrar() {
       codigo: pos.codigo,
       lineas: pos.lineas.map((l) => ({ variante: l.variante, nombre: l.nombre, precio: l.precio, cantidad: l.cantidad })),
       pagos,
-    });
+    };
+    // En el modo ejemplo la venta queda en la memoria del celular (se borra al salir del ejemplo).
+    const costoDe = (variante: string | null) => (variante ? (productos.find((p) => p.variantes.some((v) => v.id === variante))?.costo ?? null) : null);
+    const { data, error: e } = modoEjemploActivo()
+      ? {
+          data: cobrarEnEjemplo(
+            { ...datosCobro, lineas: datosCobro.lineas.map((l) => ({ ...l, costo: costoDe(l.variante) })) },
+            Math.max(0, ...ventas.map((v) => v.numero)) + 1,
+          ),
+          error: null,
+        }
+      : await cobrarVenta(negocio.id, datosCobro);
     setCobrando(false);
     const err = leerErrorInventario(e);
     if (err || !data) {

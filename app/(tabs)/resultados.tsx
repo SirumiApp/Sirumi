@@ -16,6 +16,8 @@ import { deCada100, puntoDeEquilibrio } from '@/lib/negocio';
 import { useNegocio } from '@/negocio/contexto';
 import { BotonCompartir, conSigno, FilaCifra, ListaFilas, textoInforme } from '@/negocio/Piezas';
 import { calcularResumen } from '@/negocio/resumen';
+import { useTributario } from '@/impuestos/ganchos';
+import { TarjetaImpuestosPais } from '@/impuestos/TarjetaImpuestosPais';
 import { rangoCorto } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from '@/personal/SelectorPeriodo';
@@ -31,6 +33,8 @@ function ResultadosContenido() {
   const plata = usePlata();
   const textosFecha = useTextosFecha();
   const { negocio, cuentas, movimientos, traslados, parametros, ventas } = useNegocio();
+  const tributario = useTributario();
+  const nombreImpuesto = t(`impuestosPais.nombres.${tributario.impuesto}`);
   const hoy = hoyEn();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
 
@@ -42,7 +46,7 @@ function ResultadosContenido() {
     { cuentas: cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial })), movimientos, traslados, configuracion: cfg, ventas },
     periodo,
     periodoAnterior(periodo, hoy),
-    { parametros, regimen: negocio.regimen },
+    tributario,
   );
   const e = r.resultados;
   const partes = deCada100(e);
@@ -53,13 +57,22 @@ function ResultadosContenido() {
   const cada100 = oscuro ? COLORES_DE_CADA_100.oscuro : COLORES_DE_CADA_100.claro;
 
   const filas: { clave: string; titulo: string; ayuda: string; valor: number; fuerte?: boolean; resta?: boolean }[] = [
-    { clave: 'ventas', titulo: t('negocioApp.resultados.ventas'), ayuda: t('negocioApp.resultados.ventasAyuda'), valor: e.ventas },
+    {
+      clave: 'ventas',
+      titulo: t('negocioApp.resultados.ventas'),
+      ayuda: r.ivaCobrado > 0 ? t('negocioApp.resultados.ventasSinIva', { impuesto: nombreImpuesto, tasa: r.tasaVentas }) : t('negocioApp.resultados.ventasAyuda'),
+      valor: e.ventas,
+    },
     { clave: 'costo', titulo: t('negocioApp.resultados.costo'), ayuda: t('negocioApp.resultados.costoAyuda', { porcentaje: pct(cfg.costo_porcentaje ?? 0) }), valor: e.costoVentas, resta: true },
     { clave: 'bruta', titulo: t('negocioApp.resultados.bruta'), ayuda: t('negocioApp.resultados.brutaAyuda', { margen: pct(e.margenBruto * 100) }), valor: e.utilidadBruta, fuerte: true },
     { clave: 'fijos', titulo: t('negocioApp.resultados.fijos'), ayuda: t('negocioApp.resultados.fijosAyuda'), valor: e.fijos, resta: true },
     { clave: 'variables', titulo: t('negocioApp.resultados.variables'), ayuda: t('negocioApp.resultados.variablesAyuda'), valor: e.variables, resta: true },
     { clave: 'operativa', titulo: t('negocioApp.resultados.operativa'), ayuda: t('negocioApp.resultados.operativaAyuda'), valor: e.operativa, fuerte: true },
-    { clave: 'impuestos', titulo: t('negocioApp.resultados.impuestos'), ayuda: t('negocioApp.resultados.impuestosAyuda', { regimen: t(`negocioApp.regimenes.${regimen}`) }), valor: e.impuestos, resta: true },
+    { clave: 'impuestos', titulo: t('negocioApp.resultados.impuestos'), ayuda: tributario.colombia
+        ? t('negocioApp.resultados.impuestosAyuda', { regimen: t(`negocioApp.regimenes.${regimen}`) })
+        : tributario.tasaUtilidad
+          ? t('impuestosPais.ayudaLinea', { tasa: tributario.tasaUtilidad })
+          : t('impuestosPais.sinTasa'), valor: e.impuestos, resta: true },
     { clave: 'neta', titulo: t('negocioApp.resultados.neta'), ayuda: t('negocioApp.resultados.netaAyuda'), valor: e.neta, fuerte: true },
   ];
   const texto = (f: (typeof filas)[number]) => (f.resta && f.valor > 0 ? `− ${plata(Math.round(f.valor))}` : conSigno(plata, f.valor));
@@ -147,12 +160,18 @@ function ResultadosContenido() {
         <View style={{ flexDirection: 'row', gap: ESPACIO.s, padding: ESPACIO.m, borderRadius: 16, backgroundColor: colores.avisoFondo }}>
           <Emoji name="recibo" size={24} />
           <Texto variante="pequeno" color={colores.avisoTexto} style={{ flex: 1 }}>
-            {t('negocioApp.resultados.ivaCobrado', { monto: plata(r.ivaCobrado) })}
+            {tributario.colombia
+              ? t('negocioApp.resultados.ivaCobrado', { monto: plata(r.ivaCobrado), tasa: r.tasaVentas })
+              : t('impuestosPais.cobrado', { monto: plata(r.ivaCobrado), impuesto: nombreImpuesto, tasa: r.tasaVentas })}
           </Texto>
         </View>
       )}
 
-      {/* B7 · Impuestos: comparación de regímenes */}
+      {/* B13 · Fuera de Colombia: impuesto a las ventas del país y % sobre la utilidad */}
+      {!tributario.colombia && <TarjetaImpuestosPais />}
+
+      {/* B7 · Impuestos: comparación de regímenes (Colombia) */}
+      {tributario.colombia && (
       <Tarjeta style={{ gap: ESPACIO.s }}>
         <Texto variante="subtitulo">{t('negocioApp.resultados.impuestosTitulo')}</Texto>
         {!r.impuestos || !parametros ? (
@@ -160,6 +179,13 @@ function ResultadosContenido() {
         ) : (
           <>
             <Texto variante="pequeno">{t('negocioApp.resultados.impuestosDetalle')}</Texto>
+            {/* El IVA no es un costo del negocio: se aclara aquí porque es la duda más común. */}
+            <View style={{ flexDirection: 'row', gap: ESPACIO.s, padding: ESPACIO.m, borderRadius: 16, backgroundColor: colores.seleccionado }}>
+              <Emoji name="recibo" size={22} />
+              <Texto variante="pequeno" style={{ flex: 1 }}>
+                {cfg.responsable_iva ? t('negocioApp.resultados.ivaAparte', { tasa: r.tasaVentas }) : t('negocioApp.resultados.ivaNoCobras', { tasa: r.tasaVentas })}
+              </Texto>
+            </View>
             {(['simple', 'ordinario', 'natural'] as const).map((rg) => {
               const imp = r.impuestos!;
               const valor = imp[rg];
@@ -216,6 +242,7 @@ function ResultadosContenido() {
           </>
         )}
       </Tarjeta>
+      )}
 
       {/* B8 · Punto de equilibrio */}
       <Tarjeta style={{ gap: ESPACIO.s }}>

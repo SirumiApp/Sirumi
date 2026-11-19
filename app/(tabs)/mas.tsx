@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { FilaAjuste } from '@/components/FilaAjuste';
+import { useTributario } from '@/impuestos/ganchos';
 import { GrupoAjustes } from '@/components/PantallaAjuste';
 import { PantallaApp } from '@/components/PantallaApp';
 import { Texto } from '@/components/Texto';
@@ -12,6 +13,7 @@ import { SoloSi } from '@/components/SoloSi';
 /** Negocio · Más (spec 03, §5): informes y lo que arma el negocio. */
 function MasContenido() {
   const { t } = useTranslation();
+  const { colombia } = useTributario();
   return (
     <PantallaApp>
       <View style={{ gap: ESPACIO.xs, marginTop: ESPACIO.s }}>
@@ -40,7 +42,7 @@ function MasContenido() {
         <FilaAjuste emoji="apreton-de-manos" titulo={t('negocioApp.informes.clientes')} detalle={t('contactos.detalle')} onPress={() => router.push('/contactos')} />
         <FilaAjuste emoji="repetir" titulo={t('negocioApp.informes.recurrentes')} detalle={t('recurrentes.detalle')} onPress={() => router.push('/recurrentes')} />
         <FilaAjuste emoji="banco" titulo={t('extractos.entrada')} detalle={t('extractos.entradaDetalle')} onPress={() => router.push('/extractos?ambito=negocio')} />
-        <FilaAjuste emoji="calendario" titulo={t('impuestos.titulo')} detalle={t('impuestos.entradaDetalle')} onPress={() => router.push('/impuestos')} />
+        {colombia && <FilaAjuste emoji="calendario" titulo={t('impuestos.titulo')} detalle={t('impuestos.entradaDetalle')} onPress={() => router.push('/impuestos')} />}
       </GrupoAjustes>
     </PantallaApp>
   );
