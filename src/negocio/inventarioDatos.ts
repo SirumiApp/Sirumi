@@ -4,6 +4,7 @@ import { modoEjemploActivo, sinGuardar } from '@/ejemplo/modo';
 import type { Json } from '@/lib/database.types';
 import { nombreVariante, type FilaStock } from '@/lib/inventario';
 import { todasLasFilas } from '@/lib/paginas';
+import { sinCortes } from '@/lib/sinConexion';
 import { supabase } from '@/lib/supabase';
 
 import { enlacesDeFotos } from './fotos';
@@ -44,6 +45,7 @@ export async function cargarInventario(negocioId: string): Promise<DatosInventar
       supabase.from('stock').select('variant_id, warehouse_id, quantity').eq('business_id', negocioId).order('variant_id').order('warehouse_id').range(desde, hasta),
     ),
   ]);
+  sinCortes(bodegas, productos, stock);
   const enlaces = await enlacesDeFotos((productos.data ?? []).map((p) => p.photo_path).filter((r): r is string => !!r));
   return {
     bodegas: (bodegas.data ?? []).map((b) => ({ id: b.id, nombre: b.name, principal: b.is_main })),

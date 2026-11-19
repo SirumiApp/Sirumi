@@ -5,6 +5,7 @@ import type { Json } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
 import type { IvaVenta } from '@/lib/pos';
 import { todasLasFilas } from '@/lib/paginas';
+import { sinCortes } from '@/lib/sinConexion';
 import { supabase } from '@/lib/supabase';
 import { normalizarCodigo, type CodigoDescuento } from '@/lib/ventas';
 
@@ -54,6 +55,7 @@ export async function cargarPos(negocioId: string): Promise<{ ventas: Venta[]; f
     supabase.from('payment_methods').select('id, name, account_id').eq('business_id', negocioId).order('created_at'),
     supabase.from('discount_codes').select('id, code, kind, value, active, expires_on').eq('business_id', negocioId).order('code'),
   ]);
+  sinCortes(ventas, formas, codigos);
   return {
     ventas: (ventas.data ?? []).map((v) => ({
       id: v.id,
@@ -93,6 +95,10 @@ export type DatosCobro = {
   codigo: string | null;
   lineas: { variante: string | null; nombre: string; precio: number; cantidad: number }[];
   pagos: PagoVenta[];
+  /** Id que pone el celular: si la venta llega dos veces, no se duplica. */
+  clientId?: string;
+  /** Se hizo sin internet: si al subirla el stock no alcanza, queda en 0 en vez de rechazarla. */
+  sinConexion?: boolean;
 };
 
 /** Cobrar (D4): venta, líneas, plata y stock en una sola transacción. Devuelve { id, number }. */
@@ -108,6 +114,8 @@ export function cobrarVenta(negocioId: string, d: DatosCobro) {
       received: d.recibido,
       ...(d.iva ? { iva: { tarifa: d.iva.tarifa, incluido: d.iva.incluido } } : {}),
       discount_code: d.codigo,
+      ...(d.clientId ? { client_id: d.clientId } : {}),
+      ...(d.sinConexion ? { sin_conexion: true } : {}),
       items: d.lineas.map((l) => ({ variant_id: l.variante, name: l.nombre, unit_price: Math.round(l.precio), quantity: l.cantidad })),
       payments: d.pagos.map((p) => ({ nombre: p.nombre, cuenta: p.cuenta, monto: Math.round(p.monto) })),
     } as unknown as Json,

@@ -71,7 +71,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] Fechas del historial de inventario con el formato de la app ("15 nov") y la hora de Colombia.
 
 ## Mejoras propuestas (por decidir)
-- [ ] POS sin internet (ferias): vender sin señal y sincronizar al volver.
+- [x] POS sin internet (ferias): vender sin señal y sincronizar al volver (D9).
 - [ ] Arqueo de caja al cerrar el día: contar el efectivo y ver la diferencia.
 - [ ] Aviso de inventario bajo el mínimo y de topes personales al 80%.
 - [ ] Devolución parcial (una sola línea de la venta).

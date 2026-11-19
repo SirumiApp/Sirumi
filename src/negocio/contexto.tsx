@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { hoyEn, partes } from '@/lib/fechas';
+import { stockConPendientes } from '@/lib/sinConexion';
+import { useVentasPendientes } from '@/pos/cola';
 import type { ParametrosImpuestos } from '@/lib/impuestos';
 import type { MovNegocio } from '@/lib/negocio';
 
@@ -35,7 +37,10 @@ export function ProveedorNegocio({ children }: { children: ReactNode }) {
     // En el modo ejemplo también se puede registrar: queda solo en la memoria del celular.
     setHoja({ abierta: true, movimiento, plantilla });
   }, []);
-  const { negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, bodegas, productos, stock, ventas, formasPago, codigos, cargando } = datos;
+  const { negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, bodegas, productos, ventas, formasPago, codigos, cargando } = datos;
+  // Lo vendido sin internet que aún no se sube ya no está disponible (para no vender dos veces lo mismo).
+  const pendientes = useVentasPendientes(negocio?.id);
+  const stock = useMemo(() => stockConPendientes(datos.stock, pendientes.map((p) => ({ bodega: p.datos.bodega, lineas: p.datos.lineas }))), [datos.stock, pendientes]);
 
   const valor = useMemo(
     () => ({ negocio, cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, bodegas, productos, stock, ventas, formasPago, codigos, cargando, version, parametros, actualizar, abrirHoja }),

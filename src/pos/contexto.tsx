@@ -9,6 +9,8 @@ export type Comprobante = Pick<Venta, 'numero' | 'subtotal' | 'descuento' | 'tot
   lineas: { nombre: string; precio: number; cantidad: number }[];
   cliente: string | null;
   celularCliente: string | null;
+  /** Se guardó sin internet: el número se pone al subirla. */
+  pendiente?: boolean;
 };
 
 type EstadoPos = {

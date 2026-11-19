@@ -7,7 +7,8 @@ import { numeroVenta } from '@/lib/pos';
 import type { Comprobante } from './contexto';
 
 export function textoRecibo(c: Comprobante, negocio: string, t: TFunction, plata: (v: number) => string, regalo = false): string {
-  const filas = [regalo ? t('pos.recibo.regalo', { negocio, numero: numeroVenta(c.numero) }) : t('pos.recibo.titulo', { negocio, numero: numeroVenta(c.numero) }), ''];
+  const numeroTexto = c.pendiente ? '' : numeroVenta(c.numero);
+  const filas = [regalo ? t('pos.recibo.regalo', { negocio, numero: numeroTexto }) : t('pos.recibo.titulo', { negocio, numero: numeroTexto }), ''];
   for (const l of c.lineas) filas.push(regalo ? `${l.cantidad} × ${l.nombre}` : `${l.cantidad} × ${l.nombre} · ${plata(l.precio * l.cantidad)}`);
   if (!regalo) {
     filas.push('');

@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,6 +13,7 @@ import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
 import { hoyEn } from '@/lib/fechas';
 import { nombreVariante } from '@/lib/inventario';
 import { todasLasFilas } from '@/lib/paginas';
+import { esErrorDeConexion, sinCortes } from '@/lib/sinConexion';
 import { supabase } from '@/lib/supabase';
 
 import { cargarPos, type CodigoDescuento, type FormaPagoPropia, type Venta } from '@/pos/datos';
@@ -104,16 +106,38 @@ const aContacto = (c: FilaContacto): Contacto => ({
   notas: c.notes ?? '',
 });
 
+const CLAVE_COPIA = 'sirumi.copiaNegocio.';
+
+/** Copia del negocio en el celular, para abrir el POS sin internet (las fotos se vuelven a pedir con señal). */
+function guardarCopia(usuario: string, d: DatosNegocio) {
+  const sinFotos = { ...d, productos: d.productos.map((p) => ({ ...p, fotoUrl: null })) };
+  AsyncStorage.setItem(CLAVE_COPIA + usuario, JSON.stringify(sinFotos)).catch(() => {});
+}
+
+async function leerCopia(usuario: string): Promise<DatosNegocio | null> {
+  try {
+    const texto = await AsyncStorage.getItem(CLAVE_COPIA + usuario);
+    return texto ? (JSON.parse(texto) as DatosNegocio) : null;
+  } catch {
+    return null;
+  }
+}
+
 /** El negocio de la persona (el primero donde es dueña) con todo lo necesario para las reglas B. */
 export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => void } {
   const { sesion } = useSesion();
   const idUsuario = sesion?.user.id;
-  const [datos, setDatos] = useState<DatosNegocio>(VACIO);
+  const [datos, setDatosEstado] = useState<DatosNegocio>(VACIO);
+  const setDatos = setDatosEstado;
 
-  const cargar = useCallback(async () => {
+  const cargarDelServidor = async () => {
     if (!idUsuario) return;
+    const setDatos = (d: DatosNegocio) => {
+      setDatosEstado(d);
+      if (d.negocio) guardarCopia(idUsuario, d);
+    };
     // Primero el negocio donde es dueño ('owner' va antes que 'seller'); si no, donde vende.
-    const { data: miembro } = await supabase
+    const { data: miembro, error: errorMiembro } = await supabase
       .from('business_members')
       .select('business_id, role, warehouse_id, businesses(id, name)')
       .eq('user_id', idUsuario)
@@ -121,6 +145,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
       .order('created_at')
       .limit(1)
       .maybeSingle();
+    if (errorMiembro && esErrorDeConexion(errorMiembro)) throw errorMiembro;
     const b = miembro?.businesses as { id: string; name: string } | null | undefined;
     if (!miembro || !b) return setDatos({ ...VACIO, cargando: false });
     const rol = miembro.role === 'seller' ? 'seller' : 'owner';
@@ -144,6 +169,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         cargarInventario(b.id),
         cargarPos(b.id),
       ]);
+      sinCortes(cuentas, contactos);
       return setDatos({
         ...VACIO,
         negocio,
@@ -186,6 +212,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
       cargarInventario(b.id),
       cargarPos(b.id),
     ]);
+    sinCortes(cuentas, tarjetas, movimientos, traslados, contactos, recurrentes);
 
     setDatos({
       negocio,
@@ -225,6 +252,18 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
       ...pos,
       cargando: false,
     });
+  };
+
+  const cargar = useCallback(async () => {
+    if (!idUsuario) return;
+    try {
+      await cargarDelServidor();
+    } catch {
+      // Sin internet (p. ej. en una feria): se usa la última copia guardada en el celular.
+      const copia = await leerCopia(idUsuario);
+      if (copia) setDatos({ ...copia, cargando: false });
+      else setDatos((d) => ({ ...d, cargando: false }));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `version` solo sirve para forzar una nueva lectura
   }, [idUsuario, version]);
 

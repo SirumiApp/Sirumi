@@ -1093,6 +1093,7 @@ export type Database = {
         Row: {
           business_id: string
           change: number | null
+          client_id: string | null
           contact_id: string | null
           created_at: string
           date: string
@@ -1100,6 +1101,7 @@ export type Database = {
           discount_code: string | null
           id: string
           number: number
+          offline: boolean
           payments: Json
           received: number | null
           returned_at: string | null
@@ -1115,6 +1117,7 @@ export type Database = {
         Insert: {
           business_id: string
           change?: number | null
+          client_id?: string | null
           contact_id?: string | null
           created_at?: string
           date: string
@@ -1122,6 +1125,7 @@ export type Database = {
           discount_code?: string | null
           id?: string
           number: number
+          offline?: boolean
           payments?: Json
           received?: number | null
           returned_at?: string | null
@@ -1137,6 +1141,7 @@ export type Database = {
         Update: {
           business_id?: string
           change?: number | null
+          client_id?: string | null
           contact_id?: string | null
           created_at?: string
           date?: string
@@ -1144,6 +1149,7 @@ export type Database = {
           discount_code?: string | null
           id?: string
           number?: number
+          offline?: boolean
           payments?: Json
           received?: number | null
           returned_at?: string | null
@@ -1421,6 +1427,15 @@ export type Database = {
       _negocio_de_variante: {
         Args: { bodega: string; variante: string }
         Returns: string
+      }
+      _sacar_hasta_cero: {
+        Args: {
+          bodega: string
+          cantidad: number
+          negocio: string
+          variante: string
+        }
+        Returns: number
       }
       abonar_deuda: { Args: { deuda: string; monto: number }; Returns: number }
       abonar_meta: { Args: { meta: string; monto: number }; Returns: number }

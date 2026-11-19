@@ -9,6 +9,7 @@ import { escucharToques, refrescarRegistro } from '@/notificaciones';
 import { cargarIdiomaGuardado } from '@/i18n';
 import { ProveedorNegocio } from '@/negocio/contexto';
 import { ProgramadorAvisos } from '@/notificaciones/Programador';
+import { SincronizadorVentas } from '@/pos/Sincronizador';
 import { ProveedorPersonal } from '@/personal/contexto';
 import { FUENTES_A_CARGAR, ProveedorTema, useTema } from '@/theme';
 
@@ -98,7 +99,12 @@ function Navegacion() {
               <Stack.Screen name="onboarding" />
             </Stack.Protected>
           </Stack>
-          {!!sesion && onboardingListo === true && <ProgramadorAvisos />}
+          {!!sesion && onboardingListo === true && (
+            <>
+              <ProgramadorAvisos />
+              <SincronizadorVentas />
+            </>
+          )}
         </ProveedorNegocio>
       </ProveedorPersonal>
     </ThemeProvider>

@@ -16,7 +16,7 @@ import { COLOR_VENTA, ESPACIO, PALETA, useTema } from '@/theme';
 /** Sirumi POS · Venta lista (spec 05, §3): banner verde, comprobante, compartir, recibo de regalo y nueva venta. */
 export default function Listo() {
   const { t } = useTranslation();
-  const { oscuro } = useTema();
+  const { oscuro, colores } = useTema();
   const plata = usePlata();
   const { negocio } = useNegocio();
   const pos = usePos();
@@ -59,6 +59,14 @@ export default function Listo() {
           {c.vuelto ? ` · ${t('pos.vuelto', { monto: plata(c.vuelto) })}` : ''}
         </Texto>
       </View>
+      {c.pendiente && (
+        <View style={{ flexDirection: 'row', gap: ESPACIO.s, padding: ESPACIO.m, borderRadius: 16, backgroundColor: colores.avisoFondo }}>
+          <Emoji name="nube" size={24} />
+          <Texto variante="pequeno" color={colores.avisoTexto} style={{ flex: 1 }}>
+            {t('pos.sinInternet.guardada')}
+          </Texto>
+        </View>
+      )}
       <VistaComprobante c={c} />
       <Boton titulo={t('pos.compartir')} variante="secundario" onPress={() => compartir(false)} />
       <Boton titulo={t('pos.regalo')} variante="secundario" onPress={() => compartir(true)} />

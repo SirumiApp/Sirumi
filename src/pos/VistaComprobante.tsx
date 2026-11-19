@@ -17,7 +17,7 @@ export function VistaComprobante({ c }: { c: Comprobante }) {
   return (
     <View style={{ gap: ESPACIO.s }}>
       <Texto variante="etiqueta">
-        {t('pos.comprobante')} · {numeroVenta(c.numero)}
+        {t('pos.comprobante')} · {c.pendiente ? t('pos.sinInternet.sinNumero') : numeroVenta(c.numero)}
       </Texto>
       <ListaFilas>
         {[

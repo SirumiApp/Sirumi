@@ -300,3 +300,13 @@ Convenciones:
 ### D6 (ampliación) · Ventas registradas a mano con IVA
 - Si el negocio es responsable de IVA, las ventas registradas a mano también traen el IVA dentro (lo normal): ventas = monto − monto × tarifa / (100 + tarifa). Ejemplo: 1.190.000 al 19% → ventas 1.000.000 e IVA 190.000.
 - El % de costo (B5) va sobre el precio **sin IVA**, en las ventas a mano y en las líneas libres del POS. Ejemplo: 1.190.000 con costo 45% → costo 450.000.
+
+### D9 · Vender sin internet (ferias)
+- Si al cobrar no hay internet (o el servidor no responde en 12 s), la venta se guarda en el celular con su id único (`client_id`) y el comprobante dice "sin número aún".
+- El stock que se ve descuenta lo vendido que falta por subir (nunca menos de 0), para no vender dos veces lo mismo.
+- Se suben solas al abrir la app, al volver a ella y cada 30 s mientras queden; también con "Subir ahora". El número de venta se pone al subirla.
+- Si la misma venta llega dos veces, el servidor devuelve la misma (no se duplica).
+- Al subirla, si el stock ya no alcanza, la venta se registra igual y el stock queda en 0 (la venta ya ocurrió); con internet, sin stock, se rechaza como siempre.
+- Si el servidor la rechaza por otra razón, queda marcada en el POS para revisarla o descartarla.
+- La app guarda en el celular una copia del negocio (productos, precios, stock, cuentas) para abrir el POS sin señal.
+- Devolver una venta regresa al inventario lo que de verdad salió por ella.

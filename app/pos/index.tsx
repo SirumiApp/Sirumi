@@ -20,6 +20,7 @@ import { useTributario } from '@/impuestos/ganchos';
 import type { Producto } from '@/negocio/inventarioDatos';
 import { usePlata } from '@/personal/ganchos';
 import { usePos } from '@/pos/contexto';
+import { BannerPendientes } from '@/pos/BannerPendientes';
 import { PantallaPos } from '@/pos/PantallaPos';
 import { ALTO_TOCABLE, ESPACIO, FUENTES, sombraSuave, useTema } from '@/theme';
 
@@ -139,6 +140,7 @@ export default function Catalogo() {
           <Boton titulo={`${t('pos.irACobrar')} →`} disabled={!pos.lineas.length} onPress={() => router.push('/pos/cobrar')} style={{ paddingHorizontal: ESPACIO.l }} />
         </View>
       }>
+      <BannerPendientes />
       {bodegas.length > 1 && !bodegaFija && (
         <View style={{ gap: ESPACIO.s }}>
           <Texto variante="fuerte">{t('pos.bodega')}</Texto>

@@ -13,6 +13,8 @@ import { Interruptor } from '@/components/Interruptor';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { cobrarEnEjemplo } from '@/ejemplo/arenero';
+import { idDeVenta } from '@/lib/sinConexion';
+import { cobrarOGuardar, guardarSinInternet } from '@/pos/cola';
 import { modoEjemploActivo } from '@/ejemplo/modo';
 import { CampoCantidad } from '@/inventario/Piezas';
 import { hoyEn } from '@/lib/fechas';
@@ -27,7 +29,7 @@ import { FilaCifra, ListaFilas } from '@/negocio/Piezas';
 import { usePlata } from '@/personal/ganchos';
 import { avisarVenta, sonidoActivo } from '@/pos/aviso';
 import { usePos } from '@/pos/contexto';
-import { borrarFormaPago, cobrarVenta, crearFormaPago, type PagoVenta } from '@/pos/datos';
+import { borrarFormaPago, crearFormaPago, type PagoVenta } from '@/pos/datos';
 import { HojaCliente } from '@/pos/HojaCliente';
 import { PantallaPos } from '@/pos/PantallaPos';
 import { ALTO_TOCABLE, ESPACIO, FUENTES, useTema } from '@/theme';
@@ -130,40 +132,50 @@ export default function Cobrar() {
       lineas: pos.lineas.map((l) => ({ variante: l.variante, nombre: l.nombre, precio: l.precio, cantidad: l.cantidad })),
       pagos,
     };
+    const comprobanteBase = {
+      subtotal,
+      descuento,
+      total,
+      pagos,
+      vuelto: recibido !== null ? vuelto(recibido, total) : null,
+      iva: valorIva,
+      tarifaIva: iva?.tarifa ?? null,
+      ivaIncluido: iva ? iva.incluido : null,
+      lineas: pos.lineas.map((l) => ({ nombre: l.nombre, precio: l.precio, cantidad: l.cantidad })),
+      cliente: cliente?.nombre ?? null,
+      celularCliente: cliente?.celular || null,
+    };
     // En el modo ejemplo la venta queda en la memoria del celular (se borra al salir del ejemplo).
     const costoDe = (variante: string | null) => (variante ? (productos.find((p) => p.variantes.some((v) => v.id === variante))?.costo ?? null) : null);
-    const { data, error: e } = modoEjemploActivo()
+    const clientId = idDeVenta();
+    const r = modoEjemploActivo()
       ? {
+          sinInternet: false,
           data: cobrarEnEjemplo(
             { ...datosCobro, lineas: datosCobro.lineas.map((l) => ({ ...l, costo: costoDe(l.variante) })) },
             Math.max(0, ...ventas.map((v) => v.numero)) + 1,
           ),
           error: null,
         }
-      : await cobrarVenta(negocio.id, datosCobro);
+      : await cobrarOGuardar(negocio.id, datosCobro, clientId);
+    // Sin internet (ferias): la venta se guarda en el celular y se sube sola cuando vuelva la señal.
+    if (r.sinInternet) {
+      const comprobante = { ...comprobanteBase, numero: 0, pendiente: true };
+      await guardarSinInternet({ clientId, negocioId: negocio.id, datos: datosCobro, creada: new Date().toISOString(), comprobante });
+      setCobrando(false);
+      avisarVenta(sonidoActivo(perfil?.preferences));
+      pos.cambiar({ comprobante });
+      router.replace('/pos/listo');
+      return;
+    }
     setCobrando(false);
-    const err = leerErrorInventario(e);
-    if (err || !data) {
+    const err = leerErrorInventario(r.error as Parameters<typeof leerErrorInventario>[0]);
+    if (err || !r.data) {
       return setError(err?.codigo === 'stockInsuficiente' ? t('pos.errores.stockInsuficiente', err.detalle) : t('pos.errores.general'));
     }
-    const venta = data as { id: string; number: number };
+    const venta = r.data as { id: string; number: number };
     avisarVenta(sonidoActivo(perfil?.preferences));
-    pos.cambiar({
-      comprobante: {
-        numero: venta.number,
-        subtotal,
-        descuento,
-        total,
-        pagos,
-        vuelto: recibido !== null ? vuelto(recibido, total) : null,
-        iva: valorIva,
-        tarifaIva: iva?.tarifa ?? null,
-        ivaIncluido: iva ? iva.incluido : null,
-        lineas: pos.lineas.map((l) => ({ nombre: l.nombre, precio: l.precio, cantidad: l.cantidad })),
-        cliente: cliente?.nombre ?? null,
-        celularCliente: cliente?.celular || null,
-      },
-    });
+    pos.cambiar({ comprobante: { ...comprobanteBase, numero: venta.number } });
     actualizar();
     router.replace('/pos/listo');
   }
