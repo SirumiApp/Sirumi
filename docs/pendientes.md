@@ -6,7 +6,7 @@ Lista viva de lo que falta o hay que volver a revisar. Se actualiza al terminar 
 Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html` y el prototipo nuevo de nov 2026):
 - [x] **Período por defecto**: decidido con Nicolás (nov 2026): el mes va siempre del 1 al último día, en personal y en negocio. No se agrega el ajuste.
 - [x] **Notificaciones**: aviso de cada venta al dueño (servidor → Expo) y recordatorios de pagos recurrentes (en el celular). En Expo Go para iPhone llegan; en Android hace falta la app instalada.
-- [ ] Más avisos: topes, resumen semanal, calendario de impuestos, "sube tus extractos".
+- [x] Más avisos: topes, resumen semanal, calendario de impuestos, "sube tus extractos".
 - [x] **Términos de servicio**: en la app (borrador 2), falta revisión legal.
 - [ ] **Importar CSV** (desde un CSV exportado de la app).
 - [ ] **¿Te gusta la app? Déjanos una reseña**: cuando esté en las tiendas.
@@ -18,7 +18,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 ## Negocio (siguientes partes del módulo 03)
 - [x] Mover plata entre cuentas y pagar tarjetas, con historial (Caja).
 - [x] Informes hechos: estado de resultados + de cada $100, impuestos (B7) y equilibrio (Resultados); flujo de caja (Caja); balance, cartera por antigüedad, dueño y capital, entradas y salidas (Más). Todos se comparten como texto.
-- [ ] Informes que esperan otros módulos: ventas por producto/cliente, inventario y márgenes (módulo 04), cierre del día (POS, módulo 05). Exportar a PDF.
+- [x] Informes que esperan otros módulos: ventas por producto/cliente, inventario y márgenes (módulo 04), cierre del día (POS, módulo 05). Falta: exportar informes a PDF.
 - [x] Impuestos estimados (B7) en la utilidad neta del Resumen (tabla `tax_parameters` por año).
 - [x] Clientes y proveedores (ficha, autorización Ley 1581, estadísticas) y contacto en los movimientos.
 - [x] Pagos recurrentes con aviso dentro de la app (Resumen) y "Registrar pago".
@@ -28,11 +28,11 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 
 ## POS (lo que falta)
 - [x] Códigos de descuento (crear y usar).
-- [ ] Carritos guardados (atender a otro cliente y volver).
+- [x] Carritos guardados (atender a otro cliente y volver).
 - [x] Código de barras en todas partes (Shopify POS): escribir, generar, escanear con la cámara o con pistola lectora; en el POS la cámara queda abierta y suma un producto tras otro.
 - [x] IVA en el POS (D6): incluido en el precio por defecto, con opción de sumarlo; las ventas cuentan sin IVA y el IVA cobrado se muestra aparte.
 - [x] IVA por producto y "IVA por pagar" en el balance.
-- [ ] Imprimir etiquetas de código de barras (PDF para impresora de etiquetas) e impresora de recibos Bluetooth.
+- [x] Etiquetas de código de barras en PDF. Falta: impresora de recibos o etiquetas Bluetooth.
 - [x] Vendedores con código (adelantado de la v2): el dueño crea códigos; el vendedor entra desde el onboarding o Ajustes y solo ve el POS de su bodega y sus ventas.
 - [x] Informe de ventas por producto, vendedor, forma de pago y cliente.
 
@@ -96,3 +96,26 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] El teclado ya no tapa los botones en las hojas con campos (iPhone).
 - [x] Cobrar con el carrito vacío explica qué pasa y vuelve a vender.
 - [x] Atajos de gasto con un toque (A6).
+
+## Entrar más fácil (después del lanzamiento o justo antes)
+- [ ] Entrar con Google (Supabase lo trae: hay que crear las credenciales en Google Cloud y ponerlas en Supabase).
+- [ ] Entrar con Apple: obligatorio en iPhone si hay "Entrar con Google" (regla de Apple). Necesita la cuenta de Apple Developer.
+- [ ] Face ID / huella para abrir la app sin escribir la contraseña (expo-local-authentication; funciona en la app instalada, no en Expo Go).
+
+## Lista para publicar en las tiendas
+### Lo que hace Nicolás
+- [ ] Cuenta de Apple Developer aprobada (US$99/año) y cuenta de Google Play Console (US$25, un solo pago).
+- [ ] Dominio (p. ej. sirumi.co) y correo de la empresa.
+- [ ] Contador: revisar calendario de impuestos, IVA y SIMPLE (docs/reglas-de-calculo.md, reglas B7, B12, B13, D6).
+- [ ] Abogado: revisar Términos, privacidad y anexo de datos de clientes (es y en).
+- [ ] Crear el proyecto `sirumi-prod` en Supabase (plan Pro recomendado: copias de seguridad diarias).
+- [ ] Textos y fotos para las tiendas: nombre, descripción corta y larga, 5–6 capturas por tamaño de celular, ícono, correo de soporte.
+- [ ] Página web sencilla con la política de privacidad y los términos (las tiendas piden un enlace público).
+- [ ] Decidir si la v1 es gratis (lo actual) o con plan Premium.
+### Lo que hace Claude (cuando lo anterior esté)
+- [ ] Pasar la base de datos a `sirumi-prod` (todas las migraciones y pruebas) y conectar la app.
+- [ ] Correo propio en Supabase (Resend) y volver a pedir confirmar el correo con código.
+- [ ] Builds con EAS: iPhone (TestFlight) y Android (prueba interna), con ícono, pantalla de inicio y permisos (cámara, avisos, fotos) explicados.
+- [ ] Avisos al celular de verdad (Expo push con la app instalada) y Face ID.
+- [ ] Formulario de privacidad de Apple y de Google (qué datos se guardan y para qué).
+- [ ] Prueba con 5–10 personas reales (TestFlight y prueba interna) antes de abrirla a todos.
