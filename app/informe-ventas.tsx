@@ -48,7 +48,7 @@ export default function InformeVentas() {
   }, [cargar]);
 
   const r = informeVentas(
-    ventas.map((v) => ({ id: v.id, fecha: v.fecha, estado: v.estado, total: v.total, descuento: v.descuento, vendedor: v.vendedor, cliente: v.cliente, pagos: v.pagos, lineas: v.lineas })),
+    ventas.map((v) => ({ id: v.id, fecha: v.fecha, estado: v.estado, total: v.total, descuento: v.descuento, vendedor: v.vendedor, cliente: v.cliente, pagos: v.pagos, lineas: v.lineas, devuelto: v.devuelto })),
     periodo,
   );
   const nombreVendedor = (id: string | null) => (!id || id === sesion?.user.id ? t('informeVentas.tu') : (nombres.get(id) ?? t('informeVentas.otroVendedor')));

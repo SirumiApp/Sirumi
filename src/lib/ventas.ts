@@ -36,6 +36,8 @@ export type VentaInforme = {
   vendedor: string | null;
   cliente: string | null;
   pagos: { nombre: string; monto: number }[];
+  /** D4b · Plata devuelta por partes. */
+  devuelto?: number;
   lineas: LineaInforme[];
 };
 
@@ -76,7 +78,8 @@ export function informeVentas(ventas: VentaInforme[], periodo: Periodo) {
       descuentos: validas.reduce((s, v) => s + v.descuento, 0),
       unidades: validas.reduce((s, v) => s + v.lineas.reduce((t, l) => t + l.cantidad, 0), 0),
       devueltas: devueltas.length,
-      montoDevuelto: devueltas.reduce((s, v) => s + v.total, 0),
+      // Devueltas completas (su total) más lo devuelto por partes (D4b).
+      montoDevuelto: devueltas.reduce((s, v) => s + v.total, 0) + delPeriodo.reduce((s, v) => s + (v.devuelto ?? 0), 0),
     },
     porProducto: [...productos.values()]
       .sort((a, b) => b.unidades - a.unidades || b.ventas - a.ventas)

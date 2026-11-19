@@ -74,6 +74,6 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] POS sin internet (ferias): vender sin señal y sincronizar al volver (D9).
 - [ ] Arqueo de caja al cerrar el día: contar el efectivo y ver la diferencia.
 - [ ] Aviso de inventario bajo el mínimo y de topes personales al 80%.
-- [ ] Devolución parcial (una sola línea de la venta).
+- [x] Devolución parcial (D4b).
 - [ ] IVA por producto (exento, 5%) e "IVA por pagar" en el balance.
 - [ ] Resumen semanal por notificación ("esta semana vendiste $ X, gastaste $ Y").

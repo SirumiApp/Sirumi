@@ -27,6 +27,7 @@ export function VistaComprobante({ c }: { c: Comprobante }) {
             <FilaCifra key="i" titulo={c.ivaIncluido ? t('pos.iva.lineaIncluido', { tarifa: c.tarifaIva }) : t('pos.iva.linea', { tarifa: c.tarifaIva })} valor={plata(c.iva)} />
           ) : null,
           <FilaCifra key="t" titulo={t('pos.total')} valor={plata(c.total)} fuerte />,
+          c.devuelto ? <FilaCifra key="dv" titulo={t('pos.parcial.yaDevuelto')} valor={plata(c.devuelto)} color={colores.errorTexto} /> : null,
           <FilaCifra key="p" titulo={t('pos.recibo.pago')} valor={c.pagos.map((p) => (c.pagos.length > 1 ? `${p.nombre} ${plata(p.monto)}` : p.nombre)).join(' + ')} />,
           c.vuelto ? <FilaCifra key="v" titulo={t('pos.recibo.vuelto')} valor={plata(c.vuelto)} /> : null,
           <FilaCifra key="c" titulo={t('pos.cliente')} valor={c.cliente ?? t('pos.consumidorFinal')} />,

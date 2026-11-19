@@ -310,3 +310,11 @@ Convenciones:
 - Si el servidor la rechaza por otra razón, queda marcada en el POS para revisarla o descartarla.
 - La app guarda en el celular una copia del negocio (productos, precios, stock, cuentas) para abrir el POS sin señal.
 - Devolver una venta regresa al inventario lo que de verdad salió por ella.
+
+### D4b · Devolver parte de una venta
+- Se eligen unidades de una o varias líneas. Reembolso = valor de esas unidades × total / subtotal (mismo descuento e IVA de la venta).
+- La venta queda con su nuevo subtotal, descuento (en proporción), IVA (en proporción) y total; cada pago y su movimiento bajan en proporción (el último se ajusta para que sume exacto).
+- Al inventario vuelve lo que de verdad salió por esa venta, a la misma bodega.
+- Si se devuelve todo lo que queda, es una devolución completa (D4).
+- Ejemplo: 2 tazas de 28.000 + café 32.000 = 88.000, 10% → 79.200 pagado mitad efectivo y mitad Nequi. Devolver 1 taza → reembolso 25.200; la venta queda en 54.000 (27.000 + 27.000).
+- El informe de ventas suma en "devoluciones" lo devuelto por partes.

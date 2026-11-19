@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { normalizarCodigo, type CodigoDescuento } from '@/lib/ventas';
 
 export type PagoVenta = { nombre: string; cuenta: string | null; monto: number };
-export type LineaVenta = { variante: string | null; nombre: string; precio: number; costo: number | null; cantidad: number; total: number };
+export type LineaVenta = { id?: string; variante: string | null; nombre: string; precio: number; costo: number | null; cantidad: number; total: number; /** D4b · Unidades ya devueltas. */ devueltas?: number };
 export type Venta = {
   id: string;
   numero: number;
@@ -34,6 +34,8 @@ export type Venta = {
   /** Código de descuento usado (D7). */
   codigo: string | null;
   lineas: LineaVenta[];
+  /** D4b · Plata ya devuelta por devoluciones parciales. */
+  devuelto?: number;
 };
 export type FormaPagoPropia = { id: string; nombre: string; cuenta: string };
 export type { CodigoDescuento } from '@/lib/ventas';
@@ -45,7 +47,7 @@ export async function cargarPos(negocioId: string): Promise<{ ventas: Venta[]; f
     todasLasFilas((desde, hasta) =>
       supabase
         .from('sales')
-        .select('id, number, date, warehouse_id, contact_id, subtotal, discount, total, payments, received, change, tax, tax_rate, tax_included, status, created_at, seller_id, discount_code, sale_items(variant_id, name, unit_price, unit_cost, quantity, line_total)')
+        .select('id, number, date, warehouse_id, contact_id, subtotal, discount, total, payments, received, change, tax, tax_rate, tax_included, status, created_at, seller_id, discount_code, returned_amount, sale_items(id, variant_id, name, unit_price, unit_cost, quantity, line_total, returned_qty)')
         .eq('business_id', negocioId)
         .gte('date', `${new Date().getFullYear() - 1}-01-01`)
         .order('created_at', { ascending: false })
@@ -76,7 +78,8 @@ export async function cargarPos(negocioId: string): Promise<{ ventas: Venta[]; f
       creada: v.created_at,
       vendedor: v.seller_id,
       codigo: v.discount_code,
-      lineas: (v.sale_items ?? []).map((l) => ({ variante: l.variant_id, nombre: l.name, precio: l.unit_price, costo: l.unit_cost, cantidad: l.quantity, total: l.line_total })),
+      devuelto: v.returned_amount,
+      lineas: (v.sale_items ?? []).map((l) => ({ id: l.id, variante: l.variant_id, nombre: l.name, precio: l.unit_price, costo: l.unit_cost, cantidad: l.quantity, total: l.line_total, devueltas: l.returned_qty })),
     })),
     formasPago: (formas.data ?? []).map((f) => ({ id: f.id, nombre: f.name, cuenta: f.account_id })),
     codigos: (codigos.data ?? []).map((c) => ({ id: c.id, codigo: c.code, tipo: c.kind as CodigoDescuento['tipo'], valor: c.value, activo: c.active, vence: c.expires_on })),
@@ -120,6 +123,11 @@ export function cobrarVenta(negocioId: string, d: DatosCobro) {
       payments: d.pagos.map((p) => ({ nombre: p.nombre, cuenta: p.cuenta, monto: Math.round(p.monto) })),
     } as unknown as Json,
   });
+}
+
+/** D4b · Devolver parte de una venta (unidades de una o varias líneas). Devuelve { reembolso, completa }. */
+export function devolverParte(ventaId: string, items: { id: string; cantidad: number }[]) {
+  return supabase.rpc('devolver_parte', { venta: ventaId, items: items as unknown as Json });
 }
 
 /** Devolución (D4): devuelve el stock a la misma bodega y quita la plata de la venta. */

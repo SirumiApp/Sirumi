@@ -364,6 +364,20 @@ export const es = {
     },
   },
   pos: {
+    parcial: {
+      boton: 'Devolver algunos productos',
+      titulo: '¿Qué te devuelven?',
+      detalle: 'Elige cuántas unidades de cada producto. Vuelven a {{bodega}} y la plata sale de la misma forma de pago.',
+      vendidas_one: '{{count}} vendida · {{precio}} c/u',
+      vendidas_other: '{{count}} vendidas · {{precio}} c/u',
+      devuelves: 'Le devuelves {{monto}} (con el mismo descuento e IVA de la venta).',
+      todo: 'Es todo lo de la venta: le devuelves {{monto}} y la venta queda devuelta.',
+      confirmar: 'Devolver {{monto}}',
+      elige: 'Elige qué devuelven',
+      devueltas_one: '{{count}} devuelta',
+      devueltas_other: '{{count}} devueltas',
+      yaDevuelto: 'Ya devuelto',
+    },
     sinInternet: {
       sinNumero: 'sin número aún',
       guardada: 'No hay internet: la venta quedó guardada en este celular y se sube sola cuando vuelva la señal. El número se pone al subirla.',

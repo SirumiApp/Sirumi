@@ -363,6 +363,20 @@ export const en: Traducciones = {
     },
   },
   pos: {
+    parcial: {
+      boton: 'Return some products',
+      titulo: 'What are they returning?',
+      detalle: 'Choose how many units of each product. They go back to {{bodega}} and the money comes out the same way it was paid.',
+      vendidas_one: '{{count}} sold · {{precio}} each',
+      vendidas_other: '{{count}} sold · {{precio}} each',
+      devuelves: 'You refund {{monto}} (with the same discount and VAT as the sale).',
+      todo: "It's the whole sale: you refund {{monto}} and the sale is returned.",
+      confirmar: 'Refund {{monto}}',
+      elige: 'Choose what they return',
+      devueltas_one: '{{count}} returned',
+      devueltas_other: '{{count}} returned',
+      yaDevuelto: 'Already refunded',
+    },
     sinInternet: {
       sinNumero: 'no number yet',
       guardada: 'No internet: the sale was saved on this phone and uploads by itself when the signal is back. It gets its number when it uploads.',

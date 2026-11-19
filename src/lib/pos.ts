@@ -98,3 +98,33 @@ export function cierreDelDia(ventas: { fecha: Fecha; estado: string; total: numb
   const ordenar = <K,>(m: Map<K, number>) => [...m.entries()].sort((a, b) => b[1] - a[1]);
   return { ventas: delDia.length, total: delDia.reduce((s, v) => s + v.total, 0), porForma: ordenar(porForma), porCuenta: ordenar(porCuenta) };
 }
+
+/** Reparte `total` entre partes proporcionales a `pesos`, sin perder pesos por redondeo (la última se ajusta). */
+export function repartir(total: number, pesos: number[]): number[] {
+  const suma = pesos.reduce((s, p) => s + p, 0);
+  if (suma <= 0) return pesos.map((_, i) => (i === pesos.length - 1 ? total : 0));
+  const partes = pesos.map((p) => Math.round((total * p) / suma));
+  partes[partes.length - 1] += total - partes.reduce((s, p) => s + p, 0);
+  return partes;
+}
+
+/**
+ * D4b · Devolver parte de una venta: se devuelve lo que pagó el cliente por esas unidades,
+ * con el mismo descuento e IVA de la venta (reembolso = valor de las unidades × total / subtotal).
+ * La venta queda con su nuevo subtotal, descuento, IVA y total, y cada pago baja en proporción.
+ */
+export function devolucionParcial(v: { subtotal: number; descuento: number; total: number; iva: number; pagos: number[] }, devueltas: { precio: number; cantidad: number }[]) {
+  const valor = devueltas.reduce((s, l) => s + Math.round(l.precio) * l.cantidad, 0);
+  const subtotal = Math.max(0, v.subtotal - valor);
+  if (subtotal === 0) return { reembolso: v.total, subtotal: 0, descuento: 0, total: 0, iva: 0, pagos: v.pagos.map(() => 0), completa: true };
+  const total = Math.round((v.total * subtotal) / v.subtotal);
+  return {
+    reembolso: v.total - total,
+    subtotal,
+    descuento: Math.round((v.descuento * subtotal) / v.subtotal),
+    total,
+    iva: Math.round((v.iva * total) / Math.max(1, v.total)),
+    pagos: repartir(total, v.pagos),
+    completa: false,
+  };
+}

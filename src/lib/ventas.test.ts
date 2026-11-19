@@ -62,3 +62,17 @@ describe('D8 · informe de ventas', () => {
     expect(r.porCliente).toEqual([['ana', 100_000]]);
   });
 });
+
+describe('D4b en el informe', () => {
+  it('lo devuelto por partes suma en "devoluciones"', () => {
+    const r = informeVentas(
+      [
+        { id: 'a', fecha: '2026-11-10', estado: 'pagada', total: 54_000, descuento: 0, vendedor: null, cliente: null, pagos: [{ nombre: 'Efectivo', monto: 54_000 }], lineas: [], devuelto: 25_200 },
+        { id: 'b', fecha: '2026-11-11', estado: 'devuelta', total: 30_000, descuento: 0, vendedor: null, cliente: null, pagos: [], lineas: [] },
+      ],
+      { desde: '2026-11-01', hasta: '2026-11-30' },
+    );
+    expect(r.resumen.montoDevuelto).toBe(55_200);
+    expect(r.resumen.ventas).toBe(54_000);
+  });
+});

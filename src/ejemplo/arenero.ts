@@ -8,14 +8,18 @@ import type { Fecha } from '@/lib/fechas';
 import type { FilaStock } from '@/lib/inventario';
 import type { MovNegocio } from '@/lib/negocio';
 import type { Movimiento } from '@/lib/personal';
+import type { devolucionParcial } from '@/lib/pos';
 import type { LineaVenta, PagoVenta, Venta } from '@/pos/datos';
+
+/** D4b en el ejemplo: lo que quedó de una venta después de devolver parte. */
+type Parcial = { factor: number; subtotal: number; descuento: number; total: number; iva: number; pagos: number[]; devueltas: Record<number, number>; devuelto: number };
 
 export type MovPersonalEjemplo = Movimiento & { recurrente?: string | null };
 /** Lo editado se guarda como cambios parciales: los campos que no se tocaron (p. ej. la venta enlazada) se conservan. */
 type Lista<T> = { nuevos: T[]; editados: Map<string, Partial<T>>; borrados: Set<string> };
 const lista = <T>(): Lista<T> => ({ nuevos: [], editados: new Map(), borrados: new Set() });
 
-let estado = { personal: lista<MovPersonalEjemplo>(), negocio: lista<MovNegocio>(), ventas: [] as Venta[], stock: [] as FilaStock[], numero: 0, devueltas: new Set<string>() };
+let estado = { personal: lista<MovPersonalEjemplo>(), negocio: lista<MovNegocio>(), ventas: [] as Venta[], stock: [] as FilaStock[], numero: 0, devueltas: new Set<string>(), parciales: new Map<string, Parcial>() };
 let version = 0;
 let siguiente = 1;
 const oyentes = new Set<() => void>();
@@ -52,10 +56,47 @@ function guardar<T extends { id: string }>(l: Lista<T>, m: T, id?: string) {
 
 export const personalEjemplo = (base: Movimiento[]) => aplicar(base, estado.personal);
 /** Movimientos del negocio en el ejemplo (sin los de ventas devueltas: D4 quita la plata de la venta). */
-export const negocioEjemplo = (base: MovNegocio[]) => aplicar(base, estado.negocio).filter((m) => !m.venta || !estado.devueltas.has(m.venta));
+export const negocioEjemplo = (base: MovNegocio[]) =>
+  aplicar(base, estado.negocio)
+    .filter((m) => !m.venta || !estado.devueltas.has(m.venta))
+    .map((m) => {
+      const p = m.venta ? estado.parciales.get(m.venta) : undefined;
+      return p ? { ...m, monto: Math.round(m.monto * p.factor) } : m;
+    });
 export const ventasEjemplo = () => estado.ventas;
 /** Marca como devueltas las ventas que se devolvieron en el ejemplo. */
-export const conDevoluciones = (ventas: Venta[]) => ventas.map((v) => (estado.devueltas.has(v.id) ? { ...v, estado: 'devuelta' as const } : v));
+export const conDevoluciones = (ventas: Venta[]) =>
+  ventas.map((v) => {
+    if (estado.devueltas.has(v.id)) return { ...v, estado: 'devuelta' as const };
+    const p = estado.parciales.get(v.id);
+    if (!p) return v;
+    return {
+      ...v,
+      subtotal: p.subtotal,
+      descuento: p.descuento,
+      total: p.total,
+      iva: p.iva,
+      devuelto: p.devuelto,
+      pagos: v.pagos.map((x, i) => ({ ...x, monto: p.pagos[i] ?? 0 })),
+      lineas: v.lineas.map((l, i) => {
+        const d = p.devueltas[i] ?? 0;
+        return d ? { ...l, cantidad: l.cantidad - d, total: l.precio * (l.cantidad - d), devueltas: (l.devueltas ?? 0) + d } : l;
+      }),
+    };
+  });
+
+/** D4b en el ejemplo: devuelve unidades de algunas líneas (por su posición en la venta ya mostrada). */
+export function devolverParteEnEjemplo(v: Venta, items: { indice: number; cantidad: number }[], calcular: typeof devolucionParcial) {
+  const r = calcular({ subtotal: v.subtotal, descuento: v.descuento, total: v.total, iva: v.iva, pagos: v.pagos.map((p) => p.monto) }, items.map((x) => ({ precio: v.lineas[x.indice].precio, cantidad: x.cantidad })));
+  if (r.completa) return devolverEnEjemplo(v);
+  const previo = estado.parciales.get(v.id);
+  const devueltas: Record<number, number> = { ...(previo?.devueltas ?? {}) };
+  for (const x of items) devueltas[x.indice] = (devueltas[x.indice] ?? 0) + x.cantidad;
+  const original = previo ? previo.total / previo.factor : v.total;
+  estado.parciales.set(v.id, { factor: r.total / original, subtotal: r.subtotal, descuento: r.descuento, total: r.total, iva: r.iva, pagos: r.pagos, devueltas, devuelto: (previo?.devuelto ?? 0) + r.reembolso });
+  if (v.bodega) for (const x of items) if (v.lineas[x.indice].variante) estado.stock.push({ variante: v.lineas[x.indice].variante as string, bodega: v.bodega, cantidad: -x.cantidad });
+  avisar();
+}
 
 /** D4 en el ejemplo: la venta queda devuelta, su plata sale y el stock vuelve a la misma bodega. */
 export function devolverEnEjemplo(v: Pick<Venta, 'id' | 'bodega' | 'lineas' | 'estado'>) {
@@ -170,6 +211,6 @@ export function cobrarEnEjemplo(d: CobroEjemplo, primerNumero: number) {
 
 /** Al salir del ejemplo se borra todo lo que se registró en él. */
 export function vaciarArenero() {
-  estado = { personal: lista(), negocio: lista(), ventas: [], stock: [], numero: 0, devueltas: new Set() };
+  estado = { personal: lista(), negocio: lista(), ventas: [], stock: [], numero: 0, devueltas: new Set(), parciales: new Map() };
   avisar();
 }

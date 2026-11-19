@@ -1038,6 +1038,7 @@ export type Database = {
           line_total: number
           name: string
           quantity: number
+          returned_qty: number
           sale_id: string
           unit_cost: number | null
           unit_price: number
@@ -1049,6 +1050,7 @@ export type Database = {
           line_total: number
           name: string
           quantity: number
+          returned_qty?: number
           sale_id: string
           unit_cost?: number | null
           unit_price: number
@@ -1060,6 +1062,7 @@ export type Database = {
           line_total?: number
           name?: string
           quantity?: number
+          returned_qty?: number
           sale_id?: string
           unit_cost?: number | null
           unit_price?: number
@@ -1104,6 +1107,7 @@ export type Database = {
           offline: boolean
           payments: Json
           received: number | null
+          returned_amount: number
           returned_at: string | null
           seller_id: string | null
           status: string
@@ -1128,6 +1132,7 @@ export type Database = {
           offline?: boolean
           payments?: Json
           received?: number | null
+          returned_amount?: number
           returned_at?: string | null
           seller_id?: string | null
           status?: string
@@ -1152,6 +1157,7 @@ export type Database = {
           offline?: boolean
           payments?: Json
           received?: number | null
+          returned_amount?: number
           returned_at?: string | null
           seller_id?: string | null
           status?: string
@@ -1494,6 +1500,7 @@ export type Database = {
         Args: { movimiento: string }
         Returns: undefined
       }
+      devolver_parte: { Args: { items: Json; venta: string }; Returns: Json }
       devolver_venta: { Args: { venta: string }; Returns: undefined }
       eliminar_mi_cuenta: { Args: never; Returns: undefined }
       es_dueno: { Args: { negocio: string }; Returns: boolean }

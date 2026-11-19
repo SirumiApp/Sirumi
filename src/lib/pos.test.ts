@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { cabeEnCarrito, cierreDelDia, costoDeVentas, dividirPago, numeroVenta, sugerenciasEfectivo, totalesVenta, validarCobro, vuelto, type LineaCarrito } from './pos';
+import { cabeEnCarrito, cierreDelDia, costoDeVentas, devolucionParcial, dividirPago, numeroVenta, repartir, sugerenciasEfectivo, totalesVenta, validarCobro, vuelto, type LineaCarrito } from './pos';
 
 const bolso: LineaCarrito = { clave: 'bolso', variante: 'v-bolso', nombre: 'Bolso', precio: 85_000, cantidad: 1 };
 
@@ -115,5 +115,24 @@ describe('D6 · IVA en el POS', () => {
   });
   it('sin IVA (no responsable): base = total e IVA 0', () => {
     expect(totalesVenta([bolso], null)).toMatchObject({ base: 85_000, iva: 0, total: 85_000 });
+  });
+});
+
+describe('D4b · devolución parcial', () => {
+  it('repartir sin perder pesos', () => {
+    expect(repartir(100, [1, 1, 1])).toEqual([33, 33, 34]);
+    expect(repartir(50_000, [25, 75])).toEqual([12_500, 37_500]);
+  });
+  it('devuelve una taza de una venta con 10% de descuento pagada mitad y mitad', () => {
+    // 2 tazas de 28.000 + café 32.000 = 88.000; 10% → 79.200 (efectivo 39.600 + Nequi 39.600).
+    const r = devolucionParcial({ subtotal: 88_000, descuento: 8_800, total: 79_200, iva: 0, pagos: [39_600, 39_600] }, [{ precio: 28_000, cantidad: 1 }]);
+    expect(r).toEqual({ reembolso: 25_200, subtotal: 60_000, descuento: 6_000, total: 54_000, iva: 0, pagos: [27_000, 27_000], completa: false });
+  });
+  it('con IVA incluido, el IVA baja en proporción', () => {
+    const r = devolucionParcial({ subtotal: 119_000, descuento: 0, total: 119_000, iva: 19_000, pagos: [119_000] }, [{ precio: 59_500, cantidad: 1 }]);
+    expect(r).toMatchObject({ reembolso: 59_500, total: 59_500, iva: 9_500 });
+  });
+  it('si se devuelve todo, es una devolución completa', () => {
+    expect(devolucionParcial({ subtotal: 28_000, descuento: 0, total: 28_000, iva: 0, pagos: [28_000] }, [{ precio: 28_000, cantidad: 1 }])).toMatchObject({ completa: true, reembolso: 28_000 });
   });
 });
