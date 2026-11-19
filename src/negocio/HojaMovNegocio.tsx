@@ -88,6 +88,7 @@ function Formulario({ movimiento, plantilla, contactos, negocioId, cuentas, tarj
   const [error, setError] = useState<string | null>(null);
 
   const reglas = TIPOS_NEGOCIO[tipo];
+  const desdePos = !!movimiento?.venta;
   const tipoContacto = tipoDeContacto(tipo);
   const delTipo = contactos.filter((c) => c.tipo === tipoContacto);
   // Si cambia el tipo de movimiento y el contacto ya no aplica, no se guarda.
@@ -169,7 +170,11 @@ function Formulario({ movimiento, plantilla, contactos, negocioId, cuentas, tarj
         </Texto>
       </View>
 
+      {/* Una venta del POS solo se marca como cobrada aquí; para anularla se devuelve desde Ventas (D4). */}
+      {desdePos && <Aviso mensaje={t('negocioApp.movimiento.desdePos')} tipo="info" />}
+
       {/* Tipo (B1): una fila que se desliza */}
+      {!desdePos && (
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -202,7 +207,8 @@ function Formulario({ movimiento, plantilla, contactos, negocioId, cuentas, tarj
           );
         })}
       </ScrollView>
-      <Texto variante="pequeno">{t(`negocioApp.tipos.${tipo}.ayuda`)}</Texto>
+      )}
+      {!desdePos && <Texto variante="pequeno">{t(`negocioApp.tipos.${tipo}.ayuda`)}</Texto>}
 
       <Texto
         variante="cifra"
@@ -213,12 +219,16 @@ function Formulario({ movimiento, plantilla, contactos, negocioId, cuentas, tarj
       </Texto>
 
       {/* Concepto: sugeridos según el tipo, o escrito */}
+      {!desdePos && (
+      <>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, marginHorizontal: -ESPACIO.m }} contentContainerStyle={{ gap: ESPACIO.s, paddingHorizontal: ESPACIO.m }}>
         {conceptos.map((c) => (
           <Chip key={c} texto={c} elegido={concepto === c} onPress={() => setConcepto(c)} />
         ))}
       </ScrollView>
       <CampoTexto etiqueta="" accessibilityLabel={t('negocioApp.movimiento.concepto')} placeholder={t('negocioApp.movimiento.ejemploConcepto')} value={concepto} onChangeText={setConcepto} maxLength={80} />
+      </>
+      )}
 
       {/* ¿Ya se pagó? (solo los tipos que pueden quedar pendientes) */}
       {reglas.puedePendiente && (
@@ -229,7 +239,7 @@ function Formulario({ movimiento, plantilla, contactos, negocioId, cuentas, tarj
       )}
 
       {/* Cliente o proveedor (B11, opcional): clientes en las ventas; proveedores en compras y gastos */}
-      {tipoContacto && (
+      {tipoContacto && !desdePos && (
         <View style={{ gap: ESPACIO.s }}>
           <Texto variante="fuerte">{tipoContacto === 'cliente' ? t('contactos.enMovimiento.cliente') : t('contactos.enMovimiento.proveedor')}</Texto>
           {delTipo.length === 0 ? (
@@ -274,12 +284,12 @@ function Formulario({ movimiento, plantilla, contactos, negocioId, cuentas, tarj
         </View>
       )}
 
-      <TecladoNumerico valor={monto} onCambio={setMonto} compacto />
+      {!desdePos && <TecladoNumerico valor={monto} onCambio={setMonto} compacto />}
 
       {error && <Aviso mensaje={error} />}
       <Boton titulo={t('movimiento.guardar')} onPress={guardar} cargando={guardando} />
 
-      {movimiento &&
+      {movimiento && !desdePos &&
         (confirmarBorrar ? (
           <View style={{ gap: ESPACIO.s }}>
             <Texto variante="fuerte" style={{ textAlign: 'center' }}>

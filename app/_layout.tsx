@@ -75,6 +75,7 @@ function Navegacion() {
               <Stack.Screen name="inventario/bodegas" />
               <Stack.Screen name="inventario/mercancia" />
               <Stack.Screen name="inventario/importar" />
+              <Stack.Screen name="pos" />
             </Stack.Protected>
             <Stack.Protected guard={!sesion}>
               <Stack.Screen name="(auth)" />

@@ -12,19 +12,40 @@ import {
   type MovNegocio,
   type Transferencia,
 } from '@/lib/negocio';
+import { costoDeVentas, type VentaParaCosto } from '@/lib/pos';
 import { variacionPorcentual } from '@/lib/personal';
+import type { Venta } from '@/pos/datos';
 
 import type { Configuracion } from './datos';
 
+/** Lo que una venta del POS aporta al costo de lo vendido (B5). */
+export function paraCosto(v: Pick<Venta, 'fecha' | 'estado' | 'lineas'>): VentaParaCosto {
+  return {
+    fecha: v.fecha,
+    costoConocido: v.lineas.reduce((t, l) => t + (l.costo ?? 0) * l.cantidad, 0),
+    montoLibre: v.lineas.filter((l) => l.costo === null).reduce((t, l) => t + l.total, 0),
+    devuelta: v.estado === 'devuelta',
+  };
+}
+
 export function calcularResumen(
-  d: { cuentas: CuentaNegocio[]; movimientos: MovNegocio[]; traslados: Transferencia[]; configuracion: Configuracion },
+  d: { cuentas: CuentaNegocio[]; movimientos: MovNegocio[]; traslados: Transferencia[]; configuracion: Configuracion; ventas?: Venta[] },
   periodo: Periodo,
   anterior: Periodo,
   tributario: { parametros: ParametrosImpuestos | null; regimen: RegimenTributario | null },
 ) {
   const costoPorcentaje = d.configuracion.costo_porcentaje ?? 0;
   const delPeriodo = d.movimientos.filter((m) => dentroDe(m.fecha, periodo));
-  const antes = estadoDeResultados(delPeriodo, { costoPorcentaje });
+  // B5 · Lo vendido en el POS va a su costo real; lo registrado a mano, con el % de costo del negocio.
+  const ventasPos = (d.ventas ?? []).map(paraCosto);
+  const costoReal = (p: Periodo) =>
+    costoDeVentas({
+      ventasManuales: d.movimientos.filter((m) => m.tipo === 'venta' && !m.venta && dentroDe(m.fecha, p)).reduce((t, m) => t + m.monto, 0),
+      ventasPos,
+      costoPorcentaje,
+      periodo: p,
+    });
+  const antes = estadoDeResultados(delPeriodo, { costoPorcentaje, costoReal: costoReal(periodo) });
   // B7: impuestos estimados del período según el régimen (si hay parámetros del año).
   const impuestos = tributario.parametros
     ? impuestosEstimados(
@@ -32,10 +53,10 @@ export function calcularResumen(
         tributario.parametros,
       )
     : null;
-  const resultados = estadoDeResultados(delPeriodo, { costoPorcentaje, impuestos: impuestos ? impuestoDelRegimen(impuestos, tributario.regimen) : 0 });
+  const resultados = estadoDeResultados(delPeriodo, { costoPorcentaje, costoReal: costoReal(periodo), impuestos: impuestos ? impuestoDelRegimen(impuestos, tributario.regimen) : 0 });
   const previos = estadoDeResultados(
     d.movimientos.filter((m) => dentroDe(m.fecha, anterior)),
-    { costoPorcentaje },
+    { costoPorcentaje, costoReal: costoReal(anterior) },
   );
   const caja = cajaTotal(d.cuentas, d.movimientos, d.traslados);
   const pendientes = porCobrarYPagar(

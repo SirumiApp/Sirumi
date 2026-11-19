@@ -8,6 +8,7 @@ import { actualizarPreferencias, usePerfil } from '@/auth/perfil';
 import { useSesion } from '@/auth/sesion';
 import { compartirArchivo, todosMisMovimientos } from '@/ajustes/archivos';
 import { cambiarModoEjemplo, useModoEjemplo } from '@/ejemplo/modo';
+import { sonidoActivo } from '@/pos/aviso';
 import { Aviso } from '@/components/Aviso';
 import { BotonApariencia } from '@/components/BotonApariencia';
 import { FilaAjuste } from '@/components/FilaAjuste';
@@ -81,6 +82,18 @@ export default function Ajustes() {
         />
         <FilaAjuste emoji="aguacate" titulo={t('ajustes.categorias.titulo')} detalle={t('ajustes.categorias.detalle')} onPress={() => router.push('/ajustes/categorias')} />
         <FilaAjuste emoji="bolsa-de-dinero" titulo={t('ajustes.topes.titulo')} detalle={t('ajustes.topes.detalle')} onPress={() => router.navigate('/topes')} />
+        <FilaAjuste
+          emoji="campana"
+          titulo={t('pos.ajustes.sonido')}
+          detalle={t('pos.ajustes.sonidoDetalle')}
+          derecha={
+            <Interruptor
+              etiqueta={t('pos.ajustes.sonido')}
+              encendido={sonidoActivo(perfil?.preferences)}
+              onCambio={(valor) => sesion && actualizarPreferencias(sesion.user.id, perfil?.preferences, { pos: { sonido: valor } })}
+            />
+          }
+        />
         <FilaAjuste
           emoji="mas"
           titulo={t('ajustes.mostrarIngresos.titulo')}

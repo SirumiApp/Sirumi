@@ -19,6 +19,7 @@ export default function Mas() {
       </View>
 
       <GrupoAjustes>
+        <FilaAjuste emoji="tienda" titulo={t('pos.historial.titulo')} detalle={t('pos.historial.detalle')} onPress={() => router.push('/pos/ventas')} />
         <FilaAjuste emoji="paquete" titulo={t('inventario.titulo')} detalle={t('inventario.detalle')} onPress={() => router.push('/inventario')} />
       </GrupoAjustes>
 
@@ -26,6 +27,7 @@ export default function Mas() {
         <FilaAjuste emoji="balanza" titulo={t('negocioApp.informes.balance')} detalle={t('negocioApp.informes.balanceDetalle')} onPress={() => router.push('/informe/balance')} />
         <FilaAjuste emoji="portapapeles" titulo={t('negocioApp.informes.cartera')} detalle={t('negocioApp.informes.carteraDetalle')} onPress={() => router.push('/informe/cartera')} />
         <FilaAjuste emoji="empresaria" titulo={t('negocioApp.informes.dueno')} detalle={t('negocioApp.informes.duenoDetalle')} onPress={() => router.push('/informe/dueno')} />
+        <FilaAjuste emoji="recibo" titulo={t('negocioApp.informes.cierre.titulo')} detalle={t('negocioApp.informes.cierre.detalle')} onPress={() => router.push('/informe/cierre')} />
         <FilaAjuste emoji="cambio" titulo={t('negocioApp.informes.entradas')} detalle={t('negocioApp.informes.entradasDetalle')} onPress={() => router.push('/informe/entradas')} />
       </GrupoAjustes>
 

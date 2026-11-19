@@ -510,6 +510,7 @@ export type Database = {
           owner_type: string
           paid: boolean
           recurring_id: string | null
+          sale_id: string | null
           source: string
           updated_at: string
           user_id: string | null
@@ -529,6 +530,7 @@ export type Database = {
           owner_type?: string
           paid?: boolean
           recurring_id?: string | null
+          sale_id?: string | null
           source?: string
           updated_at?: string
           user_id?: string | null
@@ -548,6 +550,7 @@ export type Database = {
           owner_type?: string
           paid?: boolean
           recurring_id?: string | null
+          sale_id?: string | null
           source?: string
           updated_at?: string
           user_id?: string | null
@@ -595,6 +598,13 @@ export type Database = {
             referencedRelation: "recurring_payments"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "movements_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
         ]
       }
       net_worth_snapshots: {
@@ -626,6 +636,45 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          account_id: string
+          business_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          account_id: string
+          business_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          account_id?: string
+          business_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_methods_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_methods_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_variants: {
         Row: {
@@ -827,6 +876,143 @@ export type Database = {
           },
         ]
       }
+      sale_items: {
+        Row: {
+          business_id: string
+          id: string
+          line_total: number
+          name: string
+          quantity: number
+          sale_id: string
+          unit_cost: number | null
+          unit_price: number
+          variant_id: string | null
+        }
+        Insert: {
+          business_id: string
+          id?: string
+          line_total: number
+          name: string
+          quantity: number
+          sale_id: string
+          unit_cost?: number | null
+          unit_price: number
+          variant_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          id?: string
+          line_total?: number
+          name?: string
+          quantity?: number
+          sale_id?: string
+          unit_cost?: number | null
+          unit_price?: number
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_items_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          business_id: string
+          change: number | null
+          contact_id: string | null
+          created_at: string
+          date: string
+          discount: number
+          id: string
+          number: number
+          payments: Json
+          received: number | null
+          returned_at: string | null
+          seller_id: string | null
+          status: string
+          subtotal: number
+          total: number
+          warehouse_id: string | null
+        }
+        Insert: {
+          business_id: string
+          change?: number | null
+          contact_id?: string | null
+          created_at?: string
+          date: string
+          discount?: number
+          id?: string
+          number: number
+          payments?: Json
+          received?: number | null
+          returned_at?: string | null
+          seller_id?: string | null
+          status?: string
+          subtotal: number
+          total: number
+          warehouse_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          change?: number | null
+          contact_id?: string | null
+          created_at?: string
+          date?: string
+          discount?: number
+          id?: string
+          number?: number
+          payments?: Json
+          received?: number | null
+          returned_at?: string | null
+          seller_id?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          warehouse_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock: {
         Row: {
           business_id: string
@@ -1008,6 +1194,7 @@ export type Database = {
       }
       abonar_deuda: { Args: { deuda: string; monto: number }; Returns: number }
       abonar_meta: { Args: { meta: string; monto: number }; Returns: number }
+      cobrar_venta: { Args: { datos: Json }; Returns: Json }
       completar_onboarding: { Args: { datos: Json }; Returns: undefined }
       contacto_del_negocio: {
         Args: { contacto: string; negocio: string }
@@ -1044,6 +1231,7 @@ export type Database = {
         Args: { movimiento: string }
         Returns: undefined
       }
+      devolver_venta: { Args: { venta: string }; Returns: undefined }
       eliminar_mi_cuenta: { Args: never; Returns: undefined }
       es_dueno: { Args: { negocio: string }; Returns: boolean }
       es_miembro: { Args: { negocio: string }; Returns: boolean }
@@ -1059,6 +1247,7 @@ export type Database = {
         }
         Returns: string
       }
+      negocio_de_ruta: { Args: { ruta: string }; Returns: string }
       producto_del_negocio: {
         Args: { negocio: string; producto: string }
         Returns: boolean

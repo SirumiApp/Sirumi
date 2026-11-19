@@ -34,6 +34,8 @@ export type MovNegocio = {
   contacto?: string | null;
   /** Pago recurrente desde el que se registró (B10), si aplica. */
   recurrente?: string | null;
+  /** Venta del POS de la que salió (D4), si aplica. */
+  venta?: string | null;
 };
 
 /** Plata movida entre cuentas propias, o pago de una tarjeta desde una cuenta. */

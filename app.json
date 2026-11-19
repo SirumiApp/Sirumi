@@ -54,6 +54,12 @@
           "cameraPermission": "Sirumi usa la cámara para tomar la foto de tus productos.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

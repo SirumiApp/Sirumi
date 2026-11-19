@@ -25,6 +25,7 @@ import {
   TARJETAS_EJEMPLO,
   TOPES_EJEMPLO,
   trasladosEjemplo,
+  ventasPosEjemplo,
 } from './datosEjemplo';
 
 const HOY = '2026-11-18';
@@ -122,5 +123,18 @@ describe('inventario de ejemplo', () => {
     expect(new Set(codigos).size).toBe(codigos.length);
     expect(reglas.some((p) => porReponer(p, STOCK_EJEMPLO))).toBe(true);
     expect(valorInventario(reglas, STOCK_EJEMPLO).aCosto).toBeGreaterThan(0);
+  });
+});
+
+describe('ventas del POS de ejemplo', () => {
+  it('cada venta cuadra con su movimiento y el costo de ventas sigue siendo razonable', () => {
+    const { movimientos, ventas } = ventasPosEjemplo(HOY, movimientosNegocioEjemplo(HOY));
+    expect(ventas.length).toBeGreaterThan(0);
+    for (const v of ventas) {
+      const m = movimientos.find((x) => x.venta === v.id);
+      expect(m?.monto).toBe(v.total);
+      expect(v.lineas.reduce((s, l) => s + l.total, 0)).toBe(v.total);
+    }
+    expect(new Set(ventas.map((v) => v.numero)).size).toBe(ventas.length);
   });
 });

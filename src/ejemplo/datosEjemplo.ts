@@ -6,6 +6,7 @@ import { armarFecha, diasDelMes, partes, type Fecha } from '@/lib/fechas';
 import type { Recurrente } from '@/lib/contactos';
 import { armarVariantes, codigoInterno, type FilaStock } from '@/lib/inventario';
 import type { MovNegocio, TipoNegocio, Transferencia } from '@/lib/negocio';
+import type { LineaVenta } from '@/pos/datos';
 import type { Movimiento } from '@/lib/personal';
 
 /** Mes desplazado (0 = este mes, -1 = el anterior…) y un día dentro de él (cortado al último día del mes). */
@@ -283,3 +284,44 @@ export const STOCK_EJEMPLO: FilaStock[] = UNIDADES.flatMap(([variante, p, f]) =>
   { variante, bodega: 'ej-b-principal', cantidad: p },
   { variante, bodega: 'ej-b-feria', cantidad: f },
 ]);
+
+// ───────────── Ventas del POS ─────────────
+
+/**
+ * Las ventas en feria del ejemplo salen del POS: café y tazas a su costo real, y el resto como venta libre.
+ * Devuelve los movimientos enlazados a su venta y las ventas (para el historial y el costo real, B5).
+ */
+export function ventasPosEjemplo(hoy: Fecha, movimientos: MovNegocio[]) {
+  const feria = movimientos.filter((m) => m.concepto === 'ejemplo.textos.ventasFeria').sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const cafe = PRODUCTOS_EJEMPLO[0];
+  const taza = PRODUCTOS_EJEMPLO[1];
+  const ventas = feria.map((m, i) => {
+    const lineas: LineaVenta[] = [
+      { variante: cafe.variantes[1].id, nombre: `${cafe.nombre}|500 g`, precio: cafe.precio, costo: cafe.costo, cantidad: 10, total: cafe.precio * 10 },
+      { variante: taza.variantes[0].id, nombre: taza.nombre, precio: taza.precio, costo: taza.costo, cantidad: 5, total: taza.precio * 5 },
+    ];
+    const resto = m.monto - lineas.reduce((s, l) => s + l.total, 0);
+    lineas.push({ variante: null, nombre: 'ejemplo.textos.otrasVentas', precio: resto, costo: null, cantidad: 1, total: resto });
+    return {
+      id: `ej-venta-${i}`,
+      numero: i + 1,
+      fecha: m.fecha,
+      bodega: 'ej-b-feria',
+      cliente: null,
+      subtotal: m.monto,
+      descuento: 0,
+      total: m.monto,
+      pagos: [{ nombre: 'ejemplo.textos.efectivo', cuenta: m.cuenta, monto: m.monto }],
+      recibido: null,
+      vuelto: null,
+      estado: 'pagada' as const,
+      creada: `${m.fecha}T15:00:00.000Z`,
+      lineas,
+    };
+  });
+  const porMovimiento = new Map(feria.map((m, i) => [m.id, ventas[i].id]));
+  return {
+    movimientos: movimientos.map((m) => (porMovimiento.has(m.id) ? { ...m, venta: porMovimiento.get(m.id) } : m)),
+    ventas: ventas.reverse(),
+  };
+}

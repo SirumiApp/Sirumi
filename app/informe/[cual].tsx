@@ -6,9 +6,11 @@ import { View } from 'react-native';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
-import { diasEntre, hoyEn, periodoAnterior } from '@/lib/fechas';
+import { Chip } from '@/components/Chip';
+import { diasEntre, hoyEn, periodoAnterior, sumarDias } from '@/lib/fechas';
 import { balance, cartera, duenoYCapital, entradasYSalidas, type Antiguedad } from '@/lib/informes';
 import { valorInventario } from '@/lib/inventario';
+import { cierreDelDia } from '@/lib/pos';
 import { useNegocio } from '@/negocio/contexto';
 import { paraReglas } from '@/negocio/inventarioDatos';
 import { BotonCompartir, conSigno, FilaCifra, ListaFilas, textoInforme } from '@/negocio/Piezas';
@@ -18,7 +20,7 @@ import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from '@/personal/SelectorPeriodo';
 import { ESPACIO, useTema } from '@/theme';
 
-type Cual = 'balance' | 'cartera' | 'dueno' | 'entradas';
+type Cual = 'balance' | 'cartera' | 'dueno' | 'entradas' | 'cierre';
 const TRAMOS: Antiguedad[] = ['al30', 'al60', 'al90', 'mas90'];
 
 /** Informes del negocio (spec 03, §5): balance, cartera, dueño y capital, entradas y salidas. */
@@ -28,20 +30,22 @@ export default function Informe() {
   const plata = usePlata();
   const textosFecha = useTextosFecha();
   const { cual: crudo } = useLocalSearchParams<{ cual: string }>();
-  const cual: Cual = (['balance', 'cartera', 'dueno', 'entradas'] as const).find((c) => c === crudo) ?? 'balance';
-  const { negocio, cuentas, tarjetas, movimientos, traslados, parametros, productos, stock } = useNegocio();
+  const cual: Cual = (['balance', 'cartera', 'dueno', 'entradas', 'cierre'] as const).find((c) => c === crudo) ?? 'balance';
+  const { negocio, cuentas, tarjetas, movimientos, traslados, parametros, productos, stock, ventas } = useNegocio();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
+  const [dia, setDia] = useState<'hoy' | 'ayer'>('hoy');
   const hoy = hoyEn();
-  const titulo = t(`negocioApp.informes.${cual}`);
+  const titulo = cual === 'cierre' ? t('negocioApp.informes.cierre.titulo') : t(`negocioApp.informes.${cual}`);
 
   if (!negocio) return <PantallaAjuste titulo={titulo}>{null}</PantallaAjuste>;
 
   const cfg = negocio.configuracion;
   const base = cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial }));
   const periodo = periodoDe(eleccion, hoy);
-  const r = calcularResumen({ cuentas: base, movimientos, traslados, configuracion: cfg }, periodo, periodoAnterior(periodo, hoy), { parametros, regimen: negocio.regimen });
+  const r = calcularResumen({ cuentas: base, movimientos, traslados, configuracion: cfg, ventas }, periodo, periodoAnterior(periodo, hoy), { parametros, regimen: negocio.regimen });
   const conPeriodo = cual === 'dueno' || cual === 'entradas';
-  const subtitulo = `${negocio.nombre} · ${conPeriodo ? rangoCorto(periodo, textosFecha) : t('negocioApp.informes.aHoy')}`;
+  const fechaCierre = dia === 'hoy' ? hoy : sumarDias(hoy, -1);
+  const subtitulo = `${negocio.nombre} · ${cual === 'cierre' ? etiquetaDia(fechaCierre, hoy, textosFecha) : conPeriodo ? rangoCorto(periodo, textosFecha) : t('negocioApp.informes.aHoy')}`;
   let filasTexto: [string, string][] = [];
   let contenido: React.ReactNode = null;
 
@@ -177,6 +181,42 @@ export default function Informe() {
           </View>
         )}
         <ListaFilas>{[<FilaCifra key="p" titulo={t('negocioApp.informes.prestamos')} valor={plata(d.prestamos)} />]}</ListaFilas>
+      </>
+    );
+  }
+
+  if (cual === 'cierre') {
+    const c = cierreDelDia(ventas, fechaCierre);
+    const nombreCuenta = new Map(cuentas.map((x) => [x.id, x.nombre]));
+    const cuentaVisible = (id: string | null) => (id ? (nombreCuenta.get(id) ?? '—') : t('negocioApp.informes.porCobrar'));
+    filasTexto = [
+      [t('negocioApp.informes.cierre.ventas'), String(c.ventas)],
+      [t('negocioApp.informes.total'), plata(c.total)],
+      ...c.porForma.map(([f, v]) => [f, plata(v)] as [string, string]),
+    ];
+    contenido = (
+      <>
+        <View style={{ flexDirection: 'row', gap: ESPACIO.s }}>
+          <Chip texto={t('fechas.hoy')} elegido={dia === 'hoy'} onPress={() => setDia('hoy')} />
+          <Chip texto={t('fechas.ayer')} elegido={dia === 'ayer'} onPress={() => setDia('ayer')} />
+        </View>
+        <Tarjeta>
+          <Texto variante="etiqueta">{t('negocioApp.informes.cierre.vendido')}</Texto>
+          <Texto variante="heroe" numberOfLines={1} adjustsFontSizeToFit>
+            {plata(c.total)}
+          </Texto>
+          <Texto variante="pequeno">{t('negocioApp.informes.cierre.enVentas', { count: c.ventas })}</Texto>
+        </Tarjeta>
+        {c.ventas === 0 ? (
+          <Texto variante="suave">{t('negocioApp.informes.cierre.sinVentas')}</Texto>
+        ) : (
+          <>
+            <ListaFilas titulo={t('negocioApp.informes.cierre.porForma')}>{c.porForma.map(([f, v]) => <FilaCifra key={f} titulo={f} valor={plata(v)} />)}</ListaFilas>
+            <ListaFilas titulo={t('negocioApp.informes.cierre.porCuenta')}>
+              {c.porCuenta.map(([cu, v]) => <FilaCifra key={cu ?? 'fiado'} titulo={cuentaVisible(cu)} valor={plata(v)} />)}
+            </ListaFilas>
+          </>
+        )}
       </>
     );
   }

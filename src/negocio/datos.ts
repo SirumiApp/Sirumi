@@ -6,11 +6,13 @@ import type { Json } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
 import type { Recurrente } from '@/lib/contactos';
 import { iconoDeCuenta, type MovNegocio, type TipoNegocio, type Transferencia } from '@/lib/negocio';
-import { BODEGAS_EJEMPLO, CONTACTOS_EJEMPLO, CUENTAS_EJEMPLO, esTextoEjemplo, PRODUCTOS_EJEMPLO, RECURRENTES_EJEMPLO, STOCK_EJEMPLO, movimientosNegocioEjemplo, NEGOCIO_EJEMPLO, TARJETAS_EJEMPLO, trasladosEjemplo } from '@/ejemplo/datosEjemplo';
+import { BODEGAS_EJEMPLO, CONTACTOS_EJEMPLO, CUENTAS_EJEMPLO, esTextoEjemplo, PRODUCTOS_EJEMPLO, RECURRENTES_EJEMPLO, STOCK_EJEMPLO, ventasPosEjemplo, movimientosNegocioEjemplo, NEGOCIO_EJEMPLO, TARJETAS_EJEMPLO, trasladosEjemplo } from '@/ejemplo/datosEjemplo';
 import { modoEjemploActivo, sinGuardar, useModoEjemplo } from '@/ejemplo/modo';
 import { hoyEn } from '@/lib/fechas';
 import { nombreVariante } from '@/lib/inventario';
 import { supabase } from '@/lib/supabase';
+
+import { cargarPos, type FormaPagoPropia, type Venta } from '@/pos/datos';
 
 import { cargarInventario, type DatosInventario } from './inventarioDatos';
 
@@ -57,10 +59,12 @@ export type DatosNegocio = DatosInventario & {
   traslados: Transferencia[];
   contactos: Contacto[];
   recurrentes: Recurrente[];
+  ventas: Venta[];
+  formasPago: FormaPagoPropia[];
   cargando: boolean;
 };
 
-const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], contactos: [], recurrentes: [], bodegas: [], productos: [], stock: [], cargando: true };
+const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], contactos: [], recurrentes: [], bodegas: [], productos: [], stock: [], ventas: [], formasPago: [], cargando: true };
 
 /** El negocio de la persona (el primero donde es dueña) con todo lo necesario para las reglas B. */
 export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => void } {
@@ -80,12 +84,12 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
     const b = miembro?.businesses as { id: string; name: string; tax_regime: string | null; setup: Json } | null | undefined;
     if (!b) return setDatos({ ...VACIO, cargando: false });
 
-    const [cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, inventario] = await Promise.all([
+    const [cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, inventario, pos] = await Promise.all([
       supabase.from('accounts').select('id, name, kind, initial_balance, is_main').eq('business_id', b.id).order('created_at'),
       supabase.from('credit_cards').select('id, name, credit_limit, initial_debt').eq('business_id', b.id).order('created_at'),
       supabase
         .from('movements')
-        .select('id, date, kind, amount, paid, account_id, card_id, description, contact_id, recurring_id')
+        .select('id, date, kind, amount, paid, account_id, card_id, description, contact_id, recurring_id, sale_id')
         .eq('business_id', b.id)
         .order('date', { ascending: false })
         .order('created_at', { ascending: false }),
@@ -93,6 +97,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
       supabase.from('contacts').select('id, kind, name, doc_type, doc_number, phone, email, address, city, notes').eq('business_id', b.id).order('name'),
       supabase.from('recurring_payments').select('id, name, kind, amount, day_of_month, account_id, active').eq('business_id', b.id).order('day_of_month'),
       cargarInventario(b.id),
+      cargarPos(b.id),
     ]);
 
     setDatos({
@@ -116,6 +121,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         concepto: m.description,
         contacto: m.contact_id,
         recurrente: m.recurring_id,
+        venta: m.sale_id,
       })),
       traslados: (traslados.data ?? []).map((t) => ({ id: t.id, fecha: t.date, desde: t.from_account, haciaCuenta: t.to_account, haciaTarjeta: t.to_card, monto: t.amount, nota: t.note })),
       contactos: (contactos.data ?? []).map((c) => ({
@@ -140,6 +146,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         activo: r.active,
       })),
       ...inventario,
+      ...pos,
       cargando: false,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `version` solo sirve para forzar una nueva lectura
@@ -155,12 +162,13 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
   const deEjemplo = useMemo<DatosNegocio | null>(() => {
     if (!ejemplo) return null;
     const hoy = hoyEn();
+    const pos = ventasPosEjemplo(hoy, movimientosNegocioEjemplo(hoy));
     const tx = (s: string | null | undefined) => (esTextoEjemplo(s) ? (t(s as never) as string) : (s ?? null));
     return {
       negocio: { ...NEGOCIO_EJEMPLO, nombre: tx(NEGOCIO_EJEMPLO.nombre) ?? '' },
       cuentas: CUENTAS_EJEMPLO.map((c) => ({ ...c, nombre: tx(c.nombre) ?? '' })),
       tarjetas: TARJETAS_EJEMPLO,
-      movimientos: movimientosNegocioEjemplo(hoy).map((m) => ({ ...m, concepto: tx(m.concepto) })),
+      movimientos: pos.movimientos.map((m) => ({ ...m, concepto: tx(m.concepto) })),
       traslados: trasladosEjemplo(hoy).map((tr) => ({ ...tr, nota: tx(tr.nota) })),
       contactos: CONTACTOS_EJEMPLO.map((c) => ({ ...c, notas: tx(c.notas) ?? '' })),
       recurrentes: RECURRENTES_EJEMPLO.map((r) => ({ ...r, nombre: tx(r.nombre) ?? '' })),
@@ -172,6 +180,12 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         variantes: p.variantes.map((v) => ({ ...v, color: tx(v.color), nombre: nombreVariante({ color: tx(v.color), talla: v.talla }) })),
       })),
       stock: STOCK_EJEMPLO,
+      ventas: pos.ventas.map((v) => ({
+        ...v,
+        pagos: v.pagos.map((p) => ({ ...p, nombre: tx(p.nombre) ?? '' })),
+        lineas: v.lineas.map((l) => ({ ...l, nombre: l.nombre.includes('|') ? `${tx(l.nombre.split('|')[0])} · ${l.nombre.split('|')[1]}` : (tx(l.nombre) ?? '') })),
+      })),
+      formasPago: [],
       cargando: false,
     };
   }, [ejemplo, t]);
@@ -315,7 +329,7 @@ export function guardarContacto(negocioId: string, c: Omit<Contacto, 'id'>, id?:
     notes: limpio(c.notas),
     data_consent: true,
   };
-  return id ? supabase.from('contacts').update(fila).eq('id', id) : supabase.from('contacts').insert({ ...fila, business_id: negocioId });
+  return id ? supabase.from('contacts').update(fila).eq('id', id).select('id').single() : supabase.from('contacts').insert({ ...fila, business_id: negocioId }).select('id').single();
 }
 
 export function borrarContacto(id: string) {

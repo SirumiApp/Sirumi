@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { Boton } from '@/components/Boton';
@@ -29,7 +29,7 @@ export default function ResumenNegocio() {
   const { colores, oscuro } = useTema();
   const plata = usePlata();
   const textosFecha = useTextosFecha();
-  const { negocio, cuentas, tarjetas, movimientos, traslados, recurrentes, cargando, parametros, abrirHoja, actualizar } = useNegocio();
+  const { negocio, cuentas, tarjetas, movimientos, traslados, recurrentes, ventas, cargando, parametros, abrirHoja, actualizar } = useNegocio();
   const hoy = hoyEn();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
   const [filtro, setFiltro] = useState<'todos' | 'pendientes'>('todos');
@@ -67,7 +67,7 @@ export default function ResumenNegocio() {
 
   const periodo = periodoDe(eleccion, hoy);
   const r = calcularResumen(
-    { cuentas: cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial })), movimientos, traslados, configuracion: negocio.configuracion },
+    { cuentas: cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial })), movimientos, traslados, configuracion: negocio.configuracion, ventas },
     periodo,
     periodoAnterior(periodo, hoy),
     { parametros, regimen: negocio.regimen },
@@ -91,7 +91,7 @@ export default function ResumenNegocio() {
         </View>
         <Pressable
           accessibilityRole="button"
-          onPress={() => Alert.alert(t('negocioApp.pos'), t('negocioApp.posPronto'))}
+          onPress={() => router.push('/pos')}
           style={({ pressed }) => ({
             flexDirection: 'row',
             alignItems: 'center',
@@ -119,6 +119,8 @@ export default function ResumenNegocio() {
           <Texto variante="pequeno">{t('negocioApp.resumen.cifrasAHoy', { periodo: mesLargo.replace(/^./, (l) => l.toUpperCase()) })}</Texto>
         </View>
       </Pressable>
+
+      <Boton titulo={`${t('pos.vender')}  →`} onPress={() => router.push('/pos')} />
 
       {!negocio.configuracion.arranque_listo && (
         <View style={{ gap: ESPACIO.s, padding: ESPACIO.l, borderRadius: 20, backgroundColor: colores.seleccionado }}>

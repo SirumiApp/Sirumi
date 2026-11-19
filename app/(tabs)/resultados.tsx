@@ -29,7 +29,7 @@ export default function Resultados() {
   const { colores, oscuro } = useTema();
   const plata = usePlata();
   const textosFecha = useTextosFecha();
-  const { negocio, cuentas, movimientos, traslados, parametros } = useNegocio();
+  const { negocio, cuentas, movimientos, traslados, parametros, ventas } = useNegocio();
   const hoy = hoyEn();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
 
@@ -38,7 +38,7 @@ export default function Resultados() {
   const periodo = periodoDe(eleccion, hoy);
   const cfg = negocio.configuracion;
   const r = calcularResumen(
-    { cuentas: cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial })), movimientos, traslados, configuracion: cfg },
+    { cuentas: cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial })), movimientos, traslados, configuracion: cfg, ventas },
     periodo,
     periodoAnterior(periodo, hoy),
     { parametros, regimen: negocio.regimen },

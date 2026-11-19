@@ -23,7 +23,14 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] Pagos recurrentes con aviso dentro de la app (Resumen) y "Registrar pago".
 - [ ] Notificación en el celular para los pagos recurrentes (requiere la app instalada).
 - [x] Inventario a costo en el arranque y en el balance (sale de los productos).
-- [ ] Sirumi POS (módulo 05).
+- [x] Sirumi POS (módulo 05): catálogo por bodega, venta libre, escáner, carrito, descuento (% o monto), cliente con registro y autorización, formas de pago (efectivo, cuentas, datáfono, propias, fiado), pago dividido, vuelto, cobro en una sola transacción, comprobante por WhatsApp, recibo de regalo, historial, devoluciones, sonido y vibración, costo real en Resultados y cierre del día.
+
+## POS (lo que falta)
+- [ ] Códigos de descuento (crear y usar).
+- [ ] Carritos guardados (atender a otro cliente y volver).
+- [ ] IVA en el POS para responsables de IVA (B7 dice registrar la venta por su base; falta decidir con el contador cómo queda el IVA cobrado en la caja).
+- [ ] Vendedores con código (v2).
+- [ ] Informe de ventas por producto, por cuenta y por cliente.
 
 ## Inventario (módulo 04)
 - [x] 4a: reglas C1–C7 con pruebas; tablas y funciones de stock (nunca negativo, todo queda registrado); bodegas; lista de inventario; nuevo producto con tallas, colores, cantidades y códigos; detalle con stock por bodega, ajuste de conteo, variantes, editar y deshacer.

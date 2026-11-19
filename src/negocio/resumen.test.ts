@@ -55,3 +55,22 @@ describe('resumen del negocio (B2, B4, B5, B8, B8b, B8c juntos)', () => {
     expect(r.variacionVentas).toBe(25);
   });
 });
+
+describe('costo de lo vendido con ventas del POS (B5)', () => {
+  it('la venta del POS usa su costo real; la venta a mano, el % del negocio', () => {
+    const r = calcularResumen(
+      {
+        cuentas: [{ id: 'davi', saldoInicial: 0 }],
+        movimientos: [mov({ tipo: 'venta', monto: 1_000_000 }), mov({ tipo: 'venta', monto: 85_000, venta: 'pos1' })],
+        traslados: [],
+        configuracion: { costo_porcentaje: 45 },
+        ventas: [{ fecha: '2026-11-10', estado: 'pagada', lineas: [{ variante: 'v', nombre: 'Bolso', precio: 85_000, costo: 37_000, cantidad: 1, total: 85_000 }] }] as never,
+      },
+      { desde: '2026-11-01', hasta: '2026-11-30' },
+      { desde: '2026-10-01', hasta: '2026-10-31' },
+      { parametros: null, regimen: null },
+    );
+    expect(r.resultados.ventas).toBe(1_085_000);
+    expect(r.resultados.costoVentas).toBe(450_000 + 37_000);
+  });
+});

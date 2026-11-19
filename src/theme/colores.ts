@@ -126,3 +126,6 @@ export const COLORES_DE_CADA_100 = {
   claro: { costo: '#9DB4E8', fijos: '#1F6FEB', variables: '#8A5CC7', impuestos: '#C98A2B' },
   oscuro: { costo: '#7D93C9', fijos: '#4F9AD6', variables: '#B58BE0', impuestos: '#D9A44E' },
 } as const;
+
+/** Fondo del aviso "¡Venta!" del POS: verde oscuro para que el texto blanco se lea bien (contraste ≥ 4,5). */
+export const COLOR_VENTA = { claro: '#1B7A47', oscuro: '#1F6B45' } as const;
