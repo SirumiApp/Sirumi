@@ -27,7 +27,8 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 
 ## Inventario (módulo 04)
 - [x] 4a: reglas C1–C7 con pruebas; tablas y funciones de stock (nunca negativo, todo queda registrado); bodegas; lista de inventario; nuevo producto con tallas, colores, cantidades y códigos; detalle con stock por bodega, ajuste de conteo, variantes, editar y deshacer.
-- [ ] 4b: pantalla de entrada y salida de mercancía (con motivo y "quedarían Y"), mover entre bodegas desde el producto, escáner de códigos con la cámara, foto del producto, importar y exportar catálogo (CSV).
+- [x] 4b: entrada y salida de mercancía (motivo, "quedarían Y", deshacer), mover entre bodegas desde el producto, escáner con la cámara (EAN-13, Code 128…), foto del producto (240 px, bucket privado por negocio), importar y exportar catálogo CSV (regla C8).
+- [ ] Importar desde Excel (.xlsx) directamente; hoy se guarda como CSV desde Excel.
 
 ## Ideas de Nicolás (nov 2026) — ver docs/hoja-de-ruta.md
 - [ ] Importar extracto del banco (CSV/Excel, regla B9) para negocio y personal. PDF con IA en la v2.

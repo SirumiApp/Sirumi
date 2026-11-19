@@ -5,6 +5,8 @@ import type { Json } from '@/lib/database.types';
 import { nombreVariante, type FilaStock } from '@/lib/inventario';
 import { supabase } from '@/lib/supabase';
 
+import { enlacesDeFotos } from './fotos';
+
 export type Bodega = { id: string; nombre: string; principal: boolean };
 export type VarianteProducto = { id: string; color: string | null; talla: string | null; codigo: string | null; nombre: string };
 export type DesgloseCosto = { materia: number; manoDeObra: number; empaque: number; otros: number };
@@ -17,6 +19,9 @@ export type Producto = {
   costo: number;
   desglose: DesgloseCosto | null;
   minimo: number;
+  /** Ruta de la foto en el bucket y su enlace temporal para verla. */
+  foto: string | null;
+  fotoUrl: string | null;
   variantes: VarianteProducto[];
 };
 export type DatosInventario = { bodegas: Bodega[]; productos: Producto[]; stock: FilaStock[] };
@@ -27,11 +32,12 @@ export async function cargarInventario(negocioId: string): Promise<DatosInventar
     supabase.from('warehouses').select('id, name, is_main').eq('business_id', negocioId).order('created_at'),
     supabase
       .from('products')
-      .select('id, name, collection, emoji, price, cost, cost_breakdown, min_stock, product_variants(id, color, size, barcode, position)')
+      .select('id, name, collection, emoji, photo_path, price, cost, cost_breakdown, min_stock, product_variants(id, color, size, barcode, position)')
       .eq('business_id', negocioId)
       .order('name'),
     supabase.from('stock').select('variant_id, warehouse_id, quantity').eq('business_id', negocioId),
   ]);
+  const enlaces = await enlacesDeFotos((productos.data ?? []).map((p) => p.photo_path).filter((r): r is string => !!r));
   return {
     bodegas: (bodegas.data ?? []).map((b) => ({ id: b.id, nombre: b.name, principal: b.is_main })),
     productos: (productos.data ?? []).map((p) => ({
@@ -43,6 +49,8 @@ export async function cargarInventario(negocioId: string): Promise<DatosInventar
       costo: p.cost,
       desglose: (p.cost_breakdown as DesgloseCosto | null) ?? null,
       minimo: p.min_stock,
+      foto: p.photo_path,
+      fotoUrl: p.photo_path ? (enlaces.get(p.photo_path) ?? null) : null,
       variantes: [...(p.product_variants ?? [])]
         .sort((a, b) => a.position - b.position)
         .map((v) => ({ id: v.id, color: v.color, talla: v.size, codigo: v.barcode, nombre: nombreVariante({ color: v.color, talla: v.size }) })),

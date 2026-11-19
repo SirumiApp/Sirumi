@@ -8,12 +8,10 @@ import { Boton } from '@/components/Boton';
 import { CampoDinero } from '@/components/CampoDinero';
 import { CampoTexto } from '@/components/CampoTexto';
 import { Chip } from '@/components/Chip';
-import { Emoji } from '@/components/emoji/Emoji';
-import type { NombreEmoji } from '@/components/emoji/registro';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
-import { useModoEjemplo } from '@/ejemplo/modo';
+import { avisarEjemplo, useModoEjemplo } from '@/ejemplo/modo';
 import { codigoInterno, porReponer, stockDeVariante, stockDeProducto } from '@/lib/inventario';
 import { puntoDeEquilibrio, unidadesDeEquilibrio } from '@/lib/negocio';
 import { useNegocio } from '@/negocio/contexto';
@@ -31,10 +29,13 @@ import {
   type MovInventario,
   type Producto,
 } from '@/negocio/inventarioDatos';
+import { quitarFotoProducto, subirFotoProducto } from '@/negocio/fotos';
 import { FilaCifra, ListaFilas } from '@/negocio/Piezas';
 import { usePlata } from '@/personal/ganchos';
 import { ESPACIO, FUENTES, useTema } from '@/theme';
 
+import { EditorFoto } from './Foto';
+import { HojaTrasladoInventario } from './HojaTrasladoInventario';
 import { CampoCosto, LineaMargen } from './NuevoProducto';
 import { CampoCantidad, SelectorEmoji } from './Piezas';
 
@@ -47,6 +48,7 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
   const { negocio, bodegas, stock, actualizar, version } = useNegocio();
   const [bodega, setBodega] = useState<string | null>(bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null);
   const [editando, setEditando] = useState(false);
+  const [moviendo, setMoviendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const [historial, setHistorial] = useState<MovInventario[]>([]);
@@ -146,9 +148,22 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
   return (
     <PantallaAjuste titulo={producto.nombre}>
       <Tarjeta style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.m }}>
-        <View style={{ width: 64, height: 64, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: colores.seleccionado }}>
-          <Emoji name={producto.emoji as NombreEmoji} size={40} />
-        </View>
+        <EditorFoto
+          url={producto.fotoUrl}
+          emoji={producto.emoji}
+          onElegida={async (uri) => {
+            if (!negocio) return;
+            const r = await subirFotoProducto(negocio.id, producto.id, uri);
+            if (r.error) return setError(t('inventario.foto.error'));
+            actualizar();
+          }}
+          onQuitar={async () => {
+            if (!producto.foto) return;
+            const r = await quitarFotoProducto(producto.id, producto.foto);
+            if (r.error) return setError(t('inventario.foto.error'));
+            actualizar();
+          }}
+        />
         <View style={{ flex: 1, gap: 2 }}>
           {producto.coleccion ? <Texto variante="etiqueta">{producto.coleccion}</Texto> : null}
           <Texto variante="cifra">{plata(producto.precio)}</Texto>
@@ -255,7 +270,28 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
         </ListaFilas>
       )}
 
+      <Boton
+        titulo={t('inventario.mercancia.boton')}
+        variante="secundario"
+        onPress={() => router.push({ pathname: '/inventario/mercancia', params: { producto: producto.id } })}
+      />
+      <Boton
+        titulo={t('inventario.traslado.boton')}
+        variante="secundario"
+        onPress={() => (ejemplo ? avisarEjemplo() : bodegas.length < 2 ? setError(t('inventario.traslado.necesitaDos')) : setMoviendo(true))}
+      />
       <Boton titulo={t('inventario.detalleProducto.editar')} variante="secundario" onPress={() => setEditando(true)} />
+      <HojaTrasladoInventario
+        abierta={moviendo}
+        producto={producto}
+        bodegas={bodegas}
+        stock={stock}
+        onCerrar={() => setMoviendo(false)}
+        onListo={() => {
+          setMoviendo(false);
+          actualizar();
+        }}
+      />
       <Boton titulo={t('inventario.detalleProducto.borrar')} variante="texto" onPress={preguntarBorrar} />
     </PantallaAjuste>
   );

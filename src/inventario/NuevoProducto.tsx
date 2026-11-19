@@ -8,15 +8,19 @@ import { Boton } from '@/components/Boton';
 import { CampoDinero } from '@/components/CampoDinero';
 import { CampoTexto } from '@/components/CampoTexto';
 import { Chip } from '@/components/Chip';
+import { Emoji } from '@/components/emoji/Emoji';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { armarVariantes, codigoInterno, costoUnitario, margenProducto, validarProducto } from '@/lib/inventario';
 import { useNegocio } from '@/negocio/contexto';
+import { subirFotoProducto } from '@/negocio/fotos';
 import { crearProducto, leerErrorInventario, type DesgloseCosto } from '@/negocio/inventarioDatos';
 import { usePlata } from '@/personal/ganchos';
 import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, useTema } from '@/theme';
 
+import { Escaner } from './Escaner';
+import { EditorFoto } from './Foto';
 import { CampoCantidad, SelectorEmoji, TALLAS } from './Piezas';
 
 const DESGLOSE_VACIO: DesgloseCosto = { materia: 0, manoDeObra: 0, empaque: 0, otros: 0 };
@@ -87,6 +91,9 @@ export function NuevoProducto() {
   const [bodega, setBodega] = useState<string | null>(principal);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
+  const [foto, setFoto] = useState<string | null>(null);
+  // Variante a la que se le está escaneando el código.
+  const [escaneando, setEscaneando] = useState<string | null>(null);
 
   const variantes = armarVariantes(tallas, coloresV);
   const dato = (n: string) => datosV[n] ?? { cantidad: 0, codigo: '' };
@@ -113,7 +120,7 @@ export function NuevoProducto() {
     if (v?.codigo === 'codigoDeOtro') return setError(t('inventario.errores.codigoDeOtro', { codigo: v.valor, producto: v.producto }));
     if (hayCantidades && !bodega) return setError(t('inventario.errores.sinBodega'));
     setGuardando(true);
-    const { error: e } = await crearProducto(negocio.id, {
+    const { data: productoId, error: e } = await crearProducto(negocio.id, {
       nombre,
       coleccion,
       emoji,
@@ -124,19 +131,26 @@ export function NuevoProducto() {
       bodega,
       variantes: variantes.map((x) => ({ color: x.color, talla: x.talla, codigo: dato(x.nombre).codigo, cantidad: dato(x.nombre).cantidad })),
     });
-    setGuardando(false);
     const err = leerErrorInventario(e);
     if (err) {
+      setGuardando(false);
       const conocido = ['codigoDeOtro', 'sinBodega', 'cantidadInvalida'].includes(err.codigo);
       return setError(conocido ? t(`inventario.errores.${err.codigo}` as 'inventario.errores.general', err.detalle) : t('inventario.errores.general'));
     }
+    // La foto se sube cuando el producto ya existe (necesita su id).
+    if (foto && typeof productoId === 'string') {
+      const r = await subirFotoProducto(negocio.id, productoId, foto);
+      if (r.error) setError(t('inventario.foto.error'));
+    }
+    setGuardando(false);
     actualizar();
     router.back();
   }
 
   return (
     <PantallaAjuste titulo={t('inventario.producto.nuevo')}>
-      <SelectorEmoji valor={emoji} onCambio={setEmoji} />
+      <EditorFoto url={foto} emoji={emoji} onElegida={setFoto} onQuitar={() => setFoto(null)} />
+      {!foto && <SelectorEmoji valor={emoji} onCambio={setEmoji} />}
       <CampoTexto etiqueta={`${t('inventario.producto.nombre')} *`} placeholder={t('inventario.producto.ejemploNombre')} value={nombre} onChangeText={setNombre} maxLength={80} />
       <CampoTexto etiqueta={t('inventario.producto.coleccion')} placeholder={t('inventario.producto.ejemploColeccion')} value={coleccion} onChangeText={setColeccion} maxLength={40} />
       <CampoDinero etiqueta={`${t('inventario.producto.precio')} *`} valor={precio} onCambio={setPrecio} />
@@ -211,6 +225,13 @@ export function NuevoProducto() {
             />
             <Pressable
               accessibilityRole="button"
+              accessibilityLabel={`${t('inventario.escaner.escanear')} ${v.nombre}`}
+              onPress={() => setEscaneando(v.nombre)}
+              style={{ width: ALTO_TOCABLE, height: ALTO_TOCABLE, borderRadius: ALTO_TOCABLE / 2, alignItems: 'center', justifyContent: 'center', backgroundColor: colores.seleccionado }}>
+              <Emoji name="camara" size={22} />
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
               onPress={() => cambiarV(v.nombre, { codigo: codigoInterno() })}
               style={{ minHeight: ALTO_TOCABLE, paddingHorizontal: ESPACIO.m, borderRadius: 999, justifyContent: 'center', backgroundColor: colores.seleccionado }}>
               <Texto variante="fuerte" color={colores.enlace}>
@@ -241,6 +262,14 @@ export function NuevoProducto() {
 
       {error && <Aviso mensaje={error} />}
       <Boton titulo={t('inventario.producto.guardar')} onPress={guardar} cargando={guardando} />
+      <Escaner
+        abierto={escaneando !== null}
+        onCerrar={() => setEscaneando(null)}
+        onCodigo={(codigo) => {
+          if (escaneando) cambiarV(escaneando, { codigo });
+          setEscaneando(null);
+        }}
+      />
     </PantallaAjuste>
   );
 }

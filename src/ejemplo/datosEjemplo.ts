@@ -248,6 +248,8 @@ function productoEjemplo(id: string, nombre: string, emoji: string, precio: numb
     costo,
     desglose: null,
     minimo,
+    foto: null,
+    fotoUrl: null,
     variantes: armarVariantes(tallas, colores).map((v, i) => ({
       id: `${id}-v${i}`,
       color: v.color ? `ejemplo.textos.${v.color}` : null,

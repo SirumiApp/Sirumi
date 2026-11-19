@@ -7,12 +7,15 @@ import { Boton } from '@/components/Boton';
 import { CampoTexto } from '@/components/CampoTexto';
 import { Chip } from '@/components/Chip';
 import { Emoji } from '@/components/emoji/Emoji';
-import type { NombreEmoji } from '@/components/emoji/registro';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { avisarEjemplo, useModoEjemplo } from '@/ejemplo/modo';
-import { porReponer, stockDeProducto, valorInventario } from '@/lib/inventario';
+import { compartirArchivo } from '@/ajustes/archivos';
+import { MiniaturaProducto } from '@/inventario/Foto';
+import { catalogoACsv } from '@/lib/catalogo';
+import { hoyEn } from '@/lib/fechas';
+import { porReponer, stockDeProducto, stockDeVariante, valorInventario } from '@/lib/inventario';
 import { useNegocio } from '@/negocio/contexto';
 import { paraReglas } from '@/negocio/inventarioDatos';
 import { usePlata } from '@/personal/ganchos';
@@ -38,6 +41,21 @@ export default function Inventario() {
     (p) => !texto || sinTildes(p.nombre).includes(texto) || sinTildes(p.coleccion ?? '').includes(texto) || p.variantes.some((v) => v.codigo?.includes(texto)),
   );
   const nombreBodega = new Map(bodegas.map((b) => [b.id, b.nombre]));
+
+  /** C8 · El catálogo en CSV, con la cantidad total de cada variante (se puede volver a importar). */
+  async function exportar() {
+    const csv = catalogoACsv(
+      productos.map((p) => ({
+        nombre: p.nombre,
+        coleccion: p.coleccion,
+        precio: p.precio,
+        costo: p.costo,
+        minimo: p.minimo,
+        variantes: p.variantes.map((v) => ({ talla: v.talla, color: v.color, codigo: v.codigo ?? '', cantidad: stockDeVariante(v.id, stock) })),
+      })),
+    );
+    await compartirArchivo(`catalogo-${hoyEn()}.csv`, csv, 'text/csv');
+  }
 
   return (
     <PantallaAjuste titulo={t('inventario.titulo')} detalle={t('inventario.detalle')}>
@@ -78,6 +96,7 @@ export default function Inventario() {
       )}
 
       <Boton titulo={t('inventario.nuevo')} onPress={() => (ejemplo ? avisarEjemplo() : router.push({ pathname: '/inventario/[id]', params: { id: 'nuevo' } }))} />
+      {productos.length > 0 && <Boton titulo={t('inventario.mercancia.boton')} variante="secundario" onPress={() => router.push('/inventario/mercancia')} />}
       <Boton titulo={t('inventario.bodegas')} variante="secundario" onPress={() => router.push('/inventario/bodegas')} />
 
       {productos.length > 6 && <CampoTexto etiqueta="" accessibilityLabel={t('inventario.buscar')} placeholder={t('inventario.buscar')} value={busqueda} onChangeText={setBusqueda} />}
@@ -114,9 +133,7 @@ export default function Inventario() {
               { flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s + 4, minHeight: 76, padding: ESPACIO.m, borderRadius: 20, backgroundColor: colores.tarjeta, transform: [{ scale: pressed ? 0.98 : 1 }] },
               sombraSuave(oscuro),
             ]}>
-            <View style={{ width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colores.seleccionado }}>
-              <Emoji name={p.emoji as NombreEmoji} size={28} />
-            </View>
+            <MiniaturaProducto url={p.fotoUrl} emoji={p.emoji} />
             <View style={{ flex: 1, gap: 1 }}>
               <Texto variante="fuerte" numberOfLines={1}>
                 {p.nombre}
@@ -143,6 +160,11 @@ export default function Inventario() {
           </Pressable>
         );
       })}
+
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: ESPACIO.s }}>
+        <Boton titulo={t('inventario.importar.boton')} variante="texto" onPress={() => (ejemplo ? avisarEjemplo() : router.push('/inventario/importar'))} />
+        {productos.length > 0 && <Boton titulo={t('inventario.importar.exportar')} variante="texto" onPress={exportar} />}
+      </View>
     </PantallaAjuste>
   );
 }

@@ -53,3 +53,16 @@ export async function eliminarMiCuenta() {
   await supabase.auth.signOut();
   return { error: null };
 }
+
+/** Abre el selector de archivos y devuelve el texto de un CSV, o null si la persona canceló. */
+export async function leerArchivoCsv(): Promise<string | null> {
+  const DocumentPicker = await import('expo-document-picker');
+  const r = await DocumentPicker.getDocumentAsync({
+    type: ['text/csv', 'text/comma-separated-values', 'text/plain', 'application/vnd.ms-excel', 'application/csv'],
+    copyToCacheDirectory: true,
+  });
+  if (r.canceled || !r.assets?.[0]) return null;
+  const archivo = r.assets[0];
+  if (Platform.OS === 'web') return (await fetch(archivo.uri)).text();
+  return new File(archivo.uri).text();
+}

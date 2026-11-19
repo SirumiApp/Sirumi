@@ -39,7 +39,22 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Sirumi usa la cámara para leer códigos de barras de tus productos.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Sirumi usa tus fotos para ponerle imagen a tus productos.",
+          "cameraPermission": "Sirumi usa la cámara para tomar la foto de tus productos.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -211,6 +211,15 @@ Convenciones:
 - Las variantes se arman combinando colores × tallas. Nombre visible: "Color / Talla" (por ejemplo "Negro / M"). Si solo hay una de las dos dimensiones, se usa esa. Sin ninguna: variante "Única".
 - Ejemplo: tallas S y M, colores Negro y Blanco → 4 variantes: Negro / S, Negro / M, Blanco / S, Blanco / M.
 
+### C8. Importar y exportar el catálogo (CSV)
+- Plantilla con una fila por variante y estas columnas: nombre, colección, precio, costo, talla, color, código, cantidad, mínimo. Se aceptan los títulos en español o inglés, sin importar mayúsculas ni tildes, y el separador coma o punto y coma (Excel en Colombia usa punto y coma).
+- Las filas con el mismo nombre (sin importar mayúsculas ni espacios) son variantes del mismo producto; colección, precio, costo y mínimo se toman de la primera fila de ese producto.
+- Los montos se leen solo con sus dígitos ("$ 45.000" → 45000). La cantidad es un entero desde 0.
+- Una fila sin nombre o un producto sin precio se marca con error y no se importa; el resto sí. Un producto que ya existe en el catálogo (mismo nombre) se omite. Los códigos repetidos se rechazan como en C6.
+- Lo importado entra a la **bodega principal** (C2).
+- Exportar produce el mismo formato (con la cantidad total de cada variante), así un archivo exportado se puede volver a importar.
+- Ejemplo: filas "Camiseta;Verano;45.000;18.000;S;Negro;;5" y "camiseta ;;;;M;Negro;;3" → un producto "Camiseta" de 45.000 con variantes Negro / S (5) y Negro / M (3).
+
 ---
 
 ## D. POS (Sirumi POS)
