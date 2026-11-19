@@ -10,7 +10,8 @@ import { Emoji } from '@/components/emoji/Emoji';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Texto } from '@/components/Texto';
 import { avisarEjemplo, useModoEjemplo } from '@/ejemplo/modo';
-import { estadisticasContacto } from '@/lib/contactos';
+import { clientesFrecuentes, estadisticasContacto } from '@/lib/contactos';
+import { hoyEn } from '@/lib/fechas';
 import { useNegocio } from '@/negocio/contexto';
 import { usePlata } from '@/personal/ganchos';
 import { ESPACIO, FUENTES, sombraSuave, useTema } from '@/theme';
@@ -27,6 +28,9 @@ export default function Contactos() {
   const { negocio, contactos, movimientos } = useNegocio();
   const [filtro, setFiltro] = useState<Filtro>('todos');
   const [busqueda, setBusqueda] = useState('');
+  const frecuentes = clientesFrecuentes(movimientos, hoyEn()).filter((f) => contactos.some((c) => c.id === f.id));
+  const dormidos = frecuentes.filter((f) => f.dormido);
+  const nombreDe = (id: string) => contactos.find((c) => c.id === id)?.nombre ?? '—';
 
   const texto = sinTildes(busqueda.trim());
   const lista = contactos.filter(
@@ -53,6 +57,45 @@ export default function Contactos() {
         </View>
       )}
       {contactos.length > 0 && lista.length === 0 && <Texto variante="suave">{t('contactos.sinResultados')}</Texto>}
+
+      {/* B11b · Mejores clientes y los que hace rato no compran */}
+      {filtro !== 'proveedor' && !busqueda.trim() && frecuentes.length > 0 && (
+        <View style={[{ gap: ESPACIO.xs, padding: ESPACIO.m, borderRadius: 20, backgroundColor: colores.tarjeta }, sombraSuave(oscuro)]}>
+          <Texto variante="subtitulo">{t('contactos.frecuentes.titulo')}</Texto>
+          {frecuentes.slice(0, 5).map((f, i) => (
+            <Pressable key={f.id} accessibilityRole="button" onPress={() => router.push({ pathname: '/contactos/[id]', params: { id: f.id } })} style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s, minHeight: 44 }}>
+              <Texto variante="fuerte" style={{ width: 22 }}>
+                {i + 1}.
+              </Texto>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Texto variante="fuerte" numberOfLines={1}>
+                  {nombreDe(f.id)}
+                </Texto>
+                <Texto variante="pequeno">{t('contactos.frecuentes.compras', { count: f.compras, dias: f.diasSinComprar })}</Texto>
+              </View>
+              <Texto variante="fuerte">{plata(f.total)}</Texto>
+            </Pressable>
+          ))}
+          {dormidos.length > 0 && (
+            <>
+              <Texto variante="subtitulo" style={{ marginTop: ESPACIO.s }}>
+                {t('contactos.frecuentes.dormidos')}
+              </Texto>
+              <Texto variante="pequeno">{t('contactos.frecuentes.dormidosDetalle')}</Texto>
+              {dormidos.slice(0, 5).map((f) => (
+                <Pressable key={f.id} accessibilityRole="button" onPress={() => router.push({ pathname: '/contactos/[id]', params: { id: f.id } })} style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s, minHeight: 44 }}>
+                  <Texto variante="fuerte" numberOfLines={1} style={{ flex: 1 }}>
+                    {nombreDe(f.id)}
+                  </Texto>
+                  <Texto variante="pequeno" color={colores.avisoTexto}>
+                    {t('contactos.frecuentes.hace', { count: f.diasSinComprar })}
+                  </Texto>
+                </Pressable>
+              ))}
+            </>
+          )}
+        </View>
+      )}
 
       {lista.map((c) => {
         const e = estadisticasContacto(c.id, movimientos);

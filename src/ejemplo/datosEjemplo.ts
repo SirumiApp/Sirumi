@@ -131,6 +131,8 @@ export const NEGOCIO_EJEMPLO = {
     digito_nit: 7,
     // Cobra IVA (lo normal es que el precio ya lo incluya): así se ve el 19% en el POS y en Resultados.
     responsable_iva: true,
+    // Meta de ventas del mes (B15).
+    meta_ventas_mes: 14_000_000,
   },
 };
 

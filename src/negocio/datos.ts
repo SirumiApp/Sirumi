@@ -43,6 +43,8 @@ export type Configuracion = {
   agente_retencion?: boolean;
   /** B12 · IVA bimestral (ventas altas) o cuatrimestral. */
   periodo_iva?: 'bimestral' | 'cuatrimestral';
+  /** B15 · Meta de ventas del mes. */
+  meta_ventas_mes?: number;
   /** B13 · Tarifa propia del impuesto a las ventas (si no, la del país). */
   tasa_ventas?: number;
   /** B13 · Fuera de Colombia: % de impuesto sobre la utilidad (lo dice el contador). */

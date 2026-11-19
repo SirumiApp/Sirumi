@@ -2,6 +2,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import {
+  mismoPeriodoAnioPasado,
   diasDelMes,
   diasEntre,
   esMesCompletoOActual,
@@ -57,5 +58,12 @@ describe('A2 · período anterior', () => {
   it('si es un rango libre de N días, es el rango de N días justo antes', () => {
     // 10 días: del 5 al 14 de noviembre → del 26 oct al 4 nov.
     expect(periodoAnterior({ desde: '2026-11-05', hasta: '2026-11-14' }, hoy)).toEqual({ desde: '2026-10-26', hasta: '2026-11-04' });
+  });
+});
+
+describe('mismo período del año pasado', () => {
+  it('corre un año y ajusta el 29 de febrero', () => {
+    expect(mismoPeriodoAnioPasado({ desde: '2026-11-01', hasta: '2026-11-30' })).toEqual({ desde: '2025-11-01', hasta: '2025-11-30' });
+    expect(mismoPeriodoAnioPasado({ desde: '2028-02-01', hasta: '2028-02-29' })).toEqual({ desde: '2027-02-01', hasta: '2027-02-28' });
   });
 });

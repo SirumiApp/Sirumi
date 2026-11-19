@@ -18,6 +18,7 @@ import { useNegocio } from '@/negocio/contexto';
 import { crearMiNegocio } from '@/negocio/datos';
 import { EMOJI_TIPO } from '@/negocio/HojaMovNegocio';
 import { calcularResumen } from '@/negocio/resumen';
+import { TarjetaMeta } from '@/negocio/TarjetaMeta';
 import { useTributario } from '@/impuestos/ganchos';
 import { etiquetaDia } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
@@ -127,6 +128,8 @@ function ResumenNegocioContenido() {
 
       <Boton titulo={`${t('pos.vender')}  →`} onPress={() => router.push('/pos')} />
       <TarjetaAvisos />
+      {/* B15 · Meta de ventas (siempre la del mes en curso) */}
+      <TarjetaMeta vendido={calcularResumen({ cuentas: [], movimientos, traslados: [], configuracion: negocio.configuracion, ventas }, periodoDe({ tipo: 'mes' }, hoy), periodoAnterior(periodoDe({ tipo: 'mes' }, hoy), hoy), tributario).resultados.ventas} />
 
       {!negocio.configuracion.arranque_listo && (
         <View style={{ gap: ESPACIO.s, padding: ESPACIO.l, borderRadius: 20, backgroundColor: colores.seleccionado }}>

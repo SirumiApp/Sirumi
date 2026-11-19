@@ -9,7 +9,8 @@ import { Emoji } from '@/components/emoji/Emoji';
 import { PantallaApp } from '@/components/PantallaApp';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
-import { hoyEn, periodoAnterior } from '@/lib/fechas';
+import { hoyEn, mismoPeriodoAnioPasado, periodoAnterior } from '@/lib/fechas';
+import { variacionPorcentual } from '@/lib/personal';
 import { apartarDeCada } from '@/lib/informes';
 import type { RegimenTributario } from '@/lib/impuestos';
 import { deCada100, puntoDeEquilibrio } from '@/lib/negocio';
@@ -49,6 +50,12 @@ function ResultadosContenido() {
     tributario,
   );
   const e = r.resultados;
+  // B16 · Para comparar: el período anterior y el mismo del año pasado.
+  const anterior = periodoAnterior(periodo, hoy);
+  const anioPasado = mismoPeriodoAnioPasado(periodo);
+  const datosRes = { cuentas: cuentas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial })), movimientos, traslados, configuracion: cfg, ventas };
+  const rAnt = calcularResumen(datosRes, anterior, periodoAnterior(anterior, hoy), tributario).resultados;
+  const rAnio = calcularResumen(datosRes, anioPasado, periodoAnterior(anioPasado, hoy), tributario).resultados;
   const partes = deCada100(e);
   const regimen: RegimenTributario = negocio.regimen ?? 'simple';
   const fijosMes = cfg.fijos_mes ?? e.fijos;
@@ -243,6 +250,44 @@ function ResultadosContenido() {
         )}
       </Tarjeta>
       )}
+
+      {/* B16 · Comparar: este período contra el anterior y contra el mismo del año pasado */}
+      <Tarjeta style={{ gap: ESPACIO.s }}>
+        <Texto variante="subtitulo">{t('comparar.titulo')}</Texto>
+        <Texto variante="pequeno">{t('comparar.detalle', { anterior: rangoCorto(anterior, textosFecha), anioPasado: rangoCorto(anioPasado, textosFecha) })}</Texto>
+        <ListaFilas>
+          {(
+            [
+              ['ventas', e.ventas, rAnt.ventas, rAnio.ventas, true],
+              ['gastos', e.fijos + e.variables, rAnt.fijos + rAnt.variables, rAnio.fijos + rAnio.variables, false],
+              ['neta', e.neta, rAnt.neta, rAnio.neta, true],
+            ] as [string, number, number, number, boolean][]
+          ).map(([clave, actual, ant, anio, subirEsBueno]) => {
+            const v = (otro: number) => {
+              const p = variacionPorcentual(actual, otro);
+              return p === null ? '—' : `${p > 0 ? '+' : ''}${p}%`;
+            };
+            const color = (otro: number) => {
+              const p = variacionPorcentual(actual, otro);
+              if (p === null || p === 0) return colores.textoSuave;
+              return p > 0 === subirEsBueno ? colores.ingresoTexto : colores.errorTexto;
+            };
+            return (
+              <View key={clave} style={{ gap: 2, paddingVertical: ESPACIO.s }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: ESPACIO.s }}>
+                  <Texto variante="fuerte">{t(`comparar.${clave}` as 'comparar.ventas')}</Texto>
+                  <Texto variante="fuerte">{conSigno(plata, actual)}</Texto>
+                </View>
+                <Texto variante="pequeno">
+                  {t('comparar.anterior', { monto: conSigno(plata, ant) })} <Texto variante="pequeno" color={color(ant)}>{v(ant)}</Texto>
+                  {' · '}
+                  {t('comparar.anioPasado', { monto: conSigno(plata, anio) })} <Texto variante="pequeno" color={color(anio)}>{v(anio)}</Texto>
+                </Texto>
+              </View>
+            );
+          })}
+        </ListaFilas>
+      </Tarjeta>
 
       {/* B8 · Punto de equilibrio */}
       <Tarjeta style={{ gap: ESPACIO.s }}>

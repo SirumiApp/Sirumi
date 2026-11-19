@@ -96,3 +96,12 @@ export function periodoAnterior(p: Periodo, hoy: Fecha): Periodo {
 export function dentroDe(fecha: Fecha, p: Periodo): boolean {
   return fecha >= p.desde && fecha <= p.hasta;
 }
+
+/** El mismo período, un año antes (29 de febrero → 28 si el año pasado no era bisiesto). */
+export function mismoPeriodoAnioPasado(p: Periodo): Periodo {
+  const atras = (f: Fecha) => {
+    const { anio, mes, dia } = partes(f);
+    return armarFecha(anio - 1, mes, Math.min(dia, diasDelMes(anio - 1, mes)));
+  };
+  return { desde: atras(p.desde), hasta: atras(p.hasta) };
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { estadisticasContacto, estadoRecurrente, resumenRecurrentes, validarContacto, validarRecurrente, type Recurrente } from './contactos';
+import { clientesFrecuentes, estadisticasContacto, estadoRecurrente, resumenRecurrentes, validarContacto, validarRecurrente, type Recurrente } from './contactos';
 import type { MovNegocio } from './negocio';
 
 let n = 0;
@@ -57,5 +57,26 @@ describe('B10 en personal', () => {
     const r = { id: 'rp', nombre: 'Arriendo', tipo: 'fijo' as const, monto: 1_200_000, dia: 5, activo: true, categoria: null };
     expect(estadoRecurrente(r, [{ fecha: '2026-11-05', recurrente: 'rp' }], '2026-11-19').estado).toBe('pagado');
     expect(resumenRecurrentes([r], [], '2026-11-19')).toEqual({ faltan: 1, montoFaltante: 1_200_000, totalMensual: 1_200_000, urgentes: 1 });
+  });
+});
+
+describe('B11b · clientes frecuentes', () => {
+  it('ordena por lo comprado, cuenta compras y marca los que llevan mucho sin comprar', () => {
+    const r = clientesFrecuentes(
+      [
+        { tipo: 'venta', monto: 100_000, fecha: '2026-11-10', contacto: 'ana', venta: 'v1' },
+        { tipo: 'venta', monto: 50_000, fecha: '2026-11-10', contacto: 'ana', venta: 'v1' },
+        { tipo: 'venta', monto: 80_000, fecha: '2026-08-01', contacto: 'luis', venta: null },
+        { tipo: 'venta', monto: 90_000, fecha: '2026-11-15', contacto: 'luis', venta: null },
+        { tipo: 'compra', monto: 999_000, fecha: '2026-11-15', contacto: 'prov', venta: null },
+        { tipo: 'venta', monto: 10_000, fecha: '2026-11-15', contacto: null, venta: null },
+      ],
+      '2026-11-19',
+    );
+    expect(r.map((c) => [c.id, c.total, c.compras, c.ultima, c.dormido])).toEqual([
+      ['luis', 170_000, 2, '2026-11-15', false],
+      ['ana', 150_000, 1, '2026-11-10', false],
+    ]);
+    expect(clientesFrecuentes([{ tipo: 'venta', monto: 1, fecha: '2026-08-01', contacto: 'x', venta: null }], '2026-11-19')[0]).toMatchObject({ dormido: true, diasSinComprar: 110 });
   });
 });

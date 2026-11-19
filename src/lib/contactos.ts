@@ -60,3 +60,23 @@ export function validarContacto(d: { nombre: string; autoriza: boolean; correo: 
   if (d.correo.trim()) return validarCorreo(d.correo);
   return null;
 }
+
+/**
+ * B11b · Clientes frecuentes: cuánto ha comprado cada cliente (sus ventas, cobradas o no), cuántas veces y la última fecha.
+ * Ordenados de mayor a menor. `dormido` = hace más de `dias` días que no compra.
+ */
+export function clientesFrecuentes(movs: Pick<MovNegocio, 'tipo' | 'monto' | 'fecha' | 'contacto' | 'venta'>[], hoy: Fecha, dias = 45) {
+  const porCliente = new Map<string, { id: string; total: number; compras: Set<string>; ultima: Fecha }>();
+  for (const m of movs) {
+    if (m.tipo !== 'venta' || !m.contacto) continue;
+    const c = porCliente.get(m.contacto) ?? { id: m.contacto, total: 0, compras: new Set<string>(), ultima: m.fecha };
+    c.total += m.monto;
+    // Una venta del POS dividida en dos pagos cuenta como una compra.
+    c.compras.add(m.venta ?? `${m.fecha}-${c.compras.size}`);
+    if (m.fecha > c.ultima) c.ultima = m.fecha;
+    porCliente.set(m.contacto, c);
+  }
+  return [...porCliente.values()]
+    .map((c) => ({ id: c.id, total: c.total, compras: c.compras.size, ultima: c.ultima, diasSinComprar: diasEntre(c.ultima, hoy), dormido: diasEntre(c.ultima, hoy) > dias }))
+    .sort((a, b) => b.total - a.total);
+}
