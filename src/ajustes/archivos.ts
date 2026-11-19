@@ -37,7 +37,7 @@ export async function todosMisMovimientos() {
  * Las reglas de seguridad de la base de datos solo dejan leer lo propio.
  */
 export async function misDatosCompletos(correo: string | undefined) {
-  const tablas = ['profiles', 'consents', 'categories', 'movements', 'budgets', 'goals', 'debts', 'assets', 'net_worth_snapshots', 'accounts', 'business_members', 'businesses', 'warehouses'] as const;
+  const tablas = ['profiles', 'consents', 'categories', 'movements', 'budgets', 'goals', 'debts', 'assets', 'net_worth_snapshots', 'accounts', 'business_members', 'businesses', 'warehouses', 'recurring_payments', 'statement_imports'] as const;
   const resultado: Record<string, unknown> = { exportado: new Date().toISOString(), correo };
   for (const tabla of tablas) {
     const { data, error } = await supabase.from(tabla).select('*');

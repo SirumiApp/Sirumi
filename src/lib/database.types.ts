@@ -969,34 +969,43 @@ export type Database = {
           account_id: string | null
           active: boolean
           amount: number
-          business_id: string
+          business_id: string | null
+          category_id: string | null
           created_at: string
           day_of_month: number
           id: string
           kind: string
           name: string
+          owner_type: string
+          user_id: string | null
         }
         Insert: {
           account_id?: string | null
           active?: boolean
           amount: number
-          business_id: string
+          business_id?: string | null
+          category_id?: string | null
           created_at?: string
           day_of_month: number
           id?: string
           kind?: string
           name: string
+          owner_type?: string
+          user_id?: string | null
         }
         Update: {
           account_id?: string | null
           active?: boolean
           amount?: number
-          business_id?: string
+          business_id?: string | null
+          category_id?: string | null
           created_at?: string
           day_of_month?: number
           id?: string
           kind?: string
           name?: string
+          owner_type?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1011,6 +1020,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_payments_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]
@@ -1497,6 +1513,7 @@ export type Database = {
         Args: { negocio: string; recurrente: string }
         Returns: boolean
       }
+      recurrente_personal: { Args: { recurrente: string }; Returns: boolean }
       registrar_celular: {
         Args: { plataforma: string; token_celular: string }
         Returns: undefined

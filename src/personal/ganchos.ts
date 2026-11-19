@@ -24,7 +24,8 @@ export function useTextosFecha(): TextosFecha {
 export function usePlata(): (valor: number) => string {
   const perfil = usePerfil();
   const pais = paisPorCodigo(perfil?.country ?? 'CO');
-  return (valor: number) => formatearMontoPais(valor, pais);
+  // Espacio que no se parte: "$ 110.000" nunca queda en dos renglones.
+  return (valor: number) => formatearMontoPais(valor, pais).replace(/ /g, '\u00A0');
 }
 
 /** Nombre visible de una categoría: el que puso la persona o el de la app en su idioma. */

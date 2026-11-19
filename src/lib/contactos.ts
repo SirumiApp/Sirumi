@@ -4,14 +4,16 @@ import { armarFecha, diasDelMes, diasEntre, partes, type Fecha } from './fechas'
 import type { MovNegocio } from './negocio';
 import { validarCorreo } from './validacion';
 
-export type Recurrente = { id: string; nombre: string; tipo: 'fijo' | 'variable'; monto: number; dia: number; activo: boolean; cuenta?: string | null };
+export type Recurrente = { id: string; nombre: string; tipo: 'fijo' | 'variable'; monto: number; dia: number; activo: boolean; cuenta?: string | null; categoria?: string | null };
+/** Lo mínimo de un movimiento para saber si un pago recurrente ya se hizo (negocio o personal). */
+export type PagoHecho = { fecha: Fecha; recurrente?: string | null };
 export type EstadoRecurrente = 'pagado' | 'vencido' | 'hoy' | 'proximo' | 'despues';
 
 /** Días de anticipación con los que un pago se vuelve "próximo". */
 export const DIAS_AVISO = 5;
 
 /** B10 · Estado del pago este mes. `fecha` es el día en que vence este mes; `dias` cuánto falta (negativo si ya pasó). */
-export function estadoRecurrente(r: Recurrente, movs: MovNegocio[], hoy: Fecha): { estado: EstadoRecurrente; fecha: Fecha; dias: number } {
+export function estadoRecurrente(r: Recurrente, movs: PagoHecho[], hoy: Fecha): { estado: EstadoRecurrente; fecha: Fecha; dias: number } {
   const { anio, mes } = partes(hoy);
   const fecha = armarFecha(anio, mes, Math.min(r.dia, diasDelMes(anio, mes)));
   const dias = diasEntre(hoy, fecha);
@@ -22,7 +24,7 @@ export function estadoRecurrente(r: Recurrente, movs: MovNegocio[], hoy: Fecha):
 }
 
 /** B10 · Cuántos pagos faltan este mes, por cuánto, el total mensual y cuántos son urgentes (vencidos o de hoy). */
-export function resumenRecurrentes(lista: Recurrente[], movs: MovNegocio[], hoy: Fecha) {
+export function resumenRecurrentes(lista: Recurrente[], movs: PagoHecho[], hoy: Fecha) {
   const activos = lista.filter((r) => r.activo);
   const estados = activos.map((r) => ({ r, e: estadoRecurrente(r, movs, hoy).estado }));
   const pendientes = estados.filter((x) => x.e !== 'pagado');

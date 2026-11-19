@@ -1,9 +1,8 @@
 // Qué recordatorios programar en el celular (notificaciones locales). Funciones puras.
 
-import { estadoRecurrente, type Recurrente } from './contactos';
+import { estadoRecurrente, type PagoHecho, type Recurrente } from './contactos';
 import { armarFecha, diasDelMes, partes, sumarDias, type Fecha } from './fechas';
 import type { Vencimiento } from './calendarioTributario';
-import type { MovNegocio } from './negocio';
 
 export type Recordatorio = { clave: string; fecha: Fecha; recurrente: Recurrente };
 
@@ -11,7 +10,7 @@ export type Recordatorio = { clave: string; fecha: Fecha; recurrente: Recurrente
  * B10 · Un recordatorio el día que vence cada pago recurrente activo, en los próximos `dias` días.
  * El de este mes no se programa si ya está pagado. Si el mes es más corto, vence el último día.
  */
-export function recordatoriosDeRecurrentes(lista: Recurrente[], movs: MovNegocio[], hoy: Fecha, dias = 35): Recordatorio[] {
+export function recordatoriosDeRecurrentes(lista: Recurrente[], movs: PagoHecho[], hoy: Fecha, dias = 35): Recordatorio[] {
   const limite = sumarDias(hoy, dias);
   const { anio, mes } = partes(hoy);
   const meses = [0, 1, 2].map((d) => {

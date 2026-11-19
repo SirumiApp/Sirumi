@@ -92,6 +92,8 @@ export type DatosMovimiento = {
   monto: number;
   categoria: string | null;
   descripcion: string;
+  /** B10 · Pago recurrente del que sale (solo al crear). */
+  recurrente?: string;
 };
 
 export async function guardarMovimiento(datos: DatosMovimiento, id?: string) {
@@ -103,7 +105,7 @@ export async function guardarMovimiento(datos: DatosMovimiento, id?: string) {
     category_id: datos.categoria,
     description: datos.descripcion.trim() || null,
   };
-  return id ? supabase.from('movements').update(fila).eq('id', id) : supabase.from('movements').insert(fila);
+  return id ? supabase.from('movements').update(fila).eq('id', id) : supabase.from('movements').insert({ ...fila, recurring_id: datos.recurrente ?? null });
 }
 
 export async function borrarMovimiento(id: string) {

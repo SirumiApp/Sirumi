@@ -155,6 +155,19 @@ export const RECURRENTES_EJEMPLO: Recurrente[] = [
   { id: 'ej-r-contador', nombre: 'ejemplo.textos.contador', tipo: 'fijo', monto: 250_000, dia: 30, activo: true, cuenta: 'ej-banco' },
 ];
 
+/** Pagos personales que se repiten cada mes (B10 en personal). */
+export const RECURRENTES_PERSONALES_EJEMPLO: Recurrente[] = [
+  { id: 'ej-rp-arriendo', nombre: 'ejemplo.textos.arriendoCasa', tipo: 'fijo', monto: 1_200_000, dia: 5, activo: true, categoria: null },
+  { id: 'ej-rp-celular', nombre: 'ejemplo.textos.planCelular', tipo: 'fijo', monto: 65_000, dia: 12, activo: true, categoria: null },
+  { id: 'ej-rp-plataformas', nombre: 'ejemplo.textos.plataformas', tipo: 'fijo', monto: 45_000, dia: 24, activo: true, categoria: 'ej-salidas' },
+];
+
+/** Los pagos personales de este mes que ya se hicieron (los que vencían antes de hoy, menos el último). */
+export function pagosPersonalesEjemplo(hoy: Fecha): { fecha: Fecha; recurrente: string }[] {
+  const dia = Number(hoy.slice(8, 10));
+  return RECURRENTES_PERSONALES_EJEMPLO.filter((r) => r.dia < dia && r.id !== 'ej-rp-celular').map((r) => ({ fecha: `${hoy.slice(0, 8)}${String(r.dia).padStart(2, '0')}`, recurrente: r.id }));
+}
+
 /** Qué contacto o pago recurrente va con cada concepto del mes típico. */
 const ENLACES: Record<string, { contacto?: string; recurrente?: string }> = {
   arriendo: { recurrente: 'ej-r-arriendo' },

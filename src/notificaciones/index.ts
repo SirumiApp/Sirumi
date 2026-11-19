@@ -70,7 +70,7 @@ export function escucharToques(): () => void {
   const s = Notifications.addNotificationResponseReceivedListener((r) => {
     const data = r.notification.request.content.data as { tipo?: string; venta?: string; ambito?: string } | undefined;
     if (data?.tipo === 'venta' && data.venta) router.push({ pathname: '/pos/venta/[id]', params: { id: data.venta } });
-    if (data?.tipo === 'recurrente') router.push('/recurrentes');
+    if (data?.tipo === 'recurrente') router.push({ pathname: '/recurrentes', params: { ambito: data.ambito ?? 'negocio' } });
     if (data?.tipo === 'impuesto') router.push('/impuestos');
     if (data?.tipo === 'extracto') router.push({ pathname: '/extractos', params: { ambito: data.ambito ?? 'negocio' } });
   });

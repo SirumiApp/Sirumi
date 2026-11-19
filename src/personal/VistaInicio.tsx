@@ -14,6 +14,7 @@ import { Icono } from '@/components/Icono';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { estadosDeTopes } from '@/lib/analisis';
+import { resumenRecurrentes } from '@/lib/contactos';
 import { patrimonioActual } from '@/lib/metas';
 import { diasDelMes, esMesCompletoOActual, hoyEn, partes, periodoAnterior } from '@/lib/fechas';
 import { formatearCorto } from '@/lib/formato';
@@ -23,6 +24,7 @@ import { paisPorCodigo } from '@/onboarding/paises';
 import { ALTO_TOCABLE, COLORES_CATEGORIA, ESPACIO, FUENTES, sombraSuave, useTema, type ColorCategoria } from '@/theme';
 
 import { useColorEstadoTope } from './ChipEstadoTope';
+import { usePersonal } from './contexto';
 import { useMovimientos, type AlertaTopes, type Categoria } from './datos';
 import { etiquetaDia, nombreMes } from './etiquetas';
 import { useNombreCategoria, usePlata, useTextosFecha } from './ganchos';
@@ -158,6 +160,9 @@ export function VistaInicio({ categorias, topes, alerta, version, onEditar }: Pr
           </Tarjeta>
         </View>
       )}
+
+      {/* B10 · Pagos fijos del mes */}
+      {eleccion.tipo === 'mes' && <TarjetaPagosFijos hoy={hoy} />}
 
       {/* Mi patrimonio · Metas y deudas (como el prototipo) */}
       <TarjetaPatrimonio version={version} />
@@ -327,6 +332,34 @@ export function VistaInicio({ categorias, topes, alerta, version, onEditar }: Pr
         </View>
       )}
     </>
+  );
+}
+
+/** B10 · Cuántos pagos fijos faltan este mes; abre la lista. Si no hay ninguno, no se muestra. */
+function TarjetaPagosFijos({ hoy }: { hoy: string }) {
+  const { t } = useTranslation();
+  const { oscuro, colores } = useTema();
+  const plata = usePlata();
+  const { recurrentes, pagosRecurrentes } = usePersonal();
+  if (recurrentes.filter((r) => r.activo).length === 0) return null;
+  const r = resumenRecurrentes(recurrentes, pagosRecurrentes, hoy);
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => router.push('/recurrentes?ambito=personal')}
+      style={({ pressed }) => [
+        { flexDirection: 'row', alignItems: 'center', gap: ESPACIO.m, padding: ESPACIO.m, borderRadius: 20, backgroundColor: colores.tarjeta, transform: [{ scale: pressed ? 0.98 : 1 }] },
+        sombraSuave(oscuro),
+      ]}>
+      <Emoji name={r.faltan === 0 ? 'check' : 'calendario'} size={36} />
+      <View style={{ flex: 1, gap: 2 }}>
+        <Texto variante="etiqueta">{t('recurrentes.personal.tarjeta')}</Texto>
+        <Texto variante="fuerte" color={r.urgentes > 0 ? colores.errorTexto : undefined}>
+          {r.faltan === 0 ? t('recurrentes.alDia') : t('recurrentes.faltan', { count: r.faltan, monto: plata(r.montoFaltante) })}
+        </Texto>
+      </View>
+      <Icono nombre="adelante" tamano={18} />
+    </Pressable>
   );
 }
 

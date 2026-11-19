@@ -20,7 +20,11 @@ import { borrarMovimiento, guardarMovimiento, type Categoria } from './datos';
 import { fechaCorta } from './etiquetas';
 import { useNombreCategoria, usePlata, useTextosFecha } from './ganchos';
 
+/** Para llenar un movimiento nuevo (p. ej. desde un pago recurrente). */
+export type PlantillaMovimiento = { monto?: number; categoria?: string | null; descripcion?: string; recurrente?: string };
+
 type Props = {
+  plantilla?: PlantillaMovimiento;
   abierta: boolean;
   /** Si viene, se edita ese movimiento; si no, es uno nuevo. */
   movimiento: Movimiento | null;
@@ -43,7 +47,7 @@ export function HojaMovimiento(props: Props) {
   );
 }
 
-function Formulario({ movimiento, categorias, hoy, onCerrar, onGuardado }: Props) {
+function Formulario({ movimiento, plantilla, categorias, hoy, onCerrar, onGuardado }: Props) {
   const { t } = useTranslation();
   const { colores, oscuro } = useTema();
   const plata = usePlata();
@@ -51,9 +55,9 @@ function Formulario({ movimiento, categorias, hoy, onCerrar, onGuardado }: Props
   const textosFecha = useTextosFecha();
 
   const [tipo, setTipo] = useState<TipoMovimiento>(movimiento?.tipo ?? 'gasto');
-  const [monto, setMonto] = useState(movimiento ? String(movimiento.monto) : '');
-  const [categoria, setCategoria] = useState<string | null>(movimiento?.categoria || null);
-  const [descripcion, setDescripcion] = useState(movimiento?.descripcion ?? '');
+  const [monto, setMonto] = useState(movimiento ? String(movimiento.monto) : plantilla?.monto ? String(plantilla.monto) : '');
+  const [categoria, setCategoria] = useState<string | null>(movimiento?.categoria || plantilla?.categoria || null);
+  const [descripcion, setDescripcion] = useState(movimiento?.descripcion ?? plantilla?.descripcion ?? '');
   const [fecha, setFecha] = useState<Fecha>(movimiento?.fecha ?? hoy);
   const [verCalendario, setVerCalendario] = useState(false);
   const [confirmarBorrar, setConfirmarBorrar] = useState(false);
@@ -103,7 +107,7 @@ function Formulario({ movimiento, categorias, hoy, onCerrar, onGuardado }: Props
     const categoriaFinal = categoria ?? (visibles.length === 1 ? visibles[0].id : null);
     if (!categoriaFinal) return setError(t('movimiento.faltaCategoria'));
     setGuardando(true);
-    const { error: e } = await guardarMovimiento({ fecha, tipo, monto: valor, categoria: categoriaFinal, descripcion }, movimiento?.id);
+    const { error: e } = await guardarMovimiento({ fecha, tipo, monto: valor, categoria: categoriaFinal, descripcion, recurrente: movimiento ? undefined : plantilla?.recurrente }, movimiento?.id);
     setGuardando(false);
     if (e) return setError(t('movimiento.errorGuardar'));
     onGuardado();

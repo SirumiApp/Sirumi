@@ -51,3 +51,11 @@ describe('B11 · clientes y proveedores', () => {
     expect(validarContacto(base)).toBeNull();
   });
 });
+
+describe('B10 en personal', () => {
+  it('un pago personal cuenta como hecho con solo la fecha y el pago recurrente', () => {
+    const r = { id: 'rp', nombre: 'Arriendo', tipo: 'fijo' as const, monto: 1_200_000, dia: 5, activo: true, categoria: null };
+    expect(estadoRecurrente(r, [{ fecha: '2026-11-05', recurrente: 'rp' }], '2026-11-19').estado).toBe('pagado');
+    expect(resumenRecurrentes([r], [], '2026-11-19')).toEqual({ faltan: 1, montoFaltante: 1_200_000, totalMensual: 1_200_000, urgentes: 1 });
+  });
+});

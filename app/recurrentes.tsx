@@ -1,9 +1,10 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, View } from 'react-native';
 
 import { Boton } from '@/components/Boton';
-import { Emoji } from '@/components/emoji/Emoji';
+import { Emoji, type NombreEmoji } from '@/components/emoji/Emoji';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
@@ -12,18 +13,41 @@ import { estadoRecurrente, resumenRecurrentes, type EstadoRecurrente, type Recur
 import { hoyEn } from '@/lib/fechas';
 import { useNegocio } from '@/negocio/contexto';
 import { HojaRecurrente } from '@/negocio/HojaRecurrente';
+import { SoloSi } from '@/components/SoloSi';
+import { usePersonal } from '@/personal/contexto';
 import { fechaCorta } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { ALTO_TOCABLE, ESPACIO, FUENTES, sombraSuave, useTema } from '@/theme';
 
-/** Pagos recurrentes del negocio (spec 03, §3; regla B10): la app recuerda y la persona confirma. */
-export default function Recurrentes() {
+/** Pagos recurrentes (regla B10), del negocio o personales (`?ambito=personal`): la app recuerda y la persona confirma. */
+export default function PantallaRecurrentes() {
+  const { ambito } = useLocalSearchParams<{ ambito?: string }>();
+  const personal = ambito === 'personal';
+  return (
+    <SoloSi parte={personal ? 'personal' : 'negocio'} soloDueno={!personal}>
+      <Recurrentes personal={personal} />
+    </SoloSi>
+  );
+}
+
+function Recurrentes({ personal }: { personal: boolean }) {
   const { t } = useTranslation();
   const { colores, oscuro } = useTema();
   const plata = usePlata();
   const textosFecha = useTextosFecha();
   const ejemplo = useModoEjemplo();
-  const { negocio, cuentas, recurrentes, movimientos, abrirHoja, actualizar } = useNegocio();
+  const deNegocio = useNegocio();
+  const dePersonal = usePersonal();
+  const { negocio, cuentas } = deNegocio;
+  const recurrentes = personal ? dePersonal.recurrentes : deNegocio.recurrentes;
+  const movimientos = personal ? dePersonal.pagosRecurrentes : deNegocio.movimientos;
+  const actualizar = personal ? dePersonal.actualizar : deNegocio.actualizar;
+  const emojiDe = (r: Recurrente): NombreEmoji =>
+    personal ? ((dePersonal.categorias.find((c) => c.id === r.categoria)?.emoji as NombreEmoji | undefined) ?? 'calendario') : r.tipo === 'fijo' ? 'edificio' : 'camion';
+  function registrar(r: Recurrente) {
+    if (personal) dePersonal.abrirHoja(null, { monto: r.monto, categoria: r.categoria ?? null, descripcion: r.nombre, recurrente: r.id });
+    else deNegocio.abrirHoja(null, { tipo: r.tipo, monto: r.monto, concepto: r.nombre, cuenta: r.cuenta ?? undefined, recurrente: r.id });
+  }
   const [hoja, setHoja] = useState<{ abierta: boolean; recurrente: Recurrente | null }>({ abierta: false, recurrente: null });
   const hoy = hoyEn();
   const resumen = resumenRecurrentes(recurrentes, movimientos, hoy);
@@ -37,12 +61,12 @@ export default function Recurrentes() {
   }
 
   return (
-    <PantallaAjuste titulo={t('recurrentes.titulo')} detalle={t('recurrentes.detalle')}>
+    <PantallaAjuste titulo={t(personal ? 'recurrentes.personal.titulo' : 'recurrentes.titulo')} detalle={t(personal ? 'recurrentes.personal.detalle' : 'recurrentes.detalle')}>
       {recurrentes.length === 0 ? (
         <View style={{ alignItems: 'center', gap: ESPACIO.s, paddingVertical: ESPACIO.l }}>
           <Emoji name="repetir" size={64} />
           <Texto variante="suave" style={{ textAlign: 'center' }}>
-            {t('recurrentes.vacio')}
+            {t(personal ? 'recurrentes.personal.vacio' : 'recurrentes.vacio')}
           </Texto>
         </View>
       ) : (
@@ -76,7 +100,7 @@ export default function Recurrentes() {
               sombraSuave(oscuro),
             ]}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s + 4 }}>
-              <Emoji name={r.tipo === 'fijo' ? 'edificio' : 'camion'} size={30} />
+              <Emoji name={emojiDe(r)} size={30} />
               <View style={{ flex: 1 }}>
                 <Texto variante="fuerte" numberOfLines={1}>
                   {r.nombre}
@@ -94,7 +118,7 @@ export default function Recurrentes() {
                 onPress={() =>
                   pagado
                     ? Alert.alert(t('recurrentes.pagado'), t('recurrentes.yaPagado'))
-                    : abrirHoja(null, { tipo: r.tipo, monto: r.monto, concepto: r.nombre, cuenta: r.cuenta ?? undefined, recurrente: r.id })
+                    : registrar(r)
                 }
                 style={({ pressed }) => ({
                   minHeight: ALTO_TOCABLE,
@@ -113,14 +137,15 @@ export default function Recurrentes() {
         );
       })}
 
-      {negocio && <Boton titulo={t('recurrentes.agregar')} variante="secundario" onPress={() => abrirForm(null)} />}
+      {(personal || negocio) && <Boton titulo={t('recurrentes.agregar')} variante="secundario" onPress={() => abrirForm(null)} />}
 
-      {negocio && (
+      {(personal || negocio) && (
         <HojaRecurrente
           abierta={hoja.abierta}
           recurrente={hoja.recurrente}
-          negocioId={negocio.id}
+          negocioId={personal ? null : (negocio?.id ?? null)}
           cuentas={cuentas}
+          categorias={dePersonal.categorias}
           onCerrar={() => setHoja({ abierta: false, recurrente: null })}
           onGuardado={() => {
             setHoja({ abierta: false, recurrente: null });

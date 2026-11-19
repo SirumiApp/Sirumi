@@ -158,6 +158,8 @@ Convenciones:
 - Registrar el pago crea un movimiento pagado del tipo del recurrente, con su monto (se puede cambiar) y la cuenta que elija la persona. No crea nada solo: la app recuerda, la persona confirma.
 - Resumen del mes: cuántos faltan y por cuánto; total mensual = suma de todos los recurrentes activos.
 - Ejemplo (hoy 18 nov): arriendo día 5 sin pagar → vencido; nómina día 18 → vence hoy; internet día 20 → próximo (en 2 días); contador día 30 → más adelante. Faltan 4 pagos por la suma de los cuatro.
+- **En personal** funciona igual (arriendo, servicios, celular, suscripciones): en vez de tipo y cuenta lleva una categoría de gasto (opcional). Registrar el pago abre la hoja de gasto con el monto, la categoría y el nombre. Cada quien ve solo los suyos.
+- **Avisos**: a las 9 a. m. del día que vence, en los próximos 35 días, menos el de este mes si ya está pagado. Se apagan en Ajustes.
 
 ### B11. Clientes y proveedores
 - Un contacto es cliente o proveedor y es **del negocio** (nunca se cruza entre negocios ni se usa para mercadeo de Sirumi).

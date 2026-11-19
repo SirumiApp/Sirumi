@@ -44,7 +44,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 ## Ideas de Nicolás (nov 2026) — ver docs/hoja-de-ruta.md
 - [x] Importar extracto del banco (CSV/Excel, regla B9) para negocio y personal, con deshacer. Falta: extractos de tarjetas de crédito; PDF con IA en la v2.
 - [ ] Calendario de impuestos y retenciones con recordatorios (según régimen y último dígito del NIT; fechas por año en una tabla, validar con contador).
-- [ ] Pagos recurrentes personales y modo "solo personal" más limpio.
+- [x] Pagos recurrentes personales y modo "solo personal" más limpio.
 
 ## Modo ejemplo
 - [x] Ajustes → "Ver la app con un ejemplo" y botón "Ver un ejemplo primero" cuando la cuenta está vacía. Datos inventados en `src/ejemplo/` (no tocan la base de datos; guardar está bloqueado con aviso).
@@ -54,7 +54,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] Códigos de descuento (D7) e informe de ventas (D8): más vendidos con ganancia, vendedores, formas de pago, clientes.
 - [x] Importar extractos (CSV/Excel) por cuenta y mes, en negocio y personal (B9).
 - [x] Calendario de impuestos y retenciones con avisos, y aviso mensual "sube tus extractos".
-- [ ] Pagos recurrentes personales con avisos.
+- [x] Pagos recurrentes personales con avisos.
 - [ ] Factura electrónica DIAN (después): conectar con un proveedor tecnológico autorizado.
 
 ## Producción

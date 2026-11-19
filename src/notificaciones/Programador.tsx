@@ -9,6 +9,7 @@ import { vencimientos } from '@/lib/calendarioTributario';
 import { hoyEn, sumarDias } from '@/lib/fechas';
 import { recordatoriosDeExtractos, recordatoriosDeImpuestos, recordatoriosDeRecurrentes } from '@/lib/recordatorios';
 import { useNegocio } from '@/negocio/contexto';
+import { usePersonal } from '@/personal/contexto';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 
 import { programarAvisos, quitarRecordatorios, type AvisoLocal } from '.';
@@ -27,6 +28,7 @@ export function ProgramadorAvisos() {
   const plata = usePlata();
   const textosFecha = useTextosFecha();
   const { negocio, recurrentes, movimientos, parametros, cargando } = useNegocio();
+  const { recurrentes: recPersonales, pagosRecurrentes } = usePersonal();
   const pref = (perfil?.preferences as Preferencias | null)?.notificaciones ?? {};
   const conRecurrentes = pref.recordatorios !== false;
   const conImpuestos = pref.impuestos !== false;
@@ -49,6 +51,17 @@ export function ProgramadorAvisos() {
           titulo: t(r.fecha === hoy ? 'notificaciones.recurrenteHoy' : 'notificaciones.recurrente'),
           cuerpo: `${r.recurrente.nombre} · ${plata(r.recurrente.monto)}`,
           data: { tipo: 'recurrente', recurrente: r.recurrente.id },
+        });
+      }
+    }
+    if (vePersonal(uso) && conRecurrentes) {
+      for (const r of recordatoriosDeRecurrentes(recPersonales, pagosRecurrentes, hoy)) {
+        lista.push({
+          clave: `p-${r.clave}`,
+          fecha: r.fecha,
+          titulo: t(r.fecha === hoy ? 'notificaciones.recurrenteHoy' : 'notificaciones.recurrente'),
+          cuerpo: `${r.recurrente.nombre} · ${plata(r.recurrente.monto)}`,
+          data: { tipo: 'recurrente', recurrente: r.recurrente.id, ambito: 'personal' },
         });
       }
     }
@@ -82,7 +95,7 @@ export function ProgramadorAvisos() {
     if (lista.length === 0) quitarRecordatorios();
     else programarAvisos(lista);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `plata`, `t` y los textos cambian en cada render; basta con los datos
-  }, [ejemplo, cargando, !!perfil, uso, dueno, negocio, recurrentes, movimientos, parametros, conRecurrentes, conImpuestos, conExtractos]);
+  }, [ejemplo, cargando, !!perfil, uso, dueno, negocio, recurrentes, movimientos, recPersonales, pagosRecurrentes, parametros, conRecurrentes, conImpuestos, conExtractos]);
 
   return null;
 }

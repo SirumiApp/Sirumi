@@ -27,8 +27,6 @@ type Lectura = { archivo: string; tabla: (string | number)[][]; filas: Fila[]; s
 type Rol = 'fecha' | 'descripcion' | 'valor' | 'debito' | 'credito';
 
 const POR_PAGINA = 40;
-/** Que "$ 1.850.000" no se parta en dos renglones. */
-const sinCorte = (texto: string) => texto.replace(/ /g, '\u00A0');
 
 /** B9 · Subir el extracto del banco (CSV o Excel) por cuenta y mes, en el negocio o en personal. */
 export default function PantallaExtractos() {
@@ -369,7 +367,7 @@ function Extractos({ ambito }: { ambito: Ambito }) {
                 <Texto variante="fuerte" numberOfLines={1}>
                   {enNegocio ? `${nombreCuenta(e.cuenta)} · ${nombreMes(e.mes)}` : nombreMes(e.mes)}
                 </Texto>
-                <Texto variante="pequeno">{t('extractos.resumenSubido', { count: e.filas, entran: sinCorte(plata(e.entradas)), salen: sinCorte(plata(e.salidas)) })}</Texto>
+                <Texto variante="pequeno">{t('extractos.resumenSubido', { count: e.filas, entran: plata(e.entradas), salen: plata(e.salidas) })}</Texto>
               </View>
               <Boton titulo={t('extractos.deshacer')} variante="texto" onPress={() => preguntarDeshacer(e)} />
             </Tarjeta>
