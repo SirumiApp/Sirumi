@@ -1,25 +1,38 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, Modal, Pressable, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { Linking, Modal, Platform, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Boton } from '@/components/Boton';
 import { Emoji } from '@/components/emoji/Emoji';
 import { Icono } from '@/components/Icono';
 import { Texto } from '@/components/Texto';
-import { ALTO_TOCABLE, ESPACIO, PALETA, useTema } from '@/theme';
+import { ALTO_TOCABLE, COLOR_VENTA, ESPACIO, PALETA, useTema } from '@/theme';
 
-/** Escáner de códigos de barras con la cámara (spec 04: EAN-13 y Code 128). Llama a `onCodigo` una sola vez. */
-export function Escaner({ abierto, onCodigo, onCerrar }: { abierto: boolean; onCodigo: (codigo: string) => void; onCerrar: () => void }) {
+type Props = {
+  abierto: boolean;
+  onCodigo: (codigo: string) => void;
+  onCerrar: () => void;
+  /** Como Shopify POS: la cámara sigue abierta y lee un producto tras otro (el mismo código espera 1,5 s). */
+  continuo?: boolean;
+  /** Lo último que pasó ("Agregado: Bolso"), en la parte de abajo. */
+  mensaje?: { texto: string; tipo: 'ok' | 'error' } | null;
+};
+
+/** Escáner de códigos de barras con la cámara (spec 04: EAN-13, Code 128…). Sin `continuo`, lee una sola vez. */
+export function Escaner({ abierto, onCodigo, onCerrar, continuo = false, mensaje }: Props) {
   const { t } = useTranslation();
   const { colores } = useTema();
   const [permiso, pedirPermiso] = useCameraPermissions();
   const leido = useRef(false);
+  const ultimo = useRef<{ codigo: string; cuando: number } | null>(null);
 
   return (
     <Modal visible={abierto} animationType="slide" presentationStyle="fullScreen" onRequestClose={onCerrar} onShow={() => {
         leido.current = false;
+        ultimo.current = null;
       }}>
       <SafeAreaView style={{ flex: 1, backgroundColor: PALETA.noche }} edges={['top', 'bottom']}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s, padding: ESPACIO.m }}>
@@ -53,9 +66,16 @@ export function Escaner({ abierto, onCodigo, onCerrar }: { abierto: boolean; onC
               facing="back"
               barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39'] }}
               onBarcodeScanned={({ data }) => {
-                if (leido.current || !data) return;
-                leido.current = true;
-                onCodigo(data.trim());
+                const codigo = data?.trim();
+                if (!codigo || leido.current) return;
+                if (continuo) {
+                  // El mismo código frente a la cámara no se suma varias veces seguidas.
+                  const ahora = Date.now();
+                  if (ultimo.current && ultimo.current.codigo === codigo && ahora - ultimo.current.cuando < 1500) return;
+                  ultimo.current = { codigo, cuando: ahora };
+                } else leido.current = true;
+                if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                onCodigo(codigo);
               }}
             />
             {/* Marco donde poner el código */}
@@ -65,6 +85,18 @@ export function Escaner({ abierto, onCodigo, onCerrar }: { abierto: boolean; onC
                 {t('inventario.escaner.ayuda')}
               </Texto>
             </View>
+            {(mensaje || continuo) && (
+              <View style={{ position: 'absolute', left: ESPACIO.m, right: ESPACIO.m, bottom: ESPACIO.m, gap: ESPACIO.s }}>
+                {mensaje && (
+                  <View accessibilityRole="alert" style={{ padding: ESPACIO.m, borderRadius: 18, backgroundColor: mensaje.tipo === 'ok' ? COLOR_VENTA.claro : colores.errorFondo }}>
+                    <Texto variante="fuerte" color={mensaje.tipo === 'ok' ? PALETA.blanco : colores.errorTexto} style={{ textAlign: 'center' }}>
+                      {mensaje.texto}
+                    </Texto>
+                  </View>
+                )}
+                {continuo && <Boton titulo={t('inventario.escaner.listo')} onPress={onCerrar} />}
+              </View>
+            )}
           </View>
         )}
       </SafeAreaView>

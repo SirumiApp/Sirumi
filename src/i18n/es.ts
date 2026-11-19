@@ -337,6 +337,14 @@ export const es = {
       error: 'No pudimos devolver la venta. Intenta de nuevo.',
       deHoy: 'Hoy: {{monto}} en {{count}} ventas',
     },
+    iva: {
+      incluido: 'IVA ({{tarifa}}%) incluido en el precio',
+      incluidoAyuda: 'Lo normal: el cliente paga el precio que ve.',
+      sumarAyuda: 'El IVA se suma encima del precio.',
+      base: 'Valor sin IVA',
+      linea: 'IVA ({{tarifa}}%)',
+      lineaIncluido: 'IVA incluido ({{tarifa}}%)',
+    },
     ajustes: {
       sonido: 'Sonido y vibración de venta',
       sonidoDetalle: 'Suena la caja registradora cuando cobras.',
@@ -445,6 +453,8 @@ export const es = {
       abrirAjustes: 'Abrir ajustes del celular',
       noEncontrado: 'No encontramos un producto con el código {{codigo}}.',
       escanear: 'Escanear código',
+      listo: 'Listo',
+      agregado: '✓ {{nombre}}',
     },
     foto: {
       titulo: 'Foto del producto',
@@ -1109,6 +1119,8 @@ export const es = {
       costoAyuda: 'De cada $100 que vendes, ¿cuánto te cuesta el producto? Ej: 45',
       regimen: 'Régimen tributario',
       grupo: 'Tu actividad',
+      responsableIva: '¿Cobras IVA? (responsable de IVA)',
+      responsableIvaAyuda: 'El POS calcula el IVA. Por defecto tus precios ya lo incluyen.',
       resumen: 'Resumen',
       resumenTienes: 'Lo que tienes',
       resumenDebes: 'Lo que debes',
@@ -1193,6 +1205,7 @@ export const es = {
       margenContribucion: 'De cada venta te queda el {{porcentaje}}% para cubrir tus gastos fijos.',
       avance: 'Llevas el {{porcentaje}}% de tu punto de equilibrio.',
       sinVentas: 'Todavía no hay ventas en este período. Toca + para registrar una.',
+      ivaCobrado: 'IVA cobrado en el POS: {{monto}}. Esa plata es de la DIAN: apártala. Tus ventas aquí ya van sin IVA.',
     },
     informes: {
       titulo: 'Más',

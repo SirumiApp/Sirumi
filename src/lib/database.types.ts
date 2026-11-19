@@ -950,6 +950,9 @@ export type Database = {
           seller_id: string | null
           status: string
           subtotal: number
+          tax: number
+          tax_included: boolean | null
+          tax_rate: number | null
           total: number
           warehouse_id: string | null
         }
@@ -968,6 +971,9 @@ export type Database = {
           seller_id?: string | null
           status?: string
           subtotal: number
+          tax?: number
+          tax_included?: boolean | null
+          tax_rate?: number | null
           total: number
           warehouse_id?: string | null
         }
@@ -986,6 +992,9 @@ export type Database = {
           seller_id?: string | null
           status?: string
           subtotal?: number
+          tax?: number
+          tax_included?: boolean | null
+          tax_rate?: number | null
           total?: number
           warehouse_id?: string | null
         }

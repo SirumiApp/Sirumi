@@ -7,12 +7,25 @@ import { dentroDe, type Fecha, type Periodo } from './fechas';
 export type LineaCarrito = { clave: string; variante: string | null; nombre: string; precio: number; cantidad: number; costo?: number | null };
 export type Descuento = { tipo: 'porcentaje' | 'monto'; valor: number } | null;
 
-/** D1 · Subtotal, descuento (porcentaje redondeado o monto, nunca más que el subtotal) y total. */
-export function totalesVenta(lineas: LineaCarrito[], descuento: Descuento) {
+/** IVA de la venta (D6): tarifa en % y si los precios ya lo incluyen (lo normal). null = el negocio no cobra IVA. */
+export type IvaVenta = { tarifa: number; incluido: boolean } | null;
+
+/**
+ * D1 + D6 · Subtotal, descuento (porcentaje redondeado o monto, nunca más que el subtotal), base, IVA y total.
+ * IVA incluido: el total no cambia y se le saca el IVA. Sumar IVA: el IVA va encima del valor con descuento.
+ */
+export function totalesVenta(lineas: LineaCarrito[], descuento: Descuento, iva: IvaVenta = null) {
   const subtotal = lineas.reduce((s, l) => s + l.precio * l.cantidad, 0);
   const crudo = !descuento ? 0 : descuento.tipo === 'porcentaje' ? Math.round((subtotal * descuento.valor) / 100) : Math.round(descuento.valor);
   const d = Math.min(subtotal, Math.max(0, crudo));
-  return { subtotal, descuento: d, total: subtotal - d };
+  const neto = subtotal - d;
+  if (!iva || iva.tarifa <= 0) return { subtotal, descuento: d, base: neto, iva: 0, total: neto };
+  if (iva.incluido) {
+    const base = Math.round(neto / (1 + iva.tarifa / 100));
+    return { subtotal, descuento: d, base, iva: neto - base, total: neto };
+  }
+  const impuesto = Math.round((neto * iva.tarifa) / 100);
+  return { subtotal, descuento: d, base: neto, iva: impuesto, total: neto + impuesto };
 }
 
 /** D2 · ¿Cabe una unidad más de esta variante, según lo disponible en la bodega de venta? */

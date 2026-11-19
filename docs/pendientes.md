@@ -28,7 +28,10 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 ## POS (lo que falta)
 - [ ] Códigos de descuento (crear y usar).
 - [ ] Carritos guardados (atender a otro cliente y volver).
-- [ ] IVA en el POS para responsables de IVA (B7 dice registrar la venta por su base; falta decidir con el contador cómo queda el IVA cobrado en la caja).
+- [x] Código de barras en todas partes (Shopify POS): escribir, generar, escanear con la cámara o con pistola lectora; en el POS la cámara queda abierta y suma un producto tras otro.
+- [x] IVA en el POS (D6): incluido en el precio por defecto, con opción de sumarlo; las ventas cuentan sin IVA y el IVA cobrado se muestra aparte.
+- [ ] IVA por producto (exentos o con otra tarifa, como 5%) y "IVA por pagar" en el balance.
+- [ ] Imprimir etiquetas de código de barras (PDF para impresora de etiquetas) e impresora de recibos Bluetooth.
 - [ ] Vendedores con código (v2).
 - [ ] Informe de ventas por producto, por cuenta y por cliente.
 

@@ -105,10 +105,10 @@ export type EstadoDeResultados = {
  */
 export function estadoDeResultados(
   movs: MovNegocio[],
-  opciones: { costoPorcentaje: number; costoReal?: number; impuestos?: number },
+  opciones: { costoPorcentaje: number; costoReal?: number; impuestos?: number; /** D6 · IVA cobrado en el POS: las ventas cuentan sin él. */ ivaVentas?: number },
 ): EstadoDeResultados {
   const deTipo = (r: (typeof TIPOS_NEGOCIO)[TipoNegocio]['resultados']) => suma(movs.filter((m) => TIPOS_NEGOCIO[m.tipo].resultados === r), (m) => m.monto);
-  const ventas = deTipo('ventas');
+  const ventas = deTipo('ventas') - (opciones.ivaVentas ?? 0);
   const costoVentas = opciones.costoReal ?? (ventas * opciones.costoPorcentaje) / 100;
   const utilidadBruta = ventas - costoVentas;
   const fijos = deTipo('fijo');

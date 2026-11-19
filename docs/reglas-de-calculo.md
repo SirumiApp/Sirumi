@@ -98,7 +98,7 @@ Convenciones:
 - Caja = suma de saldos de todas las cuentas (B2). Equivale a: saldos iniciales + entradas pagadas − salidas pagadas que no fueron con tarjeta − pagos a tarjetas.
 
 ### B5. Estado de resultados (período)
-- Ventas = suma de ventas del período (cobradas o no).
+- Ventas = suma de ventas del período (cobradas o no), sin el IVA cobrado en el POS (D6).
 - Costo de ventas = **suma del costo unitario × unidades vendidas** de los productos vendidos en el período. Para ventas manuales sin productos, usar el % de costo configurado del negocio. (El prototipo usaba solo el % promedio; la app real debe usar el costo real.)
 - Utilidad bruta = ventas − costo de ventas. Margen bruto = utilidad bruta / ventas.
 - Utilidad operativa = utilidad bruta − gastos fijos − gastos variables.
@@ -126,7 +126,7 @@ Convenciones:
 - **ICA**: ventas × tarifa por mil del municipio (prototipo: 9,66 por mil → 10.000.000 × 9,66/1000 = 96.600).
 - Comparar los tres regímenes y marcar el más bajo.
 - Si las ventas anualizadas superan 3.500 UVT, avisar que pasaría a ser responsable de IVA y a facturar electrónicamente.
-- Si el negocio es responsable de IVA, la venta del POS se registra por su base: total / 1,19 (119.000 → 100.000).
+- Si el negocio es responsable de IVA, la venta del POS cuenta en los resultados por su base: total / 1,19 (119.000 → 100.000). Ver D6.
 
 ### B8. Punto de equilibrio
 - Margen de contribución = 1 − % de costo − (gastos variables / ventas). Sin ventas: 1 − % de costo.
@@ -249,3 +249,11 @@ Convenciones:
 ### D5. Cliente en la venta
 - Por defecto "Consumidor final".
 - Registrar un cliente exige nombre y la casilla "El cliente autoriza guardar sus datos" (Ley 1581). Se guardan celular, correo, tipo y número de documento y notas.
+
+### D6. IVA en el POS (solo si el negocio es responsable de IVA)
+- Lo normal en Colombia es que **el precio ya incluya el IVA** (el cliente no ve una sorpresa al final). Por eso el POS viene con "IVA incluido" y deja cambiar a "sumar IVA" en cada venta.
+- IVA incluido: total = subtotal − descuento; base = redondear(total / (1 + tarifa)); IVA = total − base. Ejemplo (19%): 119.000 → base 100.000, IVA 19.000, total 119.000.
+- Sumar IVA: base = subtotal − descuento; IVA = redondear(base × tarifa); total = base + IVA. Ejemplo: 100.000 → IVA 19.000 → total 119.000.
+- La plata que entra a la cuenta es el **total** (así la caja cuadra). En el estado de resultados las ventas del POS cuentan **sin el IVA** (por su base), y el IVA cobrado se muestra aparte como plata de la DIAN que hay que apartar.
+- La tarifa sale de la tabla de parámetros del año (19% en 2026). Si el negocio no es responsable de IVA, no se calcula nada de esto.
+

@@ -37,7 +37,8 @@ import { ESPACIO, FUENTES, useTema } from '@/theme';
 import { EditorFoto } from './Foto';
 import { HojaTrasladoInventario } from './HojaTrasladoInventario';
 import { CampoCosto, LineaMargen } from './NuevoProducto';
-import { CampoCantidad, SelectorEmoji } from './Piezas';
+import { Escaner } from './Escaner';
+import { CampoCantidad, CampoCodigo, SelectorEmoji } from './Piezas';
 
 /** Detalle del producto (spec 04, §4): margen (C1), stock por bodega (C2), códigos (C6), variantes e historial. */
 export function DetalleProducto({ producto }: { producto: Producto }) {
@@ -45,10 +46,12 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
   const { colores } = useTema();
   const plata = usePlata();
   const ejemplo = useModoEjemplo();
-  const { negocio, bodegas, stock, actualizar, version } = useNegocio();
+  const { negocio, bodegas, stock, productos, actualizar, version } = useNegocio();
   const [bodega, setBodega] = useState<string | null>(bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null);
   const [editando, setEditando] = useState(false);
   const [moviendo, setMoviendo] = useState(false);
+  // Variante a la que se le está escaneando el código.
+  const [escaneando, setEscaneando] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const [historial, setHistorial] = useState<MovInventario[]>([]);
@@ -87,8 +90,19 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
   }
 
   async function generarCodigo(variante: string) {
-    const { error: e } = await cambiarCodigo(variante, codigoInterno());
-    if (!mostrarError(e)) actualizar();
+    await guardarCodigo(variante, codigoInterno());
+  }
+
+  /** C6 · El código no se repite en el negocio: se avisa con qué producto choca antes de guardar. */
+  async function guardarCodigo(variante: string, codigo: string | null) {
+    setError(null);
+    if (codigo) {
+      const otro = productos.find((p) => p.variantes.some((x) => x.codigo === codigo && x.id !== variante));
+      if (otro) return setError(t('inventario.errores.codigoDeOtro', { codigo, producto: otro.nombre }));
+    }
+    const { error: e } = await cambiarCodigo(variante, codigo);
+    if (e) return setError(t('inventario.errores.general'));
+    actualizar();
   }
 
   function preguntarQuitarVariante(variante: string) {
@@ -226,11 +240,15 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
                 onCambio={(nuevo) => nuevo !== enBodega && ajustar(v.id, nuevo - enBodega)}
               />
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
-              <Texto variante="pequeno" style={{ flex: 1, fontFamily: FUENTES.textoMedio }}>
-                {v.codigo ?? t('inventario.detalleProducto.sinCodigo')}
-              </Texto>
-              {!v.codigo && <Boton titulo={t('inventario.producto.generar')} variante="texto" onPress={() => generarCodigo(v.id)} />}
+            <CampoCodigo
+              key={`${v.id}-${v.codigo ?? ''}`}
+              valor={v.codigo}
+              etiqueta={v.nombre}
+              onGuardar={(c) => guardarCodigo(v.id, c)}
+              onEscanear={() => setEscaneando(v.id)}
+              onGenerar={() => generarCodigo(v.id)}
+            />
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
               {totalV === 0 && producto.variantes.length > 1 && <Boton titulo={t('inventario.detalleProducto.quitarVariante')} variante="texto" onPress={() => preguntarQuitarVariante(v.id)} />}
             </View>
           </Tarjeta>
@@ -281,6 +299,15 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
         onPress={() => (ejemplo ? avisarEjemplo() : bodegas.length < 2 ? setError(t('inventario.traslado.necesitaDos')) : setMoviendo(true))}
       />
       <Boton titulo={t('inventario.detalleProducto.editar')} variante="secundario" onPress={() => setEditando(true)} />
+      <Escaner
+        abierto={escaneando !== null}
+        onCerrar={() => setEscaneando(null)}
+        onCodigo={(codigo) => {
+          const v = escaneando;
+          setEscaneando(null);
+          if (v) guardarCodigo(v, codigo);
+        }}
+      />
       <HojaTrasladoInventario
         abierta={moviendo}
         producto={producto}

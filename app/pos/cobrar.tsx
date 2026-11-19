@@ -17,7 +17,7 @@ import { CampoCantidad } from '@/inventario/Piezas';
 import { hoyEn } from '@/lib/fechas';
 import { formasDePago, type FormaPago } from '@/lib/formasPago';
 import { stockDeVariante } from '@/lib/inventario';
-import { dividirPago, sugerenciasEfectivo, totalesVenta, validarCobro, vuelto } from '@/lib/pos';
+import { dividirPago, sugerenciasEfectivo, totalesVenta, validarCobro, vuelto, type IvaVenta } from '@/lib/pos';
 import { useNegocio } from '@/negocio/contexto';
 import { leerErrorInventario } from '@/negocio/inventarioDatos';
 import { FilaCifra, ListaFilas } from '@/negocio/Piezas';
@@ -37,7 +37,7 @@ export default function Cobrar() {
   const { colores } = useTema();
   const plata = usePlata();
   const perfil = usePerfil();
-  const { negocio, cuentas, contactos, stock, bodegas, formasPago, actualizar } = useNegocio();
+  const { negocio, cuentas, contactos, stock, bodegas, formasPago, parametros, actualizar } = useNegocio();
   const pos = usePos();
   const bodega = pos.bodega ?? bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null;
   const [hojaCliente, setHojaCliente] = useState(false);
@@ -52,7 +52,9 @@ export default function Cobrar() {
   const forma = formas.find((f) => f.clave === pos.forma) ?? null;
   const fiado = forma?.tipo === 'fiado';
   const segunda = formas.find((f) => f.clave === pos.segundaForma) ?? null;
-  const { subtotal, descuento, total } = totalesVenta(pos.lineas, pos.descuento);
+  // D6 · Solo si el negocio es responsable de IVA. Lo normal: el precio ya lo incluye.
+  const iva: IvaVenta = negocio?.configuracion.responsable_iva ? { tarifa: parametros?.iva ?? 19, incluido: pos.ivaIncluido } : null;
+  const { subtotal, descuento, base, iva: valorIva, total } = totalesVenta(pos.lineas, pos.descuento, iva);
   const [parte1, parte2] = pos.dividido ? dividirPago(total, pos.porcentaje) : [total, 0];
   const conEfectivo = forma?.tipo === 'efectivo' && !pos.dividido;
   const recibido = conEfectivo ? pos.recibido : null;
@@ -109,6 +111,7 @@ export default function Cobrar() {
       cliente: pos.cliente,
       descuento,
       recibido,
+      iva,
       lineas: pos.lineas.map((l) => ({ variante: l.variante, nombre: l.nombre, precio: l.precio, cantidad: l.cantidad })),
       pagos,
     });
@@ -127,6 +130,9 @@ export default function Cobrar() {
         total,
         pagos,
         vuelto: recibido !== null ? vuelto(recibido, total) : null,
+        iva: valorIva,
+        tarifaIva: iva?.tarifa ?? null,
+        ivaIncluido: iva ? iva.incluido : null,
         lineas: pos.lineas.map((l) => ({ nombre: l.nombre, precio: l.precio, cantidad: l.cantidad })),
         cliente: cliente?.nombre ?? null,
         celularCliente: cliente?.celular || null,
@@ -199,6 +205,17 @@ export default function Cobrar() {
         />
       </View>
       {montoDescuento && <CampoDinero etiqueta={t('pos.montoDescuento')} valor={pos.descuento?.valor ?? 0} onCambio={(v) => pos.cambiar({ descuento: { tipo: 'monto', valor: v } })} />}
+
+      {/* IVA (D6): solo para responsables de IVA */}
+      {iva && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.m, minHeight: ALTO_TOCABLE }}>
+          <View style={{ flex: 1 }}>
+            <Texto variante="fuerte">{t('pos.iva.incluido', { tarifa: iva.tarifa })}</Texto>
+            <Texto variante="pequeno">{pos.ivaIncluido ? t('pos.iva.incluidoAyuda') : t('pos.iva.sumarAyuda')}</Texto>
+          </View>
+          <Interruptor etiqueta={t('pos.iva.incluido', { tarifa: iva.tarifa })} encendido={pos.ivaIncluido} onCambio={(v) => pos.cambiar({ ivaIncluido: v, recibido: null })} />
+        </View>
+      )}
 
       {/* Cliente (D5) */}
       <Tarjeta style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.m, padding: ESPACIO.m }}>
@@ -311,6 +328,8 @@ export default function Cobrar() {
         {[
           <FilaCifra key="s" titulo={t('pos.subtotal')} valor={plata(subtotal)} />,
           descuento > 0 ? <FilaCifra key="d" titulo={t('pos.descuento')} valor={`−${plata(descuento)}`} color={colores.ingresoTexto} /> : null,
+          iva ? <FilaCifra key="b" titulo={t('pos.iva.base')} valor={plata(base)} /> : null,
+          iva ? <FilaCifra key="i" titulo={t('pos.iva.linea', { tarifa: iva.tarifa })} valor={plata(valorIva)} /> : null,
           <FilaCifra key="t" titulo={t('pos.total')} valor={plata(total)} fuerte />,
         ]}
       </ListaFilas>

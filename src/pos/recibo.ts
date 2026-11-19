@@ -12,6 +12,7 @@ export function textoRecibo(c: Comprobante, negocio: string, t: TFunction, plata
   if (!regalo) {
     filas.push('');
     if (c.descuento > 0) filas.push(`${t('pos.recibo.descuento')}: −${plata(c.descuento)}`);
+    if (c.iva > 0 && c.tarifaIva) filas.push(`${c.ivaIncluido ? t('pos.iva.lineaIncluido', { tarifa: c.tarifaIva }) : t('pos.iva.linea', { tarifa: c.tarifaIva })}: ${plata(c.iva)}`);
     filas.push(`${t('pos.recibo.total')}: ${plata(c.total)}`);
     filas.push(`${t('pos.recibo.pago')}: ${c.pagos.map((p) => (c.pagos.length > 1 ? `${p.nombre} ${plata(p.monto)}` : p.nombre)).join(' + ')}`);
     if (c.vuelto) filas.push(`${t('pos.recibo.vuelto')}: ${plata(c.vuelto)}`);

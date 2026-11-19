@@ -74,3 +74,24 @@ describe('costo de lo vendido con ventas del POS (B5)', () => {
     expect(r.resultados.costoVentas).toBe(450_000 + 37_000);
   });
 });
+
+describe('D6 · IVA cobrado en el POS', () => {
+  it('las ventas cuentan sin el IVA y el IVA cobrado se muestra aparte (las devueltas no)', () => {
+    const venta = (id: string, estado: string, iva: number) => ({ id, fecha: '2026-11-10', estado, iva, lineas: [] });
+    const r = calcularResumen(
+      {
+        cuentas: [{ id: 'davi', saldoInicial: 0 }],
+        movimientos: [mov({ tipo: 'venta', monto: 119_000, venta: 'v1' }), mov({ tipo: 'venta', monto: 50_000 })],
+        traslados: [],
+        configuracion: {},
+        ventas: [venta('v1', 'pagada', 19_000), venta('v2', 'devuelta', 999)] as never,
+      },
+      { desde: '2026-11-01', hasta: '2026-11-30' },
+      { desde: '2026-10-01', hasta: '2026-10-31' },
+      { parametros: null, regimen: null },
+    );
+    expect(r.resultados.ventas).toBe(150_000);
+    expect(r.ivaCobrado).toBe(19_000);
+    expect(r.caja).toBe(169_000);
+  });
+});

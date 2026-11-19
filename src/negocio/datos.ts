@@ -28,6 +28,8 @@ export type Configuracion = {
   equipos?: number;
   deuda_proveedores?: number;
   prestamos?: number;
+  /** ¿Es responsable de IVA? Entonces el POS calcula el IVA (D6). */
+  responsable_iva?: boolean;
   /** ICA del municipio, por mil de las ventas (si no, el de la tabla del año). */
   ica_por_mil?: number;
   arranque_listo?: boolean;

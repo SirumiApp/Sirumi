@@ -45,7 +45,10 @@ export function calcularResumen(
       costoPorcentaje,
       periodo: p,
     });
-  const antes = estadoDeResultados(delPeriodo, { costoPorcentaje, costoReal: costoReal(periodo) });
+  // D6 · IVA cobrado en el POS en un período (las ventas cuentan sin él).
+  const ivaDe = (p: Periodo) => (d.ventas ?? []).filter((v) => v.estado !== 'devuelta' && dentroDe(v.fecha, p)).reduce((t, v) => t + (v.iva ?? 0), 0);
+  const ivaCobrado = ivaDe(periodo);
+  const antes = estadoDeResultados(delPeriodo, { costoPorcentaje, costoReal: costoReal(periodo), ivaVentas: ivaCobrado });
   // B7: impuestos estimados del período según el régimen (si hay parámetros del año).
   const impuestos = tributario.parametros
     ? impuestosEstimados(
@@ -53,10 +56,10 @@ export function calcularResumen(
         tributario.parametros,
       )
     : null;
-  const resultados = estadoDeResultados(delPeriodo, { costoPorcentaje, costoReal: costoReal(periodo), impuestos: impuestos ? impuestoDelRegimen(impuestos, tributario.regimen) : 0 });
+  const resultados = estadoDeResultados(delPeriodo, { costoPorcentaje, costoReal: costoReal(periodo), ivaVentas: ivaCobrado, impuestos: impuestos ? impuestoDelRegimen(impuestos, tributario.regimen) : 0 });
   const previos = estadoDeResultados(
     d.movimientos.filter((m) => dentroDe(m.fecha, anterior)),
-    { costoPorcentaje, costoReal: costoReal(anterior) },
+    { costoPorcentaje, costoReal: costoReal(anterior), ivaVentas: ivaDe(anterior) },
   );
   const caja = cajaTotal(d.cuentas, d.movimientos, d.traslados);
   const pendientes = porCobrarYPagar(
@@ -74,6 +77,7 @@ export function calcularResumen(
   return {
     resultados,
     impuestos,
+    ivaCobrado,
     delPeriodo,
     caja,
     ...pendientes,

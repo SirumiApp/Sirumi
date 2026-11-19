@@ -10,6 +10,8 @@ Empresa: Texlia Platform S.A.S. (marca comercial Sirumi). Contacto de privacidad
 - Dinero en pesos colombianos: `$ 1.250.000` (punto de miles, sin decimales). Fechas: `15 nov 2026`.
 - El dueño del producto (Nicolás) no es programador: explica los cambios en español sencillo, sin tecnicismos, y dile cómo probarlos en su celular con Expo Go.
 - Trabaja por módulos pequeños, cada uno probado antes de pasar al siguiente (ver `docs/plan.md`).
+- **Códigos de barras siempre (referencia: Shopify POS)**: donde haya un producto se puede escribir, generar o escanear su código con la cámara, y también con una pistola lectora (Bluetooth o USB, que "escribe" el código y da Enter). En el POS se vende escaneando: cada lectura suma al carrito sin cerrar la cámara. Al diseñar el POS y el inventario, guiarse por Shopify POS.
+- **IVA**: lo normal en Colombia es que el precio ya incluya el IVA. Si el negocio es responsable de IVA, el POS asume "IVA incluido" y deja escoger "sumar IVA" al vender (regla D6).
 - La carpeta `referencia/prototipo/` tiene el prototipo aprobado (tres pantallas: `Main` = finanzas personales, `Onboarding`, `Negocio`). Es HTML con lógica en JavaScript: úsalo como guía de pantallas, textos, flujos y cálculos, pero no copies su estructura técnica. Las imágenes `/_blob/...` de ese HTML equivalen a los PNG de `assets/emojis/` (ver `assets/emojis/mapa-emojis.json`).
 
 ## Tecnología

@@ -336,6 +336,14 @@ export const en: Traducciones = {
       error: "We couldn't return the sale. Try again.",
       deHoy: 'Today: {{monto}} in {{count}} sales',
     },
+    iva: {
+      incluido: 'VAT ({{tarifa}}%) included in the price',
+      incluidoAyuda: 'The usual: the customer pays the price they see.',
+      sumarAyuda: 'VAT is added on top of the price.',
+      base: 'Amount before VAT',
+      linea: 'VAT ({{tarifa}}%)',
+      lineaIncluido: 'VAT included ({{tarifa}}%)',
+    },
     ajustes: {
       sonido: 'Sale sound and vibration',
       sonidoDetalle: 'The cash register rings when you charge.',
@@ -444,6 +452,8 @@ export const en: Traducciones = {
       abrirAjustes: 'Open phone settings',
       noEncontrado: "We couldn't find a product with code {{codigo}}.",
       escanear: 'Scan code',
+      listo: 'Done',
+      agregado: '✓ {{nombre}}',
     },
     foto: {
       titulo: 'Product photo',
@@ -1108,6 +1118,8 @@ export const en: Traducciones = {
       costoAyuda: 'Of every $100 you sell, how much does the product cost you? E.g. 45',
       regimen: 'Tax regime',
       grupo: 'Your activity',
+      responsableIva: 'Do you charge VAT? (VAT-registered)',
+      responsableIvaAyuda: 'The POS calculates VAT. By default your prices already include it.',
       resumen: 'Summary',
       resumenTienes: 'What you have',
       resumenDebes: 'What you owe',
@@ -1192,6 +1204,7 @@ export const en: Traducciones = {
       margenContribucion: 'From each sale you keep {{porcentaje}}% to cover your fixed expenses.',
       avance: "You're at {{porcentaje}}% of your break-even point.",
       sinVentas: 'No sales in this period yet. Tap + to add one.',
+      ivaCobrado: 'VAT collected in the POS: {{monto}}. That money belongs to the tax office: set it aside. Your sales here are shown without VAT.',
     },
     informes: {
       titulo: 'More',

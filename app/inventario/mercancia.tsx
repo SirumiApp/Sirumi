@@ -122,7 +122,21 @@ export default function Mercancia() {
         <>
           <View style={{ flexDirection: 'row', gap: ESPACIO.s, alignItems: 'flex-end' }}>
             <View style={{ flex: 1 }}>
-              <CampoTexto etiqueta="" accessibilityLabel={t('inventario.mercancia.buscar')} placeholder={t('inventario.mercancia.buscar')} value={busqueda} onChangeText={setBusqueda} />
+              <CampoTexto
+                etiqueta=""
+                accessibilityLabel={t('inventario.mercancia.buscar')}
+                placeholder={t('inventario.mercancia.buscar')}
+                value={busqueda}
+                autoCorrect={false}
+                autoCapitalize="none"
+                onChangeText={(v) => {
+                  // Pistola lectora o código escrito completo: escoge el producto y la variante de una.
+                  const codigo = v.trim();
+                  const p = codigo.length >= 6 ? productos.find((x) => x.variantes.some((y) => y.codigo === codigo)) : undefined;
+                  if (p) return elegir(p.id, p.variantes.find((y) => y.codigo === codigo)?.id ?? null);
+                  setBusqueda(v);
+                }}
+              />
             </View>
             <Pressable
               accessibilityRole="button"

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 
@@ -165,6 +166,54 @@ export function CampoCantidad({
         />
       )}
       {boton("+", 1)}
+    </View>
+  );
+}
+
+/**
+ * Código de barras de una variante: se escribe (o lo "escribe" una pistola lectora), se escanea con la cámara o se genera.
+ * `onGuardar` se llama al terminar de escribir (o al dar Enter) solo si cambió.
+ */
+export function CampoCodigo({ valor, etiqueta, onGuardar, onEscanear, onGenerar }: { valor: string | null; etiqueta: string; onGuardar: (codigo: string | null) => void; onEscanear: () => void; onGenerar: () => void }) {
+  const { t } = useTranslation();
+  const { colores } = useTema();
+  const [texto, setTexto] = useState(valor ?? '');
+  const guardar = () => {
+    const limpio = texto.trim() || null;
+    if (limpio !== (valor ?? null)) onGuardar(limpio);
+  };
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
+      <TextInput
+        accessibilityLabel={`${t('inventario.producto.codigo')} ${etiqueta}`}
+        placeholder={t('inventario.producto.codigo')}
+        placeholderTextColor={colores.textoSuave}
+        value={texto}
+        onChangeText={(c) => setTexto(c.replace(/\s/g, ''))}
+        onEndEditing={guardar}
+        onSubmitEditing={guardar}
+        autoCorrect={false}
+        autoCapitalize="none"
+        maxLength={20}
+        style={{ flex: 1, minWidth: 0, minHeight: ALTO_TOCABLE, borderRadius: 16, paddingHorizontal: ESPACIO.m, backgroundColor: colores.relleno, color: colores.texto, fontFamily: FUENTES.textoMedio, fontSize: 15 }}
+      />
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${t('inventario.escaner.escanear')} ${etiqueta}`}
+        onPress={onEscanear}
+        style={{ width: ALTO_TOCABLE, height: ALTO_TOCABLE, borderRadius: ALTO_TOCABLE / 2, alignItems: 'center', justifyContent: 'center', backgroundColor: colores.seleccionado }}>
+        <Emoji name="camara" size={22} />
+      </Pressable>
+      {!valor && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={onGenerar}
+          style={{ minHeight: ALTO_TOCABLE, paddingHorizontal: ESPACIO.m, borderRadius: 999, justifyContent: 'center', backgroundColor: colores.seleccionado }}>
+          <Texto variante="fuerte" color={colores.enlace}>
+            {t('inventario.producto.generar')}
+          </Texto>
+        </Pressable>
+      )}
     </View>
   );
 }

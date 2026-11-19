@@ -141,6 +141,16 @@ export default function Resultados() {
         </Tarjeta>
       )}
 
+      {/* D6 · IVA cobrado en el POS: es de la DIAN */}
+      {r.ivaCobrado > 0 && (
+        <View style={{ flexDirection: 'row', gap: ESPACIO.s, padding: ESPACIO.m, borderRadius: 16, backgroundColor: colores.avisoFondo }}>
+          <Emoji name="recibo" size={24} />
+          <Texto variante="pequeno" color={colores.avisoTexto} style={{ flex: 1 }}>
+            {t('negocioApp.resultados.ivaCobrado', { monto: plata(r.ivaCobrado) })}
+          </Texto>
+        </View>
+      )}
+
       {/* B7 · Impuestos: comparación de regímenes */}
       <Tarjeta style={{ gap: ESPACIO.s }}>
         <Texto variante="subtitulo">{t('negocioApp.resultados.impuestosTitulo')}</Texto>

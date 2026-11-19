@@ -12,6 +12,7 @@ import { Chip } from '@/components/Chip';
 import { Emoji } from '@/components/emoji/Emoji';
 import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
+import { Interruptor } from '@/components/Interruptor';
 import { Texto } from '@/components/Texto';
 import { valorInventario } from '@/lib/inventario';
 import { iconoDeCuenta, resumenArranque } from '@/lib/negocio';
@@ -20,7 +21,7 @@ import { guardarArranque, type Configuracion, type Regimen } from '@/negocio/dat
 import { paraReglas } from '@/negocio/inventarioDatos';
 import { paisPorCodigo } from '@/onboarding/paises';
 import { usePlata } from '@/personal/ganchos';
-import { ESPACIO, FUENTES, useTema } from '@/theme';
+import { ALTO_TOCABLE, ESPACIO, FUENTES, useTema } from '@/theme';
 
 type CuentaForm = { clave: string; id?: string; nombre: string; saldo: number; efectivo: boolean };
 type TarjetaForm = { clave: string; id?: string; nombre: string; cupo: number; deuda: number };
@@ -208,6 +209,13 @@ function FormularioArranque({
         {REGIMENES.map((r) => (
           <Chip key={r} texto={t(`negocioApp.regimenes.${r}`)} elegido={regimen === r} onPress={() => setRegimen(r)} />
         ))}
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.m, minHeight: ALTO_TOCABLE }}>
+        <View style={{ flex: 1 }}>
+          <Texto variante="fuerte">{t('negocioApp.arranque.responsableIva')}</Texto>
+          <Texto variante="pequeno">{t('negocioApp.arranque.responsableIvaAyuda')}</Texto>
+        </View>
+        <Interruptor etiqueta={t('negocioApp.arranque.responsableIva')} encendido={!!conf.responsable_iva} onCambio={(v) => cambiarConf({ responsable_iva: v })} />
       </View>
       <Texto variante="fuerte">{t('negocioApp.arranque.grupo')}</Texto>
       <View style={{ gap: ESPACIO.s }} accessibilityRole="radiogroup">

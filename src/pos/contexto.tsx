@@ -5,7 +5,7 @@ import type { Descuento, LineaCarrito } from '@/lib/pos';
 import type { Venta } from './datos';
 
 /** Lo que se muestra en "Venta lista" (comprobante). */
-export type Comprobante = Pick<Venta, 'numero' | 'subtotal' | 'descuento' | 'total' | 'pagos' | 'vuelto'> & {
+export type Comprobante = Pick<Venta, 'numero' | 'subtotal' | 'descuento' | 'total' | 'pagos' | 'vuelto' | 'iva' | 'tarifaIva' | 'ivaIncluido'> & {
   lineas: { nombre: string; precio: number; cantidad: number }[];
   cliente: string | null;
   celularCliente: string | null;
@@ -22,6 +22,8 @@ type EstadoPos = {
   segundaForma: string | null;
   porcentaje: number;
   recibido: number | null;
+  /** D6 · Lo normal: el precio ya incluye el IVA. */
+  ivaIncluido: boolean;
   comprobante: Comprobante | null;
 };
 
@@ -43,6 +45,7 @@ const INICIAL: EstadoPos = {
   segundaForma: null,
   porcentaje: 50,
   recibido: null,
+  ivaIncluido: true,
   comprobante: null,
 };
 

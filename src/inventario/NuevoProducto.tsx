@@ -221,7 +221,7 @@ export function NuevoProducto() {
               value={dato(v.nombre).codigo}
               onChangeText={(c) => cambiarV(v.nombre, { codigo: c.replace(/\s/g, '') })}
               maxLength={20}
-              style={{ flex: 1, minHeight: ALTO_TOCABLE, borderRadius: RADIO.m, paddingHorizontal: ESPACIO.m, backgroundColor: colores.relleno, color: colores.texto, fontFamily: FUENTES.textoMedio, fontSize: 15 }}
+              style={{ flex: 1, minWidth: 0, minHeight: ALTO_TOCABLE, borderRadius: RADIO.m, paddingHorizontal: ESPACIO.m, backgroundColor: colores.relleno, color: colores.texto, fontFamily: FUENTES.textoMedio, fontSize: 15 }}
             />
             <Pressable
               accessibilityRole="button"

@@ -3,6 +3,7 @@
 import { modoEjemploActivo, sinGuardar } from '@/ejemplo/modo';
 import type { Json } from '@/lib/database.types';
 import type { Fecha } from '@/lib/fechas';
+import type { IvaVenta } from '@/lib/pos';
 import { supabase } from '@/lib/supabase';
 
 export type PagoVenta = { nombre: string; cuenta: string | null; monto: number };
@@ -19,6 +20,10 @@ export type Venta = {
   pagos: PagoVenta[];
   recibido: number | null;
   vuelto: number | null;
+  /** IVA de la venta (D6) y si estaba incluido en los precios (null si el negocio no cobra IVA). */
+  iva: number;
+  tarifaIva: number | null;
+  ivaIncluido: boolean | null;
   estado: 'pagada' | 'fiada' | 'devuelta';
   creada: string;
   lineas: LineaVenta[];
@@ -30,7 +35,7 @@ export async function cargarPos(negocioId: string): Promise<{ ventas: Venta[]; f
   const [ventas, formas] = await Promise.all([
     supabase
       .from('sales')
-      .select('id, number, date, warehouse_id, contact_id, subtotal, discount, total, payments, received, change, status, created_at, sale_items(variant_id, name, unit_price, unit_cost, quantity, line_total)')
+      .select('id, number, date, warehouse_id, contact_id, subtotal, discount, total, payments, received, change, tax, tax_rate, tax_included, status, created_at, sale_items(variant_id, name, unit_price, unit_cost, quantity, line_total)')
       .eq('business_id', negocioId)
       .order('created_at', { ascending: false })
       .limit(500),
@@ -49,6 +54,9 @@ export async function cargarPos(negocioId: string): Promise<{ ventas: Venta[]; f
       pagos: (v.payments as unknown as PagoVenta[]) ?? [],
       recibido: v.received,
       vuelto: v.change,
+      iva: v.tax,
+      tarifaIva: v.tax_rate === null ? null : Number(v.tax_rate),
+      ivaIncluido: v.tax_included,
       estado: v.status as Venta['estado'],
       creada: v.created_at,
       lineas: (v.sale_items ?? []).map((l) => ({ variante: l.variant_id, nombre: l.name, precio: l.unit_price, costo: l.unit_cost, cantidad: l.quantity, total: l.line_total })),
@@ -63,6 +71,8 @@ export type DatosCobro = {
   cliente: string | null;
   descuento: number;
   recibido: number | null;
+  /** D6 · null si el negocio no cobra IVA. */
+  iva: IvaVenta;
   lineas: { variante: string | null; nombre: string; precio: number; cantidad: number }[];
   pagos: PagoVenta[];
 };
@@ -78,6 +88,7 @@ export function cobrarVenta(negocioId: string, d: DatosCobro) {
       contact_id: d.cliente,
       discount: Math.round(d.descuento),
       received: d.recibido,
+      ...(d.iva ? { iva: { tarifa: d.iva.tarifa, incluido: d.iva.incluido } } : {}),
       items: d.lineas.map((l) => ({ variant_id: l.variante, name: l.nombre, unit_price: Math.round(l.precio), quantity: l.cantidad })),
       payments: d.pagos.map((p) => ({ nombre: p.nombre, cuenta: p.cuenta, monto: Math.round(p.monto) })),
     } as unknown as Json,

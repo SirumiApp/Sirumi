@@ -29,7 +29,7 @@ export default function Catalogo() {
   const { t } = useTranslation();
   const { colores, oscuro } = useTema();
   const plata = usePlata();
-  const { bodegas, productos, stock } = useNegocio();
+  const { negocio, bodegas, productos, stock, parametros } = useNegocio();
   const pos = usePos();
   const bodega = pos.bodega ?? bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null;
   const [busqueda, setBusqueda] = useState('');
@@ -38,27 +38,51 @@ export default function Catalogo() {
   const [libre, setLibre] = useState(false);
   const [escaneando, setEscaneando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [mensajeEscaner, setMensajeEscaner] = useState<{ texto: string; tipo: 'ok' | 'error' } | null>(null);
 
   const nombreBodega = bodegas.find((b) => b.id === bodega)?.nombre ?? '';
   const disponible = (variante: string) => (bodega ? stockDeVariante(variante, stock, bodega) : 0);
   const unidades = pos.lineas.reduce((s, l) => s + l.cantidad, 0);
-  const { total } = totalesVenta(pos.lineas, pos.descuento);
+  const { total } = totalesVenta(pos.lineas, pos.descuento, negocio?.configuracion.responsable_iva ? { tarifa: parametros?.iva ?? 19, incluido: pos.ivaIncluido } : null);
   const colecciones = [...new Set(productos.map((p) => p.coleccion).filter((c): c is string => !!c))];
   const texto = sinTildes(busqueda.trim());
   const lista = productos.filter(
     (p) => (!coleccion || p.coleccion === coleccion) && (!texto || sinTildes(p.nombre).includes(texto) || p.variantes.some((v) => v.codigo?.includes(texto))),
   );
 
-  function agregarVariante(p: Producto, varianteId: string) {
+  /** Agrega una unidad; devuelve el mensaje de lo que pasó (para el escáner y la pistola lectora). */
+  function agregarVariante(p: Producto, varianteId: string): { texto: string; tipo: 'ok' | 'error' } | null {
     const v = p.variantes.find((x) => x.id === varianteId);
-    if (!v) return;
+    if (!v) return null;
     const nombre = p.variantes.length > 1 ? `${p.nombre} · ${v.nombre}` : p.nombre;
     if (!cabeEnCarrito(v.id, disponible(v.id), pos.lineas)) {
-      setAviso(t('pos.noHayMas', { nombre, bodega: nombreBodega }));
-      return;
+      const texto = t('pos.noHayMas', { nombre, bodega: nombreBodega });
+      setAviso(texto);
+      return { texto, tipo: 'error' };
     }
     setAviso(null);
     pos.agregar({ variante: v.id, nombre, precio: p.precio, costo: p.costo });
+    return { texto: t('inventario.escaner.agregado', { nombre }), tipo: 'ok' };
+  }
+
+  /** Busca un código exacto (cámara, pistola lectora o escrito) y lo suma al carrito. */
+  function venderPorCodigo(codigo: string) {
+    const p = productos.find((x) => x.variantes.some((v) => v.codigo === codigo));
+    const v = p?.variantes.find((x) => x.codigo === codigo);
+    if (!p || !v) return { texto: t('inventario.escaner.noEncontrado', { codigo }), tipo: 'error' as const };
+    return agregarVariante(p, v.id);
+  }
+
+  /** La pistola lectora "escribe" el código en el buscador: si es un código exacto, se vende de una. */
+  function cambiarBusqueda(valor: string) {
+    const codigo = valor.trim();
+    if (codigo.length >= 6 && /^[0-9A-Za-z-]+$/.test(codigo) && productos.some((x) => x.variantes.some((v) => v.codigo === codigo))) {
+      const r = venderPorCodigo(codigo);
+      setBusqueda('');
+      if (r) setAviso(r.texto);
+      return;
+    }
+    setBusqueda(valor);
   }
 
   function tocarProducto(p: Producto) {
@@ -77,11 +101,7 @@ export default function Catalogo() {
   }
 
   function alEscanear(codigo: string) {
-    setEscaneando(false);
-    const p = productos.find((x) => x.variantes.some((v) => v.codigo === codigo));
-    const v = p?.variantes.find((x) => x.codigo === codigo);
-    if (!p || !v) return setAviso(t('inventario.escaner.noEncontrado', { codigo }));
-    agregarVariante(p, v.id);
+    setMensajeEscaner(venderPorCodigo(codigo));
   }
 
   return (
@@ -152,7 +172,23 @@ export default function Catalogo() {
         </View>
       ) : (
         <>
-          <CampoTexto etiqueta="" accessibilityLabel={t('pos.buscar')} placeholder={t('pos.buscar')} value={busqueda} onChangeText={setBusqueda} />
+          <CampoTexto
+            etiqueta=""
+            accessibilityLabel={t('pos.buscar')}
+            placeholder={t('pos.buscar')}
+            value={busqueda}
+            onChangeText={cambiarBusqueda}
+            autoCorrect={false}
+            autoCapitalize="none"
+            returnKeyType="search"
+            onSubmitEditing={() => {
+              const codigo = busqueda.trim();
+              if (!codigo || !productos.some((x) => x.variantes.some((v) => v.codigo === codigo))) return;
+              const r = venderPorCodigo(codigo);
+              setBusqueda('');
+              if (r) setAviso(r.texto);
+            }}
+          />
           {colecciones.length > 0 && (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, marginHorizontal: -ESPACIO.m }} contentContainerStyle={{ gap: ESPACIO.s, paddingHorizontal: ESPACIO.m }}>
               <Chip texto={t('pos.todas')} elegido={coleccion === null} onPress={() => setColeccion(null)} />
@@ -262,7 +298,16 @@ export default function Catalogo() {
           setLibre(false);
         }}
       />
-      <Escaner abierto={escaneando} onCodigo={alEscanear} onCerrar={() => setEscaneando(false)} />
+      <Escaner
+        abierto={escaneando}
+        continuo
+        mensaje={mensajeEscaner}
+        onCodigo={alEscanear}
+        onCerrar={() => {
+          setEscaneando(false);
+          setMensajeEscaner(null);
+        }}
+      />
     </PantallaPos>
   );
 }
