@@ -38,8 +38,8 @@ function BotonRedondo({ icono, etiqueta, onPress }: { icono: NombreIcono; etique
 }
 
 /**
- * Encabezado de la app (como en el prototipo): interruptor Personal / Negocio y, a la derecha,
- * ajustes rápidos y luna/sol para cambiar entre modo claro y oscuro.
+ * Encabezado de la app: la marca (cohete + sirumi) siempre visible, ajustes y luna/sol a la derecha y,
+ * si la persona usa las dos partes, el interruptor Personal / Negocio debajo, a lo ancho.
  */
 export function Encabezado() {
   const { t } = useTranslation();
@@ -54,9 +54,11 @@ export function Encabezado() {
       accessibilityState={{ selected: activa }}
       onPress={() => !activa && router.replace(destino)}
       style={{
+        flex: 1,
         minHeight: ALTO_TOCABLE,
         paddingHorizontal: ESPACIO.l,
         borderRadius: 999,
+        alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: activa ? colores.accion : 'transparent',
       }}>
@@ -68,23 +70,23 @@ export function Encabezado() {
 
   return (
     <View style={{ gap: ESPACIO.s + 4 }}>
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
-      {uso === 'ambos' ? (
+      {/* La marca siempre arriba (recordación); a la derecha, ajustes y modo claro/oscuro. */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
+        <Logo tamano={26} />
+        <View style={{ flex: 1 }} />
+        <BotonRedondo icono="ajustes" etiqueta={t('navegacion.ajustes')} onPress={() => router.push('/ajustes')} />
+        <BotonRedondo icono={oscuro ? 'sol' : 'luna'} etiqueta={t('navegacion.cambiarModo')} onPress={() => cambiarApariencia(oscuro ? 'claro' : 'oscuro')} />
+      </View>
+      {/* Si usa las dos partes: el interruptor Personal / Negocio, a lo ancho. */}
+      {uso === 'ambos' && (
         <View
           accessibilityRole="tablist"
           style={[{ flexDirection: 'row', padding: 4, borderRadius: 999, backgroundColor: colores.tarjeta }, sombraSuave(oscuro)]}>
           {opcion(!enNegocio, t('pestanas.personal'), '/')}
           {opcion(enNegocio, t('pestanas.negocio'), '/negocio')}
         </View>
-      ) : (
-        // Si usa solo una parte, no hay interruptor: va la marca.
-        <Logo tamano={26} />
       )}
-      <View style={{ flex: 1 }} />
-      <BotonRedondo icono="ajustes" etiqueta={t('navegacion.ajustes')} onPress={() => router.push('/ajustes')} />
-      <BotonRedondo icono={oscuro ? 'sol' : 'luna'} etiqueta={t('navegacion.cambiarModo')} onPress={() => cambiarApariencia(oscuro ? 'claro' : 'oscuro')} />
-    </View>
-    <BandaEjemplo />
+      <BandaEjemplo />
     </View>
   );
 }
