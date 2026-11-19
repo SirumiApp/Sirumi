@@ -614,6 +614,7 @@ export type Database = {
           date: string
           description: string | null
           id: string
+          import_id: string | null
           kind: string
           owner_type: string
           paid: boolean
@@ -634,6 +635,7 @@ export type Database = {
           date: string
           description?: string | null
           id?: string
+          import_id?: string | null
           kind: string
           owner_type?: string
           paid?: boolean
@@ -654,6 +656,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
+          import_id?: string | null
           kind?: string
           owner_type?: string
           paid?: boolean
@@ -697,6 +700,13 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movements_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "statement_imports"
             referencedColumns: ["id"]
           },
           {
@@ -1154,6 +1164,69 @@ export type Database = {
           },
         ]
       }
+      statement_imports: {
+        Row: {
+          account_id: string | null
+          adjustment: number
+          business_id: string | null
+          created_at: string
+          created_by: string | null
+          file_name: string | null
+          id: string
+          inflows: number
+          month: string
+          outflows: number
+          owner_type: string
+          rows: number
+          user_id: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          adjustment?: number
+          business_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          file_name?: string | null
+          id?: string
+          inflows?: number
+          month: string
+          outflows?: number
+          owner_type: string
+          rows?: number
+          user_id?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          adjustment?: number
+          business_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          file_name?: string | null
+          id?: string
+          inflows?: number
+          month?: string
+          outflows?: number
+          owner_type?: string
+          rows?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statement_imports_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statement_imports_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock: {
         Row: {
           business_id: string
@@ -1382,6 +1455,10 @@ export type Database = {
           name: string
         }[]
       }
+      deshacer_importacion: {
+        Args: { importacion: string }
+        Returns: undefined
+      }
       deshacer_movimiento_inventario: {
         Args: { movimiento: string }
         Returns: undefined
@@ -1393,6 +1470,7 @@ export type Database = {
       formato_pesos: { Args: { valor: number }; Returns: string }
       guardar_foto_patrimonio: { Args: never; Returns: undefined }
       hacer_principal: { Args: { bodega: string }; Returns: undefined }
+      importar_extracto: { Args: { datos: Json }; Returns: string }
       mover_inventario: {
         Args: {
           bodega: string

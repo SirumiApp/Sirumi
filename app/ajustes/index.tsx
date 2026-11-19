@@ -134,6 +134,7 @@ export default function Ajustes() {
           <>
             <FilaAjuste emoji="aguacate" titulo={t('ajustes.categorias.titulo')} detalle={t('ajustes.categorias.detalle')} onPress={() => router.push('/ajustes/categorias')} />
             <FilaAjuste emoji="bolsa-de-dinero" titulo={t('ajustes.topes.titulo')} detalle={t('ajustes.topes.detalle')} onPress={() => router.navigate('/topes')} />
+            <FilaAjuste emoji="banco" titulo={t('extractos.entrada')} detalle={t('extractos.entradaDetalle')} onPress={() => router.push('/extractos?ambito=personal')} />
           </>
         )}
         {veNegocio(uso) && (

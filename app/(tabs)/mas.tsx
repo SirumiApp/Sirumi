@@ -39,6 +39,7 @@ function MasContenido() {
         <FilaAjuste emoji="cohete" titulo={t('negocioApp.informes.arranque')} detalle={t('negocioApp.informes.arranqueDetalle')} onPress={() => router.push('/arranque')} />
         <FilaAjuste emoji="apreton-de-manos" titulo={t('negocioApp.informes.clientes')} detalle={t('contactos.detalle')} onPress={() => router.push('/contactos')} />
         <FilaAjuste emoji="repetir" titulo={t('negocioApp.informes.recurrentes')} detalle={t('recurrentes.detalle')} onPress={() => router.push('/recurrentes')} />
+        <FilaAjuste emoji="banco" titulo={t('extractos.entrada')} detalle={t('extractos.entradaDetalle')} onPress={() => router.push('/extractos?ambito=negocio')} />
       </GrupoAjustes>
     </PantallaApp>
   );

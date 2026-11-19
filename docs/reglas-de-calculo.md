@@ -171,6 +171,10 @@ Convenciones:
 - Al importar, **el saldo de hoy de la cuenta no cambia** (esos movimientos ya están en el saldo que el usuario escribió). Para lograrlo: saldo inicial de la cuenta −= (entradas importadas − salidas importadas). En una tarjeta de crédito: deuda inicial −= compras importadas, y los abonos a la tarjeta no se importan.
 - Ejemplo: Davivienda con saldo hoy 3.000.000 (saldo inicial 3.000.000, sin movimientos). Se importan una entrada de 2.350.000 y una salida de 1.300.000 → saldo inicial pasa a 1.950.000 y el saldo de hoy sigue en 3.000.000. Las ventas y gastos del período suben con esos movimientos.
 - Deshacer la importación revierte los movimientos y el ajuste del saldo inicial.
+- **Leer el archivo** (CSV o Excel .xlsx, como lo baja el banco): se busca la fila de títulos (la primera que tenga una columna de fecha y una de valor, débito o crédito), saltando el encabezado del banco. Fechas: 15/08/2026, 2026-08-15, 15-08-26, 20260815, "15 ago 2026" o la fecha de Excel. Valores: "$ 1.250.000", "1.250.000,00", "-1,250,000.50", "(45.000)" (negativo). La columna de saldo se ignora. Si no se reconocen las columnas, la persona las escoge.
+- **Duplicados**: un movimiento del extracto es duplicado si ya hay uno con la misma fecha, el mismo valor y la misma dirección (entra o sale) en esa cuenta (en personal, en sus movimientos). Cada movimiento existente solo "tapa" a uno del extracto.
+- **Sugerencias**: en el negocio, lo que entra se sugiere como venta (o préstamo si dice "desembolso" o "préstamo"); lo que sale como gasto variable, gasto fijo (arriendo, nómina, servicios, internet), impuesto (DIAN, ICA, 4x1000) o compra (proveedor, mercancía). En personal se sugiere la categoría por el comercio (Éxito, D1 → mercado; Rappi → comida; Uber, gasolina → transporte; Netflix, cine → salidas…). La persona puede cambiar cada una antes de guardar.
+- **Cada extracto queda registrado** con su cuenta y su mes (por ejemplo "Bancolombia · agosto 2026") para saber qué meses ya se subieron. Una tarjeta de crédito todavía no se importa.
 
 ---
 

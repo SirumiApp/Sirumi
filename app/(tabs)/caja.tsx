@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, View } from 'react-native';
@@ -70,6 +71,7 @@ function CajaContenido() {
       </View>
 
       {cuentas.length > 0 && negocio && <Boton titulo={t('negocioApp.caja.mover')} onPress={() => setHoja(true)} />}
+      {cuentas.length > 0 && negocio && <Boton titulo={t('extractos.entrada')} variante="secundario" onPress={() => router.push('/extractos?ambito=negocio')} />}
 
       <Texto variante="subtitulo">{t('negocioApp.caja.cuentas')}</Texto>
       <View style={[{ backgroundColor: colores.tarjeta, borderRadius: 20, paddingHorizontal: ESPACIO.m, paddingVertical: ESPACIO.xs }, sombraSuave(oscuro)]}>

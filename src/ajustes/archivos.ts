@@ -66,3 +66,37 @@ export async function leerArchivoCsv(): Promise<string | null> {
   if (Platform.OS === 'web') return (await fetch(archivo.uri)).text();
   return new File(archivo.uri).text();
 }
+
+/**
+ * B9 · Abre el selector y lee un extracto (CSV o Excel .xlsx) como tabla de celdas, o null si la persona canceló.
+ * Lanza Error('xls') con el Excel viejo (.xls): hay que guardarlo como .xlsx o CSV.
+ */
+export async function leerArchivoTabla(): Promise<{ nombre: string; filas: (string | number)[][] } | null> {
+  const DocumentPicker = await import('expo-document-picker');
+  const r = await DocumentPicker.getDocumentAsync({
+    type: [
+      'text/csv',
+      'text/comma-separated-values',
+      'text/plain',
+      'application/csv',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ],
+    copyToCacheDirectory: true,
+  });
+  if (r.canceled || !r.assets?.[0]) return null;
+  const archivo = r.assets[0];
+  const nombre = archivo.name ?? 'extracto';
+  const bytes = Platform.OS === 'web' ? new Uint8Array(await (await fetch(archivo.uri)).arrayBuffer()) : await new File(archivo.uri).bytes();
+  // .xlsx es un zip (empieza con "PK"); el .xls viejo empieza con D0 CF 11 E0.
+  if (bytes[0] === 0x50 && bytes[1] === 0x4b) {
+    const { leerXlsx } = await import('@/lib/xlsx');
+    return { nombre, filas: leerXlsx(bytes) };
+  }
+  if (bytes[0] === 0xd0 && bytes[1] === 0xcf) throw new Error('xls');
+  const { separarCsv } = await import('@/lib/catalogo');
+  let texto = new TextDecoder('utf-8').decode(bytes);
+  // Los bancos a veces exportan en Latin-1: si salen caracteres raros, se vuelve a leer así.
+  if (texto.includes('�')) texto = Array.from(bytes, (b) => String.fromCharCode(b)).join('');
+  return { nombre, filas: separarCsv(texto) };
+}

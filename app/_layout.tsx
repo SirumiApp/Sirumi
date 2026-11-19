@@ -87,6 +87,7 @@ function Navegacion() {
               <Stack.Screen name="vendedores" />
               <Stack.Screen name="codigos" />
               <Stack.Screen name="informe-ventas" />
+              <Stack.Screen name="extractos" />
             </Stack.Protected>
             <Stack.Protected guard={!sesion}>
               <Stack.Screen name="(auth)" />
