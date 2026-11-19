@@ -4,7 +4,16 @@
 import { dentroDe, type Fecha, type Periodo } from './fechas';
 
 /** Una línea del carrito. `variante` null = venta libre (sin producto ni stock). */
-export type LineaCarrito = { clave: string; variante: string | null; nombre: string; precio: number; cantidad: number; costo?: number | null };
+export type LineaCarrito = {
+  clave: string;
+  variante: string | null;
+  nombre: string;
+  precio: number;
+  cantidad: number;
+  costo?: number | null;
+  /** D6b · Tarifa de IVA del producto (0 = exento, 5…). Sin ella, la general del negocio. */
+  tarifaIva?: number | null;
+};
 export type Descuento = { tipo: 'porcentaje' | 'monto'; valor: number } | null;
 
 /** IVA de la venta (D6): tarifa en % y si los precios ya lo incluyen (lo normal). null = el negocio no cobra IVA. */
@@ -19,13 +28,21 @@ export function totalesVenta(lineas: LineaCarrito[], descuento: Descuento, iva: 
   const crudo = !descuento ? 0 : descuento.tipo === 'porcentaje' ? Math.round((subtotal * descuento.valor) / 100) : Math.round(descuento.valor);
   const d = Math.min(subtotal, Math.max(0, crudo));
   const neto = subtotal - d;
-  if (!iva || iva.tarifa <= 0) return { subtotal, descuento: d, base: neto, iva: 0, total: neto };
-  if (iva.incluido) {
-    const base = Math.round(neto / (1 + iva.tarifa / 100));
-    return { subtotal, descuento: d, base, iva: neto - base, total: neto };
-  }
-  const impuesto = Math.round((neto * iva.tarifa) / 100);
-  return { subtotal, descuento: d, base: neto, iva: impuesto, total: neto + impuesto };
+  if (!iva) return { subtotal, descuento: d, base: neto, iva: 0, total: neto, porTarifa: [] as [number, number][] };
+  // D6b · El descuento se reparte entre las líneas; el IVA se calcula por cada tarifa (general, 5%, exento…).
+  const netos = repartir(neto, lineas.map((l) => l.precio * l.cantidad));
+  const grupos = new Map<number, number>();
+  lineas.forEach((l, i) => {
+    const tarifa = l.tarifaIva ?? iva.tarifa;
+    grupos.set(tarifa, (grupos.get(tarifa) ?? 0) + netos[i]);
+  });
+  const porTarifa: [number, number][] = [...grupos.entries()]
+    .filter(([tarifa]) => tarifa > 0)
+    .map(([tarifa, monto]) => [tarifa, iva.incluido ? monto - Math.round(monto / (1 + tarifa / 100)) : Math.round((monto * tarifa) / 100)] as [number, number])
+    .sort((a, b) => b[0] - a[0]);
+  const impuesto = porTarifa.reduce((s, [, v]) => s + v, 0);
+  if (iva.incluido) return { subtotal, descuento: d, base: neto - impuesto, iva: impuesto, total: neto, porTarifa };
+  return { subtotal, descuento: d, base: neto, iva: impuesto, total: neto + impuesto, porTarifa };
 }
 
 /** D2 · ¿Cabe una unidad más de esta variante, según lo disponible en la bodega de venta? */

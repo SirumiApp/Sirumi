@@ -181,3 +181,28 @@ export function vencimientos(p: PerfilTributario, desde: Fecha, hasta: Fecha, aj
   }
   return salida.sort((a, b) => (a.fecha ?? `${a.mes}-32`).localeCompare(b.fecha ?? `${b.mes}-32`));
 }
+
+export type PeriodoIva = 'bimestral' | 'cuatrimestral' | 'anual';
+
+/** El período de IVA (bimestre, cuatrimestre o año) que contiene una fecha, y el anterior. */
+export function periodoIvaDe(fecha: Fecha, tipo: PeriodoIva): { desde: Fecha; hasta: Fecha } {
+  const { anio, mes } = partes(fecha);
+  const largo = tipo === 'bimestral' ? 2 : tipo === 'cuatrimestral' ? 4 : 12;
+  const inicio = Math.floor((mes - 1) / largo) * largo + 1;
+  const fin = inicio + largo - 1;
+  return { desde: armarFecha(anio, inicio, 1), hasta: armarFecha(anio, fin, diasDelMes(anio, fin)) };
+}
+
+/**
+ * B12b · IVA por pagar (deuda con la DIAN): el IVA cobrado en el período que va corriendo, más el del período anterior
+ * mientras no haya pasado su fecha de pago. `venceAnterior` sale del calendario (null = no se sabe: se sigue contando).
+ */
+export function ivaPorPagar(ivas: { fecha: Fecha; iva: number }[], hoy: Fecha, tipo: PeriodoIva, venceAnterior: (p: { desde: Fecha; hasta: Fecha }) => Fecha | null) {
+  const abierto = periodoIvaDe(hoy, tipo);
+  const previo = periodoIvaDe(sumarDias(abierto.desde, -1), tipo);
+  const sumaEn = (p: { desde: Fecha; hasta: Fecha }) => ivas.filter((x) => x.fecha >= p.desde && x.fecha <= p.hasta).reduce((s, x) => s + x.iva, 0);
+  const vence = venceAnterior(previo);
+  const anterior = !vence || hoy <= vence ? { ...previo, monto: sumaEn(previo), vence } : null;
+  const enCurso = { ...abierto, monto: sumaEn(abierto) };
+  return { abierto: enCurso, anterior: anterior && anterior.monto > 0 ? anterior : null, total: enCurso.monto + (anterior?.monto ?? 0) };
+}

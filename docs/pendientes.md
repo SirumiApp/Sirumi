@@ -31,7 +31,7 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [ ] Carritos guardados (atender a otro cliente y volver).
 - [x] Código de barras en todas partes (Shopify POS): escribir, generar, escanear con la cámara o con pistola lectora; en el POS la cámara queda abierta y suma un producto tras otro.
 - [x] IVA en el POS (D6): incluido en el precio por defecto, con opción de sumarlo; las ventas cuentan sin IVA y el IVA cobrado se muestra aparte.
-- [ ] IVA por producto (exentos o con otra tarifa, como 5%) y "IVA por pagar" en el balance.
+- [x] IVA por producto y "IVA por pagar" en el balance.
 - [ ] Imprimir etiquetas de código de barras (PDF para impresora de etiquetas) e impresora de recibos Bluetooth.
 - [x] Vendedores con código (adelantado de la v2): el dueño crea códigos; el vendedor entra desde el onboarding o Ajustes y solo ve el POS de su bodega y sus ventas.
 - [x] Informe de ventas por producto, vendedor, forma de pago y cliente.
@@ -75,5 +75,5 @@ Comparado con los ajustes de los prototipos (`referencia/prototipo/Main.dc.html`
 - [x] Arqueo de caja al cerrar el día (D10).
 - [x] Aviso de inventario bajo (C9) y de topes personales (A2).
 - [x] Devolución parcial (D4b).
-- [ ] IVA por producto (exento, 5%) e "IVA por pagar" en el balance.
+- [x] IVA por producto (D6b) e "IVA por pagar" en el balance (B12b).
 - [x] Resumen semanal por notificación (B14).

@@ -66,7 +66,7 @@ export default function Catalogo() {
       return { texto, tipo: 'error' };
     }
     setAviso(null);
-    pos.agregar({ variante: v.id, nombre, precio: p.precio, costo: p.costo });
+    pos.agregar({ variante: v.id, nombre, precio: p.precio, costo: p.costo, tarifaIva: p.tarifaIva });
     return { texto: t('inventario.escaner.agregado', { nombre }), tipo: 'ok' };
   }
 

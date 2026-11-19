@@ -13,6 +13,7 @@ import { PantallaAjuste } from '@/components/PantallaAjuste';
 import { Tarjeta } from '@/components/Tarjeta';
 import { Texto } from '@/components/Texto';
 import { armarVariantes, codigoInterno, costoUnitario, margenProducto, validarProducto } from '@/lib/inventario';
+import { usePrecioSinIva } from '@/impuestos/ganchos';
 import { useNegocio } from '@/negocio/contexto';
 import { subirFotoProducto } from '@/negocio/fotos';
 import { crearProducto, leerErrorInventario, type DesgloseCosto } from '@/negocio/inventarioDatos';
@@ -21,21 +22,25 @@ import { ALTO_TOCABLE, ESPACIO, FUENTES, RADIO, useTema } from '@/theme';
 
 import { Escaner } from './Escaner';
 import { EditorFoto } from './Foto';
+import { SelectorIva } from './SelectorIva';
 import { CampoCantidad, SelectorEmoji, TALLAS } from './Piezas';
 
 const DESGLOSE_VACIO: DesgloseCosto = { materia: 0, manoDeObra: 0, empaque: 0, otros: 0 };
 
 /** Lo que muestra el margen del producto (C1) mientras se escribe. */
-export function LineaMargen({ precio, costo }: { precio: number; costo: number }) {
+export function LineaMargen({ precio, costo, tarifaIva }: { precio: number; costo: number; tarifaIva?: number | null }) {
   const { t } = useTranslation();
   const { colores } = useTema();
   const plata = usePlata();
+  const sinIva = usePrecioSinIva();
   if (!precio) return null;
-  const m = margenProducto(precio, costo);
+  // Con IVA incluido, el margen va sobre el precio sin IVA (el IVA no es del negocio).
+  const neto = sinIva(precio, tarifaIva);
+  const m = margenProducto(neto, costo);
   return (
     <Texto variante="medio" color={m.ganancia >= 0 ? colores.ingresoTexto : colores.errorTexto}>
       {m.ganancia >= 0
-        ? t('inventario.producto.ganas', { monto: plata(m.ganancia), margen: String(Math.round(m.margen * 1000) / 10).replace('.', ',') })
+        ? `${t('inventario.producto.ganas', { monto: plata(m.ganancia), margen: String(Math.round(m.margen * 1000) / 10).replace('.', ',') })}${neto !== precio ? ` ${t('inventario.producto.sinIva')}` : ''}`
         : t('inventario.producto.pierdes', { monto: plata(-m.ganancia) })}
     </Texto>
   );
@@ -82,6 +87,7 @@ export function NuevoProducto() {
   const [costo, setCosto] = useState(0);
   const [desglose, setDesglose] = useState<DesgloseCosto | null>(null);
   const [minimo, setMinimo] = useState('');
+  const [tarifaIva, setTarifaIva] = useState<number | null>(null);
   const [tallas, setTallas] = useState<string[]>([]);
   const [otraTalla, setOtraTalla] = useState('');
   const [colorNuevo, setColorNuevo] = useState('');
@@ -128,6 +134,7 @@ export function NuevoProducto() {
       costo,
       desglose,
       minimo: parseInt(minimo || '0', 10),
+      tarifaIva,
       bodega,
       variantes: variantes.map((x) => ({ color: x.color, talla: x.talla, codigo: dato(x.nombre).codigo, cantidad: dato(x.nombre).cantidad })),
     });
@@ -162,7 +169,7 @@ export function NuevoProducto() {
           setDesglose(d);
         }}
       />
-      <LineaMargen precio={precio} costo={costo} />
+      <LineaMargen precio={precio} costo={costo} tarifaIva={tarifaIva} />
       <CampoTexto
         etiqueta={t('inventario.producto.minimo')}
         ayuda={t('inventario.producto.minimoAyuda')}
@@ -171,6 +178,7 @@ export function NuevoProducto() {
         value={minimo}
         onChangeText={(v) => setMinimo(v.replace(/\D/g, '').slice(0, 5))}
       />
+      <SelectorIva valor={tarifaIva} onCambio={setTarifaIva} />
 
       {/* Tallas y colores → variantes (C7) */}
       <Texto variante="subtitulo">{t('inventario.producto.tallas')}</Texto>

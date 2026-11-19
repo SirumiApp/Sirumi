@@ -17,6 +17,7 @@ import { Texto } from '@/components/Texto';
 import { avisarEjemplo, useModoEjemplo } from '@/ejemplo/modo';
 import { codigoInterno, porReponer, stockDeVariante, stockDeProducto } from '@/lib/inventario';
 import { puntoDeEquilibrio, unidadesDeEquilibrio } from '@/lib/negocio';
+import { usePrecioSinIva } from '@/impuestos/ganchos';
 import { useNegocio } from '@/negocio/contexto';
 import {
   actualizarProducto,
@@ -41,6 +42,7 @@ import { EditorFoto } from './Foto';
 import { HojaTrasladoInventario } from './HojaTrasladoInventario';
 import { CampoCosto, LineaMargen } from './NuevoProducto';
 import { Escaner } from './Escaner';
+import { SelectorIva } from './SelectorIva';
 import { CampoCantidad, CampoCodigo, SelectorEmoji } from './Piezas';
 
 /** Detalle del producto (spec 04, §4): margen (C1), stock por bodega (C2), códigos (C6), variantes e historial. */
@@ -49,6 +51,7 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
   const textosFecha = useTextosFecha();
   const { colores } = useTema();
   const plata = usePlata();
+  const sinIva = usePrecioSinIva();
   const ejemplo = useModoEjemplo();
   const { negocio, bodegas, stock, productos, actualizar, version } = useNegocio();
   const [bodega, setBodega] = useState<string | null>(bodegas.find((b) => b.principal)?.id ?? bodegas[0]?.id ?? null);
@@ -156,7 +159,8 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
 
   // B8 · Unidades de este producto para cubrir los gastos fijos del mes.
   const cfg = negocio?.configuracion;
-  const equilibrio = cfg?.fijos_mes ? puntoDeEquilibrio({ fijosMes: cfg.fijos_mes, costoPorcentaje: producto.precio ? (producto.costo / producto.precio) * 100 : 0, variables: 0, ventas: 0 }).ventasEquilibrio : null;
+  const precioNeto = sinIva(producto.precio, producto.tarifaIva);
+  const equilibrio = cfg?.fijos_mes ? puntoDeEquilibrio({ fijosMes: cfg.fijos_mes, costoPorcentaje: precioNeto ? (producto.costo / precioNeto) * 100 : 0, variables: 0, ventas: 0 }).ventasEquilibrio : null;
   const total = stockDeProducto(ids, stock);
   const bajo = porReponer({ ...producto, variantes: ids }, stock);
   // "15 nov", en la hora de Colombia, igual que en el resto de la app.
@@ -191,7 +195,7 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
           </Texto>
         </View>
       </Tarjeta>
-      <LineaMargen precio={producto.precio} costo={producto.costo} />
+      <LineaMargen precio={producto.precio} costo={producto.costo} tarifaIva={producto.tarifaIva} />
       {producto.desglose && (
         <Texto variante="pequeno">
           {(['materia', 'manoDeObra', 'empaque', 'otros'] as const)
@@ -200,7 +204,7 @@ export function DetalleProducto({ producto }: { producto: Producto }) {
             .join(' · ')}
         </Texto>
       )}
-      {equilibrio !== null && equilibrio > 0 && <Texto variante="pequeno">{t('inventario.detalleProducto.equilibrio', { unidades: unidadesDeEquilibrio(equilibrio, producto.precio) })}</Texto>}
+      {equilibrio !== null && equilibrio > 0 && <Texto variante="pequeno">{t('inventario.detalleProducto.equilibrio', { unidades: unidadesDeEquilibrio(equilibrio, precioNeto) })}</Texto>}
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
         <Texto variante="subtitulo" style={{ flex: 1 }}>
@@ -340,6 +344,7 @@ function EditarProducto({ producto, onListo }: { producto: Producto; onListo: ()
   const [costo, setCosto] = useState(producto.costo);
   const [desglose, setDesglose] = useState<DesgloseCosto | null>(producto.desglose);
   const [minimo, setMinimo] = useState(String(producto.minimo || ''));
+  const [tarifaIva, setTarifaIva] = useState<number | null>(producto.tarifaIva);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
 
@@ -347,7 +352,7 @@ function EditarProducto({ producto, onListo }: { producto: Producto; onListo: ()
     if (!nombre.trim()) return setError(t('errores.productoSinNombre'));
     if (!precio) return setError(t('errores.productoSinPrecio'));
     setGuardando(true);
-    const { error: e } = await actualizarProducto(producto.id, { nombre, coleccion, emoji, precio, costo, desglose, minimo: parseInt(minimo || '0', 10) });
+    const { error: e } = await actualizarProducto(producto.id, { nombre, coleccion, emoji, precio, costo, desglose, minimo: parseInt(minimo || '0', 10), tarifaIva });
     setGuardando(false);
     if (e) return setError(t('inventario.errores.general'));
     actualizar();
@@ -368,7 +373,7 @@ function EditarProducto({ producto, onListo }: { producto: Producto; onListo: ()
           setDesglose(d);
         }}
       />
-      <LineaMargen precio={precio} costo={costo} />
+      <LineaMargen precio={precio} costo={costo} tarifaIva={tarifaIva} />
       <CampoTexto
         etiqueta={t('inventario.producto.minimo')}
         ayuda={t('inventario.producto.minimoAyuda')}
@@ -376,6 +381,7 @@ function EditarProducto({ producto, onListo }: { producto: Producto; onListo: ()
         value={minimo}
         onChangeText={(v) => setMinimo(v.replace(/\D/g, '').slice(0, 5))}
       />
+      <SelectorIva valor={tarifaIva} onCambio={setTarifaIva} />
       {error && <Aviso mensaje={error} />}
       <Boton titulo={t('inventario.detalleProducto.guardar')} onPress={guardar} cargando={guardando} />
       <Boton titulo={t('movimiento.cancelar')} variante="texto" onPress={onListo} />

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { diaHabil, fechaPorDigito, festivosColombia, obligacionesDe, pascua, vencimientos, type PerfilTributario } from './calendarioTributario';
+import { diaHabil, fechaPorDigito, festivosColombia, ivaPorPagar, obligacionesDe, pascua, periodoIvaDe, vencimientos, type PerfilTributario } from './calendarioTributario';
 
 const simple: PerfilTributario = { regimen: 'simple', digito: 1, responsableIva: false, agenteRetencion: false, periodoIva: 'bimestral' };
 
@@ -63,5 +63,31 @@ describe('B12 · calendario de impuestos', () => {
 
   it('una fecha que ya pasó en el rango no sale', () => {
     expect(vencimientos(simple, '2026-11-12', '2026-11-30')).toEqual([]);
+  });
+});
+
+describe('B12b · IVA por pagar', () => {
+  const ivas = [
+    { fecha: '2026-09-15', iva: 100_000 },
+    { fecha: '2026-10-20', iva: 50_000 },
+    { fecha: '2026-11-05', iva: 30_000 },
+    { fecha: '2026-11-18', iva: 20_000 },
+  ];
+  it('períodos: bimestre, cuatrimestre y año', () => {
+    expect(periodoIvaDe('2026-11-19', 'bimestral')).toEqual({ desde: '2026-11-01', hasta: '2026-12-31' });
+    expect(periodoIvaDe('2026-11-19', 'cuatrimestral')).toEqual({ desde: '2026-09-01', hasta: '2026-12-31' });
+    expect(periodoIvaDe('2026-02-10', 'anual')).toEqual({ desde: '2026-01-01', hasta: '2026-12-31' });
+  });
+  it('bimestral: el bimestre en curso más sep-oct mientras no venza (vence 20 nov)', () => {
+    const r = ivaPorPagar(ivas, '2026-11-19', 'bimestral', () => '2026-11-20');
+    expect(r.abierto.monto).toBe(50_000);
+    expect(r.anterior).toMatchObject({ desde: '2026-09-01', hasta: '2026-10-31', monto: 150_000 });
+    expect(r.total).toBe(200_000);
+  });
+  it('después de la fecha de pago, el anterior ya no se debe', () => {
+    expect(ivaPorPagar(ivas, '2026-11-25', 'bimestral', () => '2026-11-20').total).toBe(50_000);
+  });
+  it('sin fecha conocida, se sigue contando', () => {
+    expect(ivaPorPagar(ivas, '2026-11-25', 'bimestral', () => null).total).toBe(200_000);
   });
 });

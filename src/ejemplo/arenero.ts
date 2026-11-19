@@ -8,7 +8,7 @@ import type { Fecha } from '@/lib/fechas';
 import type { FilaStock } from '@/lib/inventario';
 import type { MovNegocio } from '@/lib/negocio';
 import type { Movimiento } from '@/lib/personal';
-import type { devolucionParcial } from '@/lib/pos';
+import { totalesVenta, type devolucionParcial } from '@/lib/pos';
 import type { LineaVenta, PagoVenta, Venta } from '@/pos/datos';
 
 /** D4b en el ejemplo: lo que quedó de una venta después de devolver parte. */
@@ -139,7 +139,7 @@ export type CobroEjemplo = {
   recibido: number | null;
   iva: { tarifa: number; incluido: boolean } | null;
   codigo: string | null;
-  lineas: { variante: string | null; nombre: string; precio: number; cantidad: number; costo: number | null }[];
+  lineas: { variante: string | null; nombre: string; precio: number; cantidad: number; costo: number | null; tarifaIva?: number | null }[];
   pagos: PagoVenta[];
 };
 
@@ -148,16 +148,13 @@ export type CobroEjemplo = {
  * (fiado = venta pendiente) y lo que sale del stock. Función pura.
  */
 export function armarVentaEjemplo(d: CobroEjemplo, id: string, numero: number, creada: string) {
-  const subtotal = d.lineas.reduce((t, l) => t + Math.round(l.precio) * l.cantidad, 0);
-  let total = subtotal - Math.round(d.descuento);
-  let iva = 0;
-  if (d.iva && d.iva.tarifa > 0) {
-    if (d.iva.incluido) iva = total - Math.round(total / (1 + d.iva.tarifa / 100));
-    else {
-      iva = Math.round((total * d.iva.tarifa) / 100);
-      total += iva;
-    }
-  }
+  // Igual que el servidor y el POS (D1 + D6 + D6b): IVA por tarifa de cada producto.
+  const t = totalesVenta(
+    d.lineas.map((l, i) => ({ clave: String(i), variante: l.variante, nombre: l.nombre, precio: Math.round(l.precio), cantidad: l.cantidad, tarifaIva: l.tarifaIva })),
+    d.descuento > 0 ? { tipo: 'monto', valor: d.descuento } : null,
+    d.iva,
+  );
+  const { subtotal, total, iva } = t;
   const fiado = d.pagos.every((p) => !p.cuenta);
   const lineas: LineaVenta[] = d.lineas.map((l) => ({ variante: l.variante, nombre: l.nombre, precio: l.precio, costo: l.costo, cantidad: l.cantidad, total: Math.round(l.precio) * l.cantidad }));
   const venta: Venta = {

@@ -333,3 +333,14 @@ Convenciones:
 
 ### A2 (ampliación) · Aviso al cruzar el tope
 - Al registrar un gasto nuevo del mes, si con él se cruza el % de aviso del tope (por ejemplo 80%) o el tope completo, la app avisa una vez: "Ya vas en el 83% de tu tope de Comida · Llevas $ 330.000 de $ 400.000". Si ya estaba por encima antes, no vuelve a avisar.
+
+### D6b · IVA por producto
+- Cada producto puede tener su tarifa: la general del negocio (sin tarifa propia), 5% (p. ej. café tostado) o exento (0%).
+- En la venta, el descuento se reparte entre las líneas en proporción a su valor (la última se ajusta) y el IVA se calcula por cada tarifa sobre lo que de verdad se paga. Con IVA incluido el total no cambia; si se suma, va encima.
+- Ejemplo (IVA incluido): 119.000 (19%) + 105.000 (5%) + 50.000 (exento) → IVA 19.000 + 5.000 = 24.000; total 274.000.
+- El margen del producto y su punto de equilibrio se calculan sobre el precio sin IVA.
+
+### B12b · IVA por pagar (balance)
+- Es una deuda con la DIAN: el IVA cobrado (POS y ventas a mano) del período en curso, más el del período anterior mientras no haya pasado su fecha de pago (del calendario B12; sin dígito del NIT, el último día del mes en que vence).
+- Período: SIMPLE → año (se declara en febrero); si no, bimestral o cuatrimestral según lo elegido.
+- Ejemplo (bimestral, hoy 19 nov, sep-oct vence el 20 nov): IVA de nov 50.000 + sep-oct 150.000 → por pagar 200.000; después del 20 nov, 50.000.

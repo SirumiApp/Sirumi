@@ -516,6 +516,12 @@ export const es = {
     },
   },
   inventario: {
+    iva: {
+      titulo: '{{impuesto}} de este producto',
+      general: 'General ({{tasa}}%)',
+      exento: 'Exento (0%)',
+      ayuda: 'Casi todo va con la general. El 5% es para algunos productos (como el café tostado) y exento para otros (como libros). Si tienes dudas, pregúntale a tu contador.',
+    },
     titulo: 'Productos e inventario',
     detalle: 'Lo que tienes para vender, en cada bodega.',
     todas: 'Todas',
@@ -576,6 +582,7 @@ export const es = {
       empaque: 'Empaque',
       otros: 'Otros costos',
       costoTotal: 'Costo por unidad: {{monto}}',
+      sinIva: '(sin IVA)',
       ganas: 'Ganas {{monto}} por unidad · margen {{margen}}%',
       pierdes: 'Pierdes {{monto}} por unidad: revisa el precio.',
       minimo: 'Avísame cuando queden menos de',
@@ -1532,6 +1539,8 @@ export const es = {
       ivaCobrado: 'IVA ({{tasa}}%) que va dentro de tus ventas: {{monto}}. Esa plata es de la DIAN: apártala. Tus ventas aquí ya van sin IVA.',
     },
     informes: {
+    ivaPorPagar: 'IVA por pagar',
+    ivaPorPagarAyuda: 'El IVA que cobraste y aún no le pagas a la DIAN (del período en curso y del anterior, hasta su fecha de pago).',
       titulo: 'Más',
       detalle: 'Informes de tu negocio y lo que lo arma.',
       grupoInformes: 'Informes',

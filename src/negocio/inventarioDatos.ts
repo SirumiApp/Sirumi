@@ -21,6 +21,8 @@ export type Producto = {
   costo: number;
   desglose: DesgloseCosto | null;
   minimo: number;
+  /** D6b · Tarifa de IVA propia (0 = exento, 5…); null = la general del negocio. */
+  tarifaIva: number | null;
   /** Ruta de la foto en el bucket y su enlace temporal para verla. */
   foto: string | null;
   fotoUrl: string | null;
@@ -35,7 +37,7 @@ export async function cargarInventario(negocioId: string): Promise<DatosInventar
     todasLasFilas((desde, hasta) =>
       supabase
         .from('products')
-        .select('id, name, collection, emoji, photo_path, price, cost, cost_breakdown, min_stock, product_variants(id, color, size, barcode, position)')
+        .select('id, name, collection, emoji, photo_path, price, cost, cost_breakdown, min_stock, tax_rate, product_variants(id, color, size, barcode, position)')
         .eq('business_id', negocioId)
         .order('name')
         .order('id')
@@ -58,6 +60,7 @@ export async function cargarInventario(negocioId: string): Promise<DatosInventar
       costo: p.cost,
       desglose: (p.cost_breakdown as DesgloseCosto | null) ?? null,
       minimo: p.min_stock,
+      tarifaIva: p.tax_rate === null ? null : Number(p.tax_rate),
       foto: p.photo_path,
       fotoUrl: p.photo_path ? (enlaces.get(p.photo_path) ?? null) : null,
       variantes: [...(p.product_variants ?? [])]
@@ -88,6 +91,7 @@ export type NuevoProducto = {
   costo: number;
   desglose: DesgloseCosto | null;
   minimo: number;
+  tarifaIva?: number | null;
   bodega: string | null;
   variantes: { color: string | null; talla: string | null; codigo: string; cantidad: number }[];
 };
@@ -105,13 +109,14 @@ export function crearProducto(negocioId: string, p: NuevoProducto) {
       cost: Math.round(p.costo),
       cost_breakdown: p.desglose,
       min_stock: p.minimo,
+      tax_rate: p.tarifaIva ?? null,
       warehouse_id: p.bodega,
       variants: p.variantes.map((v) => ({ color: v.color, size: v.talla, barcode: v.codigo.trim() || null, quantity: v.cantidad })),
     } as unknown as Json,
   });
 }
 
-export function actualizarProducto(id: string, c: { nombre: string; coleccion: string; emoji: string; precio: number; costo: number; desglose: DesgloseCosto | null; minimo: number }) {
+export function actualizarProducto(id: string, c: { nombre: string; coleccion: string; emoji: string; precio: number; costo: number; desglose: DesgloseCosto | null; minimo: number; tarifaIva?: number | null }) {
   if (modoEjemploActivo()) return sinGuardar();
   return supabase
     .from('products')
@@ -123,6 +128,7 @@ export function actualizarProducto(id: string, c: { nombre: string; coleccion: s
       cost: Math.round(c.costo),
       cost_breakdown: c.desglose as unknown as Json,
       min_stock: c.minimo,
+      ...(c.tarifaIva !== undefined ? { tax_rate: c.tarifaIva } : {}),
     })
     .eq('id', id);
 }

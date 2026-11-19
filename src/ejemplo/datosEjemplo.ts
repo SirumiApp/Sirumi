@@ -256,7 +256,7 @@ export const BODEGAS_EJEMPLO = [
 let semilla = 0;
 const codigoFijo = () => codigoInterno(() => ((semilla = (semilla * 9301 + 49297) % 233280) / 233280));
 
-function productoEjemplo(id: string, nombre: string, emoji: string, precio: number, costo: number, minimo: number, tallas: string[], colores: string[], coleccion: string | null) {
+function productoEjemplo(id: string, nombre: string, emoji: string, precio: number, costo: number, minimo: number, tallas: string[], colores: string[], coleccion: string | null, tarifaIva: number | null = null) {
   return {
     id,
     nombre: `ejemplo.textos.${nombre}`,
@@ -266,6 +266,7 @@ function productoEjemplo(id: string, nombre: string, emoji: string, precio: numb
     costo,
     desglose: null,
     minimo,
+    tarifaIva,
     foto: null,
     fotoUrl: null,
     variantes: armarVariantes(tallas, colores).map((v, i) => ({
@@ -279,7 +280,8 @@ function productoEjemplo(id: string, nombre: string, emoji: string, precio: numb
 }
 
 export const PRODUCTOS_EJEMPLO = [
-  productoEjemplo('ej-p-cafe', 'cafeEmpacado', 'paquete', 32_000, 14_400, 20, ['250 g', '500 g'], [], 'coleccionCafe'),
+  productoEjemplo('ej-p-cafe', 'cafeEmpacado', 'paquete', 32_000, 14_400, 20, ['250 g', '500 g'], [], 'coleccionCafe', 5),
+  // ↑ El café tostado lleva IVA del 5% en Colombia (D6b).
   productoEjemplo('ej-p-taza', 'taza', 'cafe', 28_000, 11_000, 6, [], ['blanco', 'negro'], 'coleccionAccesorios'),
   productoEjemplo('ej-p-camiseta', 'camiseta', 'camiseta', 45_000, 18_000, 10, ['S', 'M', 'L'], ['negro'], 'coleccionAccesorios'),
   productoEjemplo('ej-p-bolsa', 'bolsa', 'bolsas-de-compras', 15_000, 5_500, 0, [], [], 'coleccionAccesorios'),

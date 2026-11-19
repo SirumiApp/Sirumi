@@ -71,7 +71,7 @@ export default function Cobrar() {
   const segunda = formas.find((f) => f.clave === pos.segundaForma) ?? null;
   // D6 · Solo si el negocio es responsable de IVA. Lo normal: el precio ya lo incluye.
   const iva: IvaVenta = negocio?.configuracion.responsable_iva && tributario.tasaVentas > 0 ? { tarifa: tributario.tasaVentas, incluido: pos.ivaIncluido } : null;
-  const { subtotal, descuento, base, iva: valorIva, total } = totalesVenta(pos.lineas, pos.descuento, iva);
+  const { subtotal, descuento, base, iva: valorIva, total, porTarifa } = totalesVenta(pos.lineas, pos.descuento, iva);
   const [parte1, parte2] = pos.dividido ? dividirPago(total, pos.porcentaje) : [total, 0];
   const conEfectivo = forma?.tipo === 'efectivo' && !pos.dividido;
   const recibido = conEfectivo ? pos.recibido : null;
@@ -129,7 +129,7 @@ export default function Cobrar() {
       recibido,
       iva,
       codigo: pos.codigo,
-      lineas: pos.lineas.map((l) => ({ variante: l.variante, nombre: l.nombre, precio: l.precio, cantidad: l.cantidad })),
+      lineas: pos.lineas.map((l) => ({ variante: l.variante, nombre: l.nombre, precio: l.precio, cantidad: l.cantidad, tarifaIva: l.tarifaIva ?? null })),
       pagos,
     };
     const comprobanteBase = {
@@ -139,6 +139,7 @@ export default function Cobrar() {
       pagos,
       vuelto: recibido !== null ? vuelto(recibido, total) : null,
       iva: valorIva,
+      porTarifa,
       tarifaIva: iva?.tarifa ?? null,
       ivaIncluido: iva ? iva.incluido : null,
       lineas: pos.lineas.map((l) => ({ nombre: l.nombre, precio: l.precio, cantidad: l.cantidad })),
@@ -417,7 +418,7 @@ export default function Cobrar() {
           <FilaCifra key="s" titulo={t('pos.subtotal')} valor={plata(subtotal)} />,
           descuento > 0 ? <FilaCifra key="d" titulo={t('pos.descuento')} valor={`−${plata(descuento)}`} color={colores.ingresoTexto} /> : null,
           iva ? <FilaCifra key="b" titulo={t('pos.iva.base')} valor={plata(base)} /> : null,
-          iva ? <FilaCifra key="i" titulo={t('pos.iva.linea', { tarifa: iva.tarifa })} valor={plata(valorIva)} /> : null,
+          ...(iva ? porTarifa.map(([tarifa, valor]) => <FilaCifra key={`i${tarifa}`} titulo={t('pos.iva.linea', { tarifa })} valor={plata(valor)} />) : []),
           <FilaCifra key="t" titulo={t('pos.total')} valor={plata(total)} fuerte />,
         ]}
       </ListaFilas>

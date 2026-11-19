@@ -909,6 +909,7 @@ export type Database = {
           name: string
           photo_path: string | null
           price: number
+          tax_rate: number | null
           updated_at: string
         }
         Insert: {
@@ -923,6 +924,7 @@ export type Database = {
           name: string
           photo_path?: string | null
           price: number
+          tax_rate?: number | null
           updated_at?: string
         }
         Update: {
@@ -937,6 +939,7 @@ export type Database = {
           name?: string
           photo_path?: string | null
           price?: number
+          tax_rate?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -1094,6 +1097,7 @@ export type Database = {
           quantity: number
           returned_qty: number
           sale_id: string
+          tax_rate: number | null
           unit_cost: number | null
           unit_price: number
           variant_id: string | null
@@ -1106,6 +1110,7 @@ export type Database = {
           quantity: number
           returned_qty?: number
           sale_id: string
+          tax_rate?: number | null
           unit_cost?: number | null
           unit_price: number
           variant_id?: string | null
@@ -1118,6 +1123,7 @@ export type Database = {
           quantity?: number
           returned_qty?: number
           sale_id?: string
+          tax_rate?: number | null
           unit_cost?: number | null
           unit_price?: number
           variant_id?: string | null
@@ -1557,6 +1563,7 @@ export type Database = {
       devolver_parte: { Args: { items: Json; venta: string }; Returns: Json }
       devolver_venta: { Args: { venta: string }; Returns: undefined }
       eliminar_mi_cuenta: { Args: never; Returns: undefined }
+      enviar_resumen_semanal: { Args: never; Returns: number }
       es_dueno: { Args: { negocio: string }; Returns: boolean }
       es_miembro: { Args: { negocio: string }; Returns: boolean }
       formato_pesos: { Args: { valor: number }; Returns: string }
@@ -1594,6 +1601,10 @@ export type Database = {
       registrar_celular: {
         Args: { plataforma: string; token_celular: string }
         Returns: undefined
+      }
+      resumen_de_semana: {
+        Args: { desde: string; hasta: string; usuario: string }
+        Returns: Json
       }
       revisar_codigo: { Args: { codigo: string }; Returns: string }
       tarjeta_del_negocio: {

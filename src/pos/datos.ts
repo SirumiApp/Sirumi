@@ -96,7 +96,7 @@ export type DatosCobro = {
   iva: IvaVenta;
   /** D7 · Código de descuento usado, si hubo. */
   codigo: string | null;
-  lineas: { variante: string | null; nombre: string; precio: number; cantidad: number }[];
+  lineas: { variante: string | null; nombre: string; precio: number; cantidad: number; tarifaIva?: number | null }[];
   pagos: PagoVenta[];
   /** Id que pone el celular: si la venta llega dos veces, no se duplica. */
   clientId?: string;

@@ -515,6 +515,12 @@ export const en: Traducciones = {
     },
   },
   inventario: {
+    iva: {
+      titulo: "This product's {{impuesto}}",
+      general: 'Standard ({{tasa}}%)',
+      exento: 'Exempt (0%)',
+      ayuda: 'Almost everything uses the standard rate. 5% is for some products (like roasted coffee) and exempt for others (like books). If unsure, ask your accountant.',
+    },
     titulo: 'Products and inventory',
     detalle: 'What you have to sell, in each warehouse.',
     todas: 'All',
@@ -575,6 +581,7 @@ export const en: Traducciones = {
       empaque: 'Packaging',
       otros: 'Other costs',
       costoTotal: 'Cost per unit: {{monto}}',
+      sinIva: '(without VAT)',
       ganas: 'You make {{monto}} per unit · margin {{margen}}%',
       pierdes: 'You lose {{monto}} per unit: check the price.',
       minimo: 'Let me know when fewer than',
@@ -1531,6 +1538,8 @@ export const en: Traducciones = {
       ivaCobrado: 'VAT ({{tasa}}%) included in your sales: {{monto}}. That money belongs to the DIAN: set it aside. Your sales here are shown without VAT.',
     },
     informes: {
+    ivaPorPagar: 'VAT payable',
+    ivaPorPagarAyuda: "VAT you collected and haven't paid the DIAN yet (current period and the previous one until its due date).",
       titulo: 'More',
       detalle: 'Reports for your business and what makes it up.',
       grupoInformes: 'Reports',

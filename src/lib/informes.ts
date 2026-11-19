@@ -77,11 +77,13 @@ export function balance(d: {
   porPagar: number;
   equipos: number;
   inventario: number;
+  /** B12b · IVA cobrado que todavía se le debe a la DIAN. */
+  ivaPorPagar?: number;
 }) {
   const caja = cajaTotal(d.cuentas, d.movs, d.traslados);
   const tarjetas = d.tarjetas.map((t) => ({ id: t.id, deuda: deudaTarjeta(t, d.movs, d.traslados) }));
   const tienes = caja + d.porCobrar + d.inventario + d.equipos;
-  const debes = d.porPagar + suma(tarjetas, (t) => Math.max(0, t.deuda));
+  const debes = d.porPagar + suma(tarjetas, (t) => Math.max(0, t.deuda)) + (d.ivaPorPagar ?? 0);
   return { caja, tarjetas, tienes, debes, patrimonio: tienes - debes };
 }
 

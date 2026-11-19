@@ -17,6 +17,7 @@ import { BotonCompartir, conSigno, FilaCifra, ListaFilas, textoInforme } from '@
 import { ArqueoCaja } from '@/negocio/ArqueoCaja';
 import { calcularResumen } from '@/negocio/resumen';
 import { useTributario } from '@/impuestos/ganchos';
+import { useIvaPorPagar } from '@/impuestos/ivaPorPagar';
 import { etiquetaDia, rangoCorto } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from '@/personal/SelectorPeriodo';
@@ -35,6 +36,7 @@ export default function Informe() {
   const cual: Cual = (['balance', 'cartera', 'dueno', 'entradas', 'cierre'] as const).find((c) => c === crudo) ?? 'balance';
   const { negocio, cuentas, tarjetas, movimientos, traslados, productos, stock, ventas } = useNegocio();
   const tributario = useTributario();
+  const iva = useIvaPorPagar();
   const [eleccion, setEleccion] = useState<EleccionPeriodo>({ tipo: 'mes' });
   const [dia, setDia] = useState<'hoy' | 'ayer'>('hoy');
   const hoy = hoyEn();
@@ -62,6 +64,7 @@ export default function Informe() {
       porPagar: r.porPagar,
       equipos: cfg.equipos ?? 0,
       inventario: valorInventario(paraReglas(productos), stock).aCosto,
+      ivaPorPagar: iva?.total ?? 0,
     });
     const tienes: [string, number][] = [
       [t('negocioApp.informes.caja'), b.caja],
@@ -72,6 +75,7 @@ export default function Informe() {
     const debes: [string, number][] = [
       [t('negocioApp.informes.porPagar'), r.porPagar],
       ...b.tarjetas.map((x) => [t('negocioApp.informes.tarjeta', { nombre: tarjetas.find((tj) => tj.id === x.id)?.nombre ?? '' }), Math.max(0, x.deuda)] as [string, number]),
+      ...(iva && iva.total > 0 ? [[t('negocioApp.informes.ivaPorPagar'), iva.total] as [string, number]] : []),
     ];
     filasTexto = [
       ...tienes.map(([a, v]) => [a, conSigno(plata, v)] as [string, string]),
@@ -97,7 +101,9 @@ export default function Informe() {
         </ListaFilas>
         <ListaFilas titulo={t('negocioApp.informes.debes')}>
           {[
-            ...debes.map(([a, v]) => <FilaCifra key={a} titulo={a} valor={plata(v)} />),
+            ...debes.map(([a, v]) => (
+              <FilaCifra key={a} titulo={a} ayuda={iva && a === t('negocioApp.informes.ivaPorPagar') ? t('negocioApp.informes.ivaPorPagarAyuda') : undefined} valor={plata(v)} />
+            )),
             <FilaCifra key="total" titulo={t('negocioApp.informes.total')} valor={plata(b.debes)} fuerte color={b.debes > 0 ? colores.errorTexto : undefined} />,
           ]}
         </ListaFilas>

@@ -105,13 +105,13 @@ describe('cierre del día', () => {
 describe('D6 · IVA en el POS', () => {
   const iva19 = { tarifa: 19, incluido: true };
   it('ejemplo: IVA incluido, 119.000 → base 100.000, IVA 19.000, total 119.000', () => {
-    expect(totalesVenta([{ ...bolso, precio: 119_000 }], null, iva19)).toEqual({ subtotal: 119_000, descuento: 0, base: 100_000, iva: 19_000, total: 119_000 });
+    expect(totalesVenta([{ ...bolso, precio: 119_000 }], null, iva19)).toMatchObject({ subtotal: 119_000, descuento: 0, base: 100_000, iva: 19_000, total: 119_000 });
   });
   it('ejemplo: sumar IVA, 100.000 → IVA 19.000 → total 119.000', () => {
-    expect(totalesVenta([{ ...bolso, precio: 100_000 }], null, { tarifa: 19, incluido: false })).toEqual({ subtotal: 100_000, descuento: 0, base: 100_000, iva: 19_000, total: 119_000 });
+    expect(totalesVenta([{ ...bolso, precio: 100_000 }], null, { tarifa: 19, incluido: false })).toMatchObject({ subtotal: 100_000, descuento: 0, base: 100_000, iva: 19_000, total: 119_000 });
   });
   it('con descuento: el IVA se calcula sobre lo que de verdad paga', () => {
-    expect(totalesVenta([bolso], { tipo: 'porcentaje', valor: 10 }, iva19)).toEqual({ subtotal: 85_000, descuento: 8_500, base: 64_286, iva: 12_214, total: 76_500 });
+    expect(totalesVenta([bolso], { tipo: 'porcentaje', valor: 10 }, iva19)).toMatchObject({ subtotal: 85_000, descuento: 8_500, base: 64_286, iva: 12_214, total: 76_500 });
   });
   it('sin IVA (no responsable): base = total e IVA 0', () => {
     expect(totalesVenta([bolso], null)).toMatchObject({ base: 85_000, iva: 0, total: 85_000 });
@@ -134,5 +134,33 @@ describe('D4b · devolución parcial', () => {
   });
   it('si se devuelve todo, es una devolución completa', () => {
     expect(devolucionParcial({ subtotal: 28_000, descuento: 0, total: 28_000, iva: 0, pagos: [28_000] }, [{ precio: 28_000, cantidad: 1 }])).toMatchObject({ completa: true, reembolso: 28_000 });
+  });
+});
+
+describe('D6b · IVA por producto', () => {
+  const l = (precio: number, tarifaIva?: number | null): LineaCarrito => ({ clave: String(precio), variante: null, nombre: 'x', precio, cantidad: 1, tarifaIva });
+  it('con una sola tarifa da lo mismo que antes', () => {
+    expect(totalesVenta([l(119_000)], null, { tarifa: 19, incluido: true })).toMatchObject({ iva: 19_000, total: 119_000, base: 100_000, porTarifa: [[19, 19_000]] });
+    expect(totalesVenta([l(100_000)], null, { tarifa: 19, incluido: false })).toMatchObject({ iva: 19_000, total: 119_000 });
+  });
+  it('mezcla: un producto al 19%, uno al 5% y uno exento (IVA incluido)', () => {
+    const r = totalesVenta([l(119_000), l(105_000, 5), l(50_000, 0)], null, { tarifa: 19, incluido: true });
+    expect(r.porTarifa).toEqual([
+      [19, 19_000],
+      [5, 5_000],
+    ]);
+    expect(r).toMatchObject({ iva: 24_000, total: 274_000, base: 250_000 });
+  });
+  it('el descuento se reparte antes de sacar el IVA de cada tarifa', () => {
+    // 10% de descuento: 119.000 → 107.100 (IVA 17.100); 105.000 → 94.500 (IVA 4.500).
+    const r = totalesVenta([l(119_000), l(105_000, 5)], { tipo: 'porcentaje', valor: 10 }, { tarifa: 19, incluido: true });
+    expect(r.porTarifa).toEqual([
+      [19, 17_100],
+      [5, 4_500],
+    ]);
+    expect(r.total).toBe(201_600);
+  });
+  it('si el negocio no cobra IVA, nada', () => {
+    expect(totalesVenta([l(105_000, 5)], null, null)).toMatchObject({ iva: 0, total: 105_000, porTarifa: [] });
   });
 });

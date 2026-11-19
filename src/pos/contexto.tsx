@@ -9,6 +9,8 @@ export type Comprobante = Pick<Venta, 'numero' | 'subtotal' | 'descuento' | 'tot
   lineas: { nombre: string; precio: number; cantidad: number }[];
   cliente: string | null;
   celularCliente: string | null;
+  /** D6b · IVA por tarifa cuando hay productos con tarifas distintas: [tarifa, valor]. */
+  porTarifa?: [number, number][];
   /** D4b · Plata ya devuelta por devoluciones parciales. */
   devuelto?: number;
   /** Se guardó sin internet: el número se pone al subirla. */
