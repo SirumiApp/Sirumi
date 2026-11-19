@@ -19,9 +19,10 @@ import { etiquetaDia } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from '@/personal/SelectorPeriodo';
 import { ESPACIO, FUENTES, sombraSuave, useTema } from '@/theme';
+import { SoloSi } from '@/components/SoloSi';
 
 /** Negocio · Caja (spec 03, §4 y §5.2): saldo de cada cuenta (B2), total (B4), tarjetas (B3), mover plata y flujo de caja (B6). */
-export default function Caja() {
+function CajaContenido() {
   const { t } = useTranslation();
   const { colores, oscuro } = useTema();
   const plata = usePlata();
@@ -181,5 +182,13 @@ export default function Caja() {
         />
       )}
     </PantallaApp>
+  );
+}
+
+export default function Caja() {
+  return (
+    <SoloSi parte="negocio">
+      <CajaContenido />
+    </SoloSi>
   );
 }

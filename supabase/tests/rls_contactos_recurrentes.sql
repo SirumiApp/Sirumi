@@ -69,11 +69,13 @@ insert into public.business_members (business_id, user_id, role) select negocio_
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
 insert into r select 'El vendedor ve los contactos del negocio', (select count(*) = 1 from public.contacts);
+insert into public.contacts (business_id, kind, name, data_consent) select negocio_a, 'cliente', 'Del vendedor', true from ctx;
+insert into r select 'El vendedor registra clientes en el POS', (select count(*) = 2 from public.contacts);
 do $$ begin
   begin
-    insert into public.contacts (business_id, kind, name, data_consent) select negocio_a, 'cliente', 'Del vendedor', true from ctx;
-    insert into r values ('El vendedor no crea contactos (todavía; v2)', false);
-  exception when insufficient_privilege then insert into r values ('El vendedor no crea contactos (todavía; v2)', true); end;
+    insert into public.contacts (business_id, kind, name, data_consent) select negocio_a, 'proveedor', 'Prov del vendedor', true from ctx;
+    insert into r values ('El vendedor no registra proveedores', false);
+  exception when insufficient_privilege then insert into r values ('El vendedor no registra proveedores', true); end;
 end $$;
 reset role;
 select * from r;

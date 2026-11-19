@@ -4,13 +4,15 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, View } from 'react-native';
 
-import { actualizarPreferencias, usePerfil } from '@/auth/perfil';
+import { usoDeApp, veNegocio, vePersonal } from '@/auth/modo';
+import { actualizarPerfil, actualizarPreferencias, usePerfil } from '@/auth/perfil';
 import { useSesion } from '@/auth/sesion';
 import { compartirArchivo, todosMisMovimientos } from '@/ajustes/archivos';
 import { cambiarModoEjemplo, useModoEjemplo } from '@/ejemplo/modo';
 import { sonidoActivo } from '@/pos/aviso';
 import { Aviso } from '@/components/Aviso';
 import { BotonApariencia } from '@/components/BotonApariencia';
+import { Chip } from '@/components/Chip';
 import { FilaAjuste } from '@/components/FilaAjuste';
 import { Interruptor } from '@/components/Interruptor';
 import { GrupoAjustes, PantallaAjuste } from '@/components/PantallaAjuste';
@@ -37,6 +39,7 @@ export default function Ajustes() {
   const version = Constants.expoConfig?.version ?? '1.0.0';
   const pais = paisPorCodigo(perfil?.country ?? 'CO');
   const ejemplo = useModoEjemplo();
+  const uso = usoDeApp(perfil?.usage);
   const mostrarIngresos = (perfil?.preferences as { mostrarIngresos?: boolean } | null)?.mostrarIngresos !== false;
 
   async function exportarCsv() {
@@ -72,6 +75,18 @@ export default function Ajustes() {
     <PantallaAjuste titulo={t('ajustes.titulo')}>
       {aviso && <Aviso mensaje={aviso.texto} tipo={aviso.tipo} />}
 
+      {/* Para qué usa Sirumi (lo que eligió en el onboarding): decide si ve Personal, Negocio o las dos */}
+      <GrupoAjustes titulo={t('ajustes.uso.titulo')}>
+        <View style={{ gap: ESPACIO.s, paddingVertical: ESPACIO.s + 4 }}>
+          <Texto variante="pequeno">{t('ajustes.uso.detalle')}</Texto>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: ESPACIO.s }} accessibilityRole="radiogroup">
+            {(['personal', 'negocio', 'ambos'] as const).map((u) => (
+              <Chip key={u} texto={t(`ajustes.uso.${u}`)} elegido={uso === u} onPress={() => sesion && uso !== u && actualizarPerfil(sesion.user.id, { usage: u })} />
+            ))}
+          </View>
+        </View>
+      </GrupoAjustes>
+
       <GrupoAjustes titulo={t('ajustes.secciones.contenido')}>
         <FilaAjuste
           emoji="ojos"
@@ -80,8 +95,13 @@ export default function Ajustes() {
           onPress={() => cambiarModoEjemplo(!ejemplo)}
           derecha={<Interruptor etiqueta={t('ejemplo.ver')} encendido={ejemplo} onCambio={cambiarModoEjemplo} />}
         />
-        <FilaAjuste emoji="aguacate" titulo={t('ajustes.categorias.titulo')} detalle={t('ajustes.categorias.detalle')} onPress={() => router.push('/ajustes/categorias')} />
-        <FilaAjuste emoji="bolsa-de-dinero" titulo={t('ajustes.topes.titulo')} detalle={t('ajustes.topes.detalle')} onPress={() => router.navigate('/topes')} />
+        {vePersonal(uso) && (
+          <>
+            <FilaAjuste emoji="aguacate" titulo={t('ajustes.categorias.titulo')} detalle={t('ajustes.categorias.detalle')} onPress={() => router.push('/ajustes/categorias')} />
+            <FilaAjuste emoji="bolsa-de-dinero" titulo={t('ajustes.topes.titulo')} detalle={t('ajustes.topes.detalle')} onPress={() => router.navigate('/topes')} />
+          </>
+        )}
+        {veNegocio(uso) && (
         <FilaAjuste
           emoji="campana"
           titulo={t('pos.ajustes.sonido')}
@@ -94,6 +114,8 @@ export default function Ajustes() {
             />
           }
         />
+        )}
+        {vePersonal(uso) && (
         <FilaAjuste
           emoji="mas"
           titulo={t('ajustes.mostrarIngresos.titulo')}
@@ -106,6 +128,7 @@ export default function Ajustes() {
             />
           }
         />
+        )}
         <FilaAjuste emoji="grafico-de-barras" titulo={t('ajustes.exportar.titulo')} detalle={t('ajustes.exportar.detalle')} onPress={exportarCsv} />
       </GrupoAjustes>
 

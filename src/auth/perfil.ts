@@ -62,7 +62,7 @@ export async function actualizarPreferencias(idUsuario: string, actuales: unknow
 }
 
 /** Cambia datos del perfil (país, moneda…) y avisa a las pantallas. */
-export async function actualizarPerfil(idUsuario: string, cambios: { country?: string; currency?: string }) {
+export async function actualizarPerfil(idUsuario: string, cambios: { country?: string; currency?: string; usage?: 'personal' | 'negocio' | 'ambos' }) {
   const resultado = await supabase.from('profiles').update(cambios).eq('id', idUsuario);
   avisarCambioPerfil();
   return resultado;

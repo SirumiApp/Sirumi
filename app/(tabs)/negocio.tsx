@@ -22,9 +22,10 @@ import { etiquetaDia } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from '@/personal/SelectorPeriodo';
 import { ALTO_TOCABLE, COLORES_CATEGORIA, ESPACIO, FUENTES, PALETA, sombraSuave, useTema } from '@/theme';
+import { SoloSi } from '@/components/SoloSi';
 
 /** Negocio · Resumen (docs/specs/03-negocio.md, §2): ¿estoy ganando plata? */
-export default function ResumenNegocio() {
+function ResumenNegocioContenido() {
   const { t } = useTranslation();
   const { colores, oscuro } = useTema();
   const plata = usePlata();
@@ -305,5 +306,13 @@ export default function ResumenNegocio() {
         )}
       </View>
     </PantallaApp>
+  );
+}
+
+export default function ResumenNegocio() {
+  return (
+    <SoloSi parte="negocio">
+      <ResumenNegocioContenido />
+    </SoloSi>
   );
 }

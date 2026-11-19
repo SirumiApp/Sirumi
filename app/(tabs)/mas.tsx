@@ -7,9 +7,10 @@ import { GrupoAjustes } from '@/components/PantallaAjuste';
 import { PantallaApp } from '@/components/PantallaApp';
 import { Texto } from '@/components/Texto';
 import { ESPACIO } from '@/theme';
+import { SoloSi } from '@/components/SoloSi';
 
 /** Negocio · Más (spec 03, §5): informes y lo que arma el negocio. */
-export default function Mas() {
+function MasContenido() {
   const { t } = useTranslation();
   return (
     <PantallaApp>
@@ -37,5 +38,13 @@ export default function Mas() {
         <FilaAjuste emoji="repetir" titulo={t('negocioApp.informes.recurrentes')} detalle={t('recurrentes.detalle')} onPress={() => router.push('/recurrentes')} />
       </GrupoAjustes>
     </PantallaApp>
+  );
+}
+
+export default function Mas() {
+  return (
+    <SoloSi parte="negocio">
+      <MasContenido />
+    </SoloSi>
   );
 }

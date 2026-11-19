@@ -124,24 +124,84 @@ export type Database = {
           },
         ]
       }
+      business_invites: {
+        Row: {
+          business_id: string
+          code: string
+          created_at: string
+          created_by: string | null
+          display_name: string
+          expires_at: string
+          id: string
+          used_at: string | null
+          used_by: string | null
+          warehouse_id: string | null
+        }
+        Insert: {
+          business_id: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          display_name: string
+          expires_at?: string
+          id?: string
+          used_at?: string | null
+          used_by?: string | null
+          warehouse_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          display_name?: string
+          expires_at?: string
+          id?: string
+          used_at?: string | null
+          used_by?: string | null
+          warehouse_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_invites_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_invites_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_members: {
         Row: {
           business_id: string
           created_at: string
+          display_name: string | null
           role: string
           user_id: string
+          warehouse_id: string | null
         }
         Insert: {
           business_id: string
           created_at?: string
+          display_name?: string | null
           role: string
           user_id: string
+          warehouse_id?: string | null
         }
         Update: {
           business_id?: string
           created_at?: string
+          display_name?: string | null
           role?: string
           user_id?: string
+          warehouse_id?: string | null
         }
         Relationships: [
           {
@@ -149,6 +209,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_members_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
             referencedColumns: ["id"]
           },
         ]
@@ -1205,11 +1272,16 @@ export type Database = {
       abonar_meta: { Args: { meta: string; monto: number }; Returns: number }
       cobrar_venta: { Args: { datos: Json }; Returns: Json }
       completar_onboarding: { Args: { datos: Json }; Returns: undefined }
+      configuracion_de_negocio: { Args: { negocio: string }; Returns: Json }
       contacto_del_negocio: {
         Args: { contacto: string; negocio: string }
         Returns: boolean
       }
       crear_categorias_iniciales: { Args: never; Returns: undefined }
+      crear_invitacion: {
+        Args: { bodega?: string; negocio: string; nombre: string }
+        Returns: string
+      }
       crear_negocio: {
         Args: { ciudad?: string; nombre: string; tipo?: string }
         Returns: {
@@ -1235,6 +1307,15 @@ export type Database = {
       cuenta_del_negocio: {
         Args: { cuenta: string; negocio: string }
         Returns: boolean
+      }
+      cuentas_para_vender: {
+        Args: { negocio: string }
+        Returns: {
+          id: string
+          is_main: boolean
+          kind: string
+          name: string
+        }[]
       }
       deshacer_movimiento_inventario: {
         Args: { movimiento: string }
@@ -1264,10 +1345,15 @@ export type Database = {
       quitar_bodega: { Args: { bodega: string }; Returns: undefined }
       quitar_cuenta_negocio: { Args: { cuenta: string }; Returns: number }
       quitar_variante: { Args: { variante: string }; Returns: undefined }
+      quitar_vendedor: {
+        Args: { negocio: string; usuario: string }
+        Returns: undefined
+      }
       recurrente_del_negocio: {
         Args: { negocio: string; recurrente: string }
         Returns: boolean
       }
+      revisar_codigo: { Args: { codigo: string }; Returns: string }
       tarjeta_del_negocio: {
         Args: { negocio: string; tarjeta: string }
         Returns: boolean
@@ -1281,6 +1367,7 @@ export type Database = {
         }
         Returns: string
       }
+      unirse_con_codigo: { Args: { codigo: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

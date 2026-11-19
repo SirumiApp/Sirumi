@@ -20,11 +20,12 @@ import { rangoCorto } from '@/personal/etiquetas';
 import { usePlata, useTextosFecha } from '@/personal/ganchos';
 import { periodoDe, SelectorPeriodo, type EleccionPeriodo } from '@/personal/SelectorPeriodo';
 import { COLORES_DE_CADA_100, COLORES_GRAFICA, ESPACIO, FUENTES, useTema } from '@/theme';
+import { SoloSi } from '@/components/SoloSi';
 
 const pct = (v: number) => String(Math.round(v * 10) / 10).replace('.', ',');
 
 /** Negocio · Resultados (spec 03, §5.1, §5.4 y §5.8): estado de resultados, de cada $100, impuestos y equilibrio. */
-export default function Resultados() {
+function ResultadosContenido() {
   const { t } = useTranslation();
   const { colores, oscuro } = useTema();
   const plata = usePlata();
@@ -239,5 +240,13 @@ export default function Resultados() {
         )}
       </Tarjeta>
     </PantallaApp>
+  );
+}
+
+export default function Resultados() {
+  return (
+    <SoloSi parte="negocio">
+      <ResultadosContenido />
+    </SoloSi>
   );
 }

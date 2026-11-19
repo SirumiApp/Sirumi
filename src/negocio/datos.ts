@@ -35,7 +35,16 @@ export type Configuracion = {
   arranque_listo?: boolean;
 };
 
-export type Negocio = { id: string; nombre: string; regimen: Regimen | null; configuracion: Configuracion };
+export type Negocio = {
+  id: string;
+  nombre: string;
+  regimen: Regimen | null;
+  configuracion: Configuracion;
+  /** Dueño o vendedor (el vendedor solo ve el POS y sus ventas). */
+  rol: 'owner' | 'seller';
+  /** Bodega desde donde vende un vendedor (si el dueño le asignó una). */
+  bodegaAsignada: string | null;
+};
 export type Cuenta = { id: string; nombre: string; tipo: 'banco' | 'billetera' | 'efectivo'; saldoInicial: number; principal: boolean };
 export type Tarjeta = { id: string; nombre: string; cupo: number; deudaInicial: number };
 export type TipoDocumento = 'cedula' | 'nit' | 'ce' | 'pasaporte';
@@ -68,6 +77,20 @@ export type DatosNegocio = DatosInventario & {
 
 const VACIO: DatosNegocio = { negocio: null, cuentas: [], tarjetas: [], movimientos: [], traslados: [], contactos: [], recurrentes: [], bodegas: [], productos: [], stock: [], ventas: [], formasPago: [], cargando: true };
 
+type FilaContacto = { id: string; kind: string; name: string; doc_type: string | null; doc_number: string | null; phone: string | null; email: string | null; address: string | null; city: string | null; notes: string | null };
+const aContacto = (c: FilaContacto): Contacto => ({
+  id: c.id,
+  tipo: c.kind as Contacto['tipo'],
+  nombre: c.name,
+  tipoDocumento: (c.doc_type as TipoDocumento | null) ?? null,
+  documento: c.doc_number ?? '',
+  celular: c.phone ?? '',
+  correo: c.email ?? '',
+  direccion: c.address ?? '',
+  ciudad: c.city ?? '',
+  notas: c.notes ?? '',
+});
+
 /** El negocio de la persona (el primero donde es dueña) con todo lo necesario para las reglas B. */
 export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => void } {
   const { sesion } = useSesion();
@@ -76,15 +99,48 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
 
   const cargar = useCallback(async () => {
     if (!idUsuario) return;
+    // Primero el negocio donde es dueño ('owner' va antes que 'seller'); si no, donde vende.
     const { data: miembro } = await supabase
       .from('business_members')
-      .select('business_id, role, businesses(id, name, tax_regime, setup)')
+      .select('business_id, role, warehouse_id, businesses(id, name)')
       .eq('user_id', idUsuario)
+      .order('role')
       .order('created_at')
       .limit(1)
       .maybeSingle();
-    const b = miembro?.businesses as { id: string; name: string; tax_regime: string | null; setup: Json } | null | undefined;
-    if (!b) return setDatos({ ...VACIO, cargando: false });
+    const b = miembro?.businesses as { id: string; name: string } | null | undefined;
+    if (!miembro || !b) return setDatos({ ...VACIO, cargando: false });
+    const rol = miembro.role === 'seller' ? 'seller' : 'owner';
+    // La configuración (ventas, gastos, régimen) solo la ve completa el dueño.
+    const { data: conf } = await supabase.rpc('configuracion_de_negocio', { negocio: b.id });
+    const config = (conf ?? {}) as { setup?: Json; tax_regime?: string | null };
+    const negocio: Negocio = {
+      id: b.id,
+      nombre: b.name,
+      regimen: (config.tax_regime as Regimen | null) ?? null,
+      configuracion: (config.setup ?? {}) as Configuracion,
+      rol,
+      bodegaAsignada: miembro.warehouse_id,
+    };
+
+    if (rol === 'seller') {
+      // El vendedor: productos, stock, clientes, formas de pago, cuentas para cobrar (sin saldos) y sus ventas.
+      const [cuentas, contactos, inventario, pos] = await Promise.all([
+        supabase.rpc('cuentas_para_vender', { negocio: b.id }),
+        supabase.from('contacts').select('id, kind, name, doc_type, doc_number, phone, email, address, city, notes').eq('business_id', b.id).eq('kind', 'cliente').order('name'),
+        cargarInventario(b.id),
+        cargarPos(b.id),
+      ]);
+      return setDatos({
+        ...VACIO,
+        negocio,
+        cuentas: (cuentas.data ?? []).map((c) => ({ id: c.id, nombre: c.name, tipo: c.kind as Cuenta['tipo'], saldoInicial: 0, principal: c.is_main })),
+        contactos: (contactos.data ?? []).map(aContacto),
+        ...inventario,
+        ...pos,
+        cargando: false,
+      });
+    }
 
     const [cuentas, tarjetas, movimientos, traslados, contactos, recurrentes, inventario, pos] = await Promise.all([
       supabase.from('accounts').select('id, name, kind, initial_balance, is_main').eq('business_id', b.id).order('created_at'),
@@ -103,7 +159,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
     ]);
 
     setDatos({
-      negocio: { id: b.id, nombre: b.name, regimen: (b.tax_regime as Regimen | null) ?? null, configuracion: (b.setup ?? {}) as Configuracion },
+      negocio,
       cuentas: (cuentas.data ?? []).map((c) => ({
         id: c.id,
         nombre: c.name,
@@ -126,18 +182,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
         venta: m.sale_id,
       })),
       traslados: (traslados.data ?? []).map((t) => ({ id: t.id, fecha: t.date, desde: t.from_account, haciaCuenta: t.to_account, haciaTarjeta: t.to_card, monto: t.amount, nota: t.note })),
-      contactos: (contactos.data ?? []).map((c) => ({
-        id: c.id,
-        tipo: c.kind as Contacto['tipo'],
-        nombre: c.name,
-        tipoDocumento: (c.doc_type as TipoDocumento | null) ?? null,
-        documento: c.doc_number ?? '',
-        celular: c.phone ?? '',
-        correo: c.email ?? '',
-        direccion: c.address ?? '',
-        ciudad: c.city ?? '',
-        notas: c.notes ?? '',
-      })),
+      contactos: (contactos.data ?? []).map(aContacto),
       recurrentes: (recurrentes.data ?? []).map((r) => ({
         id: r.id,
         nombre: r.name,
@@ -167,7 +212,7 @@ export function useDatosNegocio(version = 0): DatosNegocio & { recargar: () => v
     const pos = ventasPosEjemplo(hoy, movimientosNegocioEjemplo(hoy));
     const tx = (s: string | null | undefined) => (esTextoEjemplo(s) ? (t(s as never) as string) : (s ?? null));
     return {
-      negocio: { ...NEGOCIO_EJEMPLO, nombre: tx(NEGOCIO_EJEMPLO.nombre) ?? '' },
+      negocio: { ...NEGOCIO_EJEMPLO, nombre: tx(NEGOCIO_EJEMPLO.nombre) ?? '', rol: 'owner', bodegaAsignada: null },
       cuentas: CUENTAS_EJEMPLO.map((c) => ({ ...c, nombre: tx(c.nombre) ?? '' })),
       tarjetas: TARJETAS_EJEMPLO,
       movimientos: pos.movimientos.map((m) => ({ ...m, concepto: tx(m.concepto) })),

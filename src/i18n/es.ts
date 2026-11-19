@@ -867,6 +867,13 @@ export const es = {
   },
   ajustes: {
     titulo: 'Ajustes',
+    uso: {
+      titulo: '¿Para qué usas Sirumi?',
+      detalle: 'Solo ves lo que usas. Puedes cambiarlo cuando quieras.',
+      personal: 'Mi plata personal',
+      negocio: 'Mi negocio',
+      ambos: 'Las dos',
+    },
     secciones: { contenido: 'Contenido', region: 'Idioma y región', cuenta: 'Tu cuenta', mas: 'Más' },
     categorias: { titulo: 'Editar categorías', detalle: 'Crea, renombra u oculta tus categorías' },
     topes: { titulo: 'Topes', detalle: 'Un límite al mes por categoría y sus alertas' },

@@ -49,7 +49,7 @@ reset role;
 insert into public.business_members (business_id, user_id, role) select negocio, '00000000-0000-0000-0000-00000000000c', 'seller' from ctx;
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}';
-insert into r select 'El vendedor ve los movimientos del negocio', (select count(*) = 3 from public.movements);
+insert into r select 'El vendedor NO ve la plata del negocio (solo el dueño)', (select count(*) = 0 from public.movements);
 do $$ begin
   begin
     insert into public.movements (owner_type, business_id, date, kind, amount, account_id) select 'negocio', negocio, '2026-11-12', 'retiro', 1000, davi from ctx;

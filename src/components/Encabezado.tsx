@@ -2,10 +2,12 @@ import { router, usePathname } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 
+import { useUsoApp } from '@/auth/modo';
 import { BandaEjemplo } from '@/ejemplo/BandaEjemplo';
 import { ALTO_TOCABLE, ESPACIO, FUENTES, sombraSuave, useTema } from '@/theme';
 
 import { Icono, type NombreIcono } from './Icono';
+import { Logo } from './Logo';
 import { Texto } from './Texto';
 
 /** Rutas de negocio: con ellas el interruptor de arriba queda en "Negocio". */
@@ -44,6 +46,7 @@ export function Encabezado() {
   const { colores, oscuro, cambiarApariencia } = useTema();
   const ruta = usePathname();
   const enNegocio = RUTAS_NEGOCIO.some((r) => ruta.startsWith(r));
+  const uso = useUsoApp() ?? 'ambos';
 
   const opcion = (activa: boolean, texto: string, destino: '/' | '/negocio') => (
     <Pressable
@@ -66,12 +69,17 @@ export function Encabezado() {
   return (
     <View style={{ gap: ESPACIO.s + 4 }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: ESPACIO.s }}>
-      <View
-        accessibilityRole="tablist"
-        style={[{ flexDirection: 'row', padding: 4, borderRadius: 999, backgroundColor: colores.tarjeta }, sombraSuave(oscuro)]}>
-        {opcion(!enNegocio, t('pestanas.personal'), '/')}
-        {opcion(enNegocio, t('pestanas.negocio'), '/negocio')}
-      </View>
+      {uso === 'ambos' ? (
+        <View
+          accessibilityRole="tablist"
+          style={[{ flexDirection: 'row', padding: 4, borderRadius: 999, backgroundColor: colores.tarjeta }, sombraSuave(oscuro)]}>
+          {opcion(!enNegocio, t('pestanas.personal'), '/')}
+          {opcion(enNegocio, t('pestanas.negocio'), '/negocio')}
+        </View>
+      ) : (
+        // Si usa solo una parte, no hay interruptor: va la marca.
+        <Logo tamano={26} />
+      )}
       <View style={{ flex: 1 }} />
       <BotonRedondo icono="ajustes" etiqueta={t('navegacion.ajustes')} onPress={() => router.push('/ajustes')} />
       <BotonRedondo icono={oscuro ? 'sol' : 'luna'} etiqueta={t('navegacion.cambiarModo')} onPress={() => cambiarApariencia(oscuro ? 'claro' : 'oscuro')} />

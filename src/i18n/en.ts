@@ -866,6 +866,13 @@ export const en: Traducciones = {
   },
   ajustes: {
     titulo: 'Settings',
+    uso: {
+      titulo: 'What do you use Sirumi for?',
+      detalle: 'You only see what you use. You can change it anytime.',
+      personal: 'My personal money',
+      negocio: 'My business',
+      ambos: 'Both',
+    },
     secciones: { contenido: 'Content', region: 'Language and region', cuenta: 'Your account', mas: 'More' },
     categorias: { titulo: 'Edit categories', detalle: 'Create, rename or hide your categories' },
     topes: { titulo: 'Limits', detalle: 'A monthly limit per category and its alerts' },
